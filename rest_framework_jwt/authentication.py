@@ -1,12 +1,11 @@
-import jwt
-
 from django.contrib.auth.models import User
 from django.conf import settings
 from rest_framework import exceptions
 from rest_framework.authentication import (BaseAuthentication,
                                            get_authorization_header)
 
-from .settings import api_settings
+from rest_framework_jwt.settings import api_settings
+from rest_framework_jwt import jwt
 
 
 jwt_decode_handler = api_settings.DEFAULT_JWT_DECODE_HANDLER

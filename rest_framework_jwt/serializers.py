@@ -1,10 +1,9 @@
-import jwt
-
 from django.contrib.auth import authenticate
 from django.conf import settings
 from rest_framework import serializers
 
-from .settings import api_settings
+from rest_framework_jwt.settings import api_settings
+from rest_framework_jwt import jwt
 
 
 jwt_payload_handler = api_settings.DEFAULT_JWT_PAYLOAD_HANDLER

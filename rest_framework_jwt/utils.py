@@ -1,7 +1,7 @@
-import jwt
 import datetime
 
-from .settings import api_settings
+from rest_framework_jwt.settings import api_settings
+from rest_framework_jwt import jwt
 
 
 def jwt_payload_handler(user):
