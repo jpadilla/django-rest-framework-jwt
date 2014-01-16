@@ -1,5 +1,7 @@
 # Django REST framework JWT Auth
 
+[![Build Status](https://travis-ci.org/GetBlimp/django-rest-framework-jwt.png?branch=master)](https://travis-ci.org/GetBlimp/django-rest-framework-jwt)
+
 ## Overview
 This package provides [JSON Web Token Authentication](http://tools.ietf.org/html/draft-ietf-oauth-json-web-token) support for [Django REST framework](http://django-rest-framework.org/).
 
@@ -9,7 +11,7 @@ If you want to read more about JWT, here's a great blog post by the guys at Auth
 
 Install using `pip`...
 
-```	
+```
 $ pip install djangorestframework-jwt
 ```
 
@@ -36,7 +38,7 @@ In your `urls.py` add the following URL route to enable obtaining a token via a 
 urlpatterns = patterns(
     '',
     # ...
-	
+
     url(r'^api-token-auth/', 'rest_framework_jwt.views.obtain_jwt_token'),
 )
 ```
@@ -87,10 +89,10 @@ Possible values:
 > * RS384 - RSASSA-PKCS1-v1_5 signature algorithm using SHA-384 hash algorithm
 > * RS512 - RSASSA-PKCS1-v1_5 signature algorithm using SHA-512 hash algorithm
 
-Note: 
+Note:
 > For the RSASSA-PKCS1-v1_5 algorithms, the "secret" argument in jwt.encode is supposed to be a private RSA key as
 > imported with Crypto.PublicKey.RSA.importKey. Likewise, the "secret" argument in jwt.decode is supposed to be the
-> public RSA key imported with the same method. 
+> public RSA key imported with the same method.
 
 Default is `"HS256"`.
 
