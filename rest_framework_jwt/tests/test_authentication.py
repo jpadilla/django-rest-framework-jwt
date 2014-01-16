@@ -51,7 +51,7 @@ class JSONWebTokenAuthenticationTests(TestCase):
         payload = utils.jwt_payload_handler(self.user)
         token = utils.jwt_encode_handler(payload)
 
-        auth = 'Bearer {}'.format(token)
+        auth = 'Bearer {0}'.format(token)
         response = self.csrf_client.post(
             '/jwt/', {'example': 'example'}, HTTP_AUTHORIZATION=auth)
 
@@ -65,7 +65,7 @@ class JSONWebTokenAuthenticationTests(TestCase):
         payload = utils.jwt_payload_handler(self.user)
         token = utils.jwt_encode_handler(payload)
 
-        auth = 'Bearer {}'.format(token)
+        auth = 'Bearer {0}'.format(token)
         response = self.csrf_client.post(
             '/jwt/', {'example': 'example'},
             HTTP_AUTHORIZATION=auth, format='json')
@@ -127,7 +127,7 @@ class JSONWebTokenAuthenticationTests(TestCase):
         payload['exp'] = 1
         token = utils.jwt_encode_handler(payload)
 
-        auth = 'Bearer {}'.format(token)
+        auth = 'Bearer {0}'.format(token)
         response = self.csrf_client.post(
             '/jwt/', {'example': 'example'},
             HTTP_AUTHORIZATION=auth, format='json')
