@@ -1,3 +1,4 @@
-PyJWT>=0.1.6
 Django>=1.3
 djangorestframework>=2.3.10
+-e git+https://github.com/progrium/pyjwt.git@6b1e5e0eba5872c48bb78fa3555abc4f47239d73#egg=PyJWT-master
+djangorestframework==2.3.11
