@@ -26,7 +26,8 @@ class UtilsTests(TestCase):
         payload = utils.jwt_payload_handler(self.user)
         token = utils.jwt_encode_handler(payload)
 
-        payload_from_token = json.loads(base64url_decode(token.split('.')[1]))
+        payload_data = base64url_decode(token.split('.')[1])
+        payload_from_token = json.loads(payload_data.decode('utf-8'))
 
         self.assertTrue(isinstance(token, str))
         self.assertEqual(payload_from_token, payload)
