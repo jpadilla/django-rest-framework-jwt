@@ -1,4 +1,3 @@
-from django.contrib.auth.models import User
 from django.conf import settings
 from rest_framework import exceptions
 from rest_framework.authentication import (BaseAuthentication,
@@ -6,6 +5,13 @@ from rest_framework.authentication import (BaseAuthentication,
 
 from rest_framework_jwt.settings import api_settings
 from rest_framework_jwt import jwt
+
+try:
+    from django.contrib.auth import get_user_model
+except ImportError: # django < 1.5
+    from django.contrib.auth.models import User as UserModel
+else:
+    UserModel = get_user_model()
 
 
 jwt_decode_handler = api_settings.DEFAULT_JWT_DECODE_HANDLER
@@ -60,8 +66,8 @@ class JSONWebTokenAuthentication(BaseAuthentication):
         Returns an active user that matches the payload's user id and email.
         """
         try:
-            user = User.objects.get(pk=user_id, email=email, is_active=True)
-        except User.DoesNotExist:
+            user = UserModel.objects.get(pk=user_id, email=email, is_active=True)
+        except UserModel.DoesNotExist:
             msg = 'Invalid signature'
             raise exceptions.AuthenticationFailed(msg)
 
