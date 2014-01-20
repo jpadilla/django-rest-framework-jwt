@@ -9,7 +9,7 @@ import sys
 
 name = 'djangorestframework-jwt'
 package = 'rest_framework_jwt'
-description = ''
+description = 'JSON Web Token based authentication for Django REST framework'
 url = 'https://github.com/GetBlimp/django-rest-framework-jwt'
 author = 'Jose Padilla'
 author_email = 'jpadilla@getblimp.com'
