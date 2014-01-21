@@ -1,6 +1,6 @@
 # Django REST framework JWT Auth
 
-[![Build Status](https://travis-ci.org/GetBlimp/django-rest-framework-jwt.png?branch=master)](https://travis-ci.org/GetBlimp/django-rest-framework-jwt)
+[![Build Status](https://travis-ci.org/GetBlimp/django-rest-framework-jwt.png?branch=master)](https://travis-ci.org/GetBlimp/django-rest-framework-jwt) [![PyPI version](https://badge.fury.io/py/djangorestframework-jwt.png)](http://badge.fury.io/py/djangorestframework-jwt)
 
 ## Overview
 This package provides [JSON Web Token Authentication](http://tools.ietf.org/html/draft-ietf-oauth-json-web-token) support for [Django REST framework](http://django-rest-framework.org/).
