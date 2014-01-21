@@ -1,6 +1,3 @@
-import base64
-import json
-
 from django.test import TestCase
 from django.contrib.auth.models import User
 from rest_framework import status
@@ -20,7 +17,6 @@ class ObtainJSONWebTokenTests(TestCase):
     urls = 'rest_framework_jwt.tests.test_views'
 
     def setUp(self):
-        self.csrf_client = APIClient(enforce_csrf_checks=True)
         self.email = 'jpueblo@example.com'
         self.username = 'jpueblo'
         self.password = 'password'

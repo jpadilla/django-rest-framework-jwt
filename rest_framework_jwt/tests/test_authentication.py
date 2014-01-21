@@ -1,6 +1,3 @@
-import base64
-import json
-
 from django.test import TestCase
 from django.http import HttpResponse
 from django.contrib.auth.models import User

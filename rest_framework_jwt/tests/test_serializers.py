@@ -1,11 +1,7 @@
-import json
-
 from django.test import TestCase
 from django.contrib.auth.models import User
-from rest_framework import status
 
 from rest_framework_jwt.serializers import JSONWebTokenSerializer
-from rest_framework_jwt.jwt import base64url_decode
 from rest_framework_jwt import utils
 
 
