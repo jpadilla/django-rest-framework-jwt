@@ -45,8 +45,14 @@ urlpatterns = patterns(
 
 You can easily test if the endpoint is working by doing the following in your terminal, if you had a user created with the username **admin** and password **abc123**.
 
-```
+```bash
 $ curl -X POST -d "username=admin&password=abc123" http://localhost:8000/api-token-auth/
+```
+
+Now in order to access protected api urls you must include the `Authorization: JWT <your_token>` header.
+
+```bash
+$ curl -H "Authorization: JWT <your_token>" http://localhost:8000/protected-url/
 ```
 
 ## Additional Settings
