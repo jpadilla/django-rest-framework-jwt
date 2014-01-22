@@ -23,6 +23,17 @@ INSTALLED_APPS = (
     'django.contrib.staticfiles',
 )
 
+# OAuth2 is optional and won't work if there is no provider & oauth2
+try:
+    import provider
+except ImportError:
+    pass
+else:
+    INSTALLED_APPS += (
+        'provider',
+        'provider.oauth2',
+    )
+
 MIDDLEWARE_CLASSES = (
     'django.contrib.sessions.middleware.SessionMiddleware',
     'django.middleware.common.CommonMiddleware',
