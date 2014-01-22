@@ -1,13 +1,17 @@
-from django.test import TestCase
-from django.http import HttpResponse
 from django.contrib.auth.models import User
+from django.http import HttpResponse
+from django.test import TestCase
+from django.utils import unittest
+
 from rest_framework import permissions, status
+from rest_framework.authentication import OAuth2Authentication
+from rest_framework.compat import oauth2_provider, oauth2_provider_models
 from rest_framework.compat import patterns
 from rest_framework.test import APIRequestFactory, APIClient
 from rest_framework.views import APIView
 
-from rest_framework_jwt.authentication import JSONWebTokenAuthentication
 from rest_framework_jwt import utils
+from rest_framework_jwt.authentication import JSONWebTokenAuthentication
 
 
 factory = APIRequestFactory()
@@ -27,6 +31,10 @@ urlpatterns = patterns(
     '',
     (r'^jwt/$', MockView.as_view(
      authentication_classes=[JSONWebTokenAuthentication])),
+    (r'^jwt-oauth2/$', MockView.as_view(
+     authentication_classes=[JSONWebTokenAuthentication, OAuth2Authentication])),
+    (r'^oauth2-jwt/$', MockView.as_view(
+     authentication_classes=[OAuth2Authentication, JSONWebTokenAuthentication])),
 )
 
 
@@ -149,3 +157,43 @@ class JSONWebTokenAuthenticationTests(TestCase):
         self.assertEqual(response.data['detail'], msg)
         self.assertEqual(response.status_code, status.HTTP_401_UNAUTHORIZED)
         self.assertEqual(response['WWW-Authenticate'], 'Bearer realm="api"')
+
+    @unittest.skipUnless(oauth2_provider, 'django-oauth2-provider not installed')
+    def test_post_passing_jwt_auth_with_oauth2_priority(self):
+        """
+        Ensure POSTing over JWT auth with correct credentials
+        passes and does not require CSRF when OAuth2Authentication
+        has priority on authentication_classes
+        """
+        payload = utils.jwt_payload_handler(self.user)
+        token = utils.jwt_encode_handler(payload)
+
+        auth = 'Bearer {0}'.format(token)
+        response = self.csrf_client.post(
+            '/oauth2-jwt/', {'example': 'example'},
+            HTTP_AUTHORIZATION=auth, format='json')
+
+        self.assertEqual(response.status_code, status.HTTP_200_OK, response)
+
+    @unittest.skipUnless(oauth2_provider, 'django-oauth2-provider not installed')
+    def test_post_passing_oauth2_with_jwt_auth_priority(self):
+        """
+        Ensure POSTing over OAuth2 with correct credentials
+        passes and does not require CSRF when JSONWebTokenAuthentication
+        has priority on authentication_classes
+        """
+        oauth2_client = oauth2_provider_models.Client.objects.create(
+            user=self.user,
+            client_type=0,
+        )
+        access_token = oauth2_provider_models.AccessToken.objects.create(
+            user=self.user,
+            client=oauth2_client,
+        )
+
+        auth = 'Bearer {0}'.format(access_token.token)
+        response = self.csrf_client.post(
+            '/jwt-oauth2/', {'example': 'example'},
+            HTTP_AUTHORIZATION=auth, format='json')
+
+        self.assertEqual(response.status_code, status.HTTP_200_OK, response)
