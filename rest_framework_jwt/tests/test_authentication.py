@@ -14,6 +14,8 @@ from rest_framework_jwt import utils
 from rest_framework_jwt.authentication import JSONWebTokenAuthentication
 
 
+DJANGO_OAUTH2_PROVIDER_NOT_INSTALLED = 'django-oauth2-provider not installed'
+
 factory = APIRequestFactory()
 
 
@@ -31,10 +33,14 @@ urlpatterns = patterns(
     '',
     (r'^jwt/$', MockView.as_view(
      authentication_classes=[JSONWebTokenAuthentication])),
+
     (r'^jwt-oauth2/$', MockView.as_view(
-     authentication_classes=[JSONWebTokenAuthentication, OAuth2Authentication])),
+        authentication_classes=[
+            JSONWebTokenAuthentication, OAuth2Authentication])),
+
     (r'^oauth2-jwt/$', MockView.as_view(
-     authentication_classes=[OAuth2Authentication, JSONWebTokenAuthentication])),
+        authentication_classes=[
+            OAuth2Authentication, JSONWebTokenAuthentication])),
 )
 
 
@@ -56,7 +62,7 @@ class JSONWebTokenAuthenticationTests(TestCase):
         payload = utils.jwt_payload_handler(self.user)
         token = utils.jwt_encode_handler(payload)
 
-        auth = 'Bearer {0}'.format(token)
+        auth = 'JWT {0}'.format(token)
         response = self.csrf_client.post(
             '/jwt/', {'example': 'example'}, HTTP_AUTHORIZATION=auth)
 
@@ -70,7 +76,7 @@ class JSONWebTokenAuthenticationTests(TestCase):
         payload = utils.jwt_payload_handler(self.user)
         token = utils.jwt_encode_handler(payload)
 
-        auth = 'Bearer {0}'.format(token)
+        auth = 'JWT {0}'.format(token)
         response = self.csrf_client.post(
             '/jwt/', {'example': 'example'},
             HTTP_AUTHORIZATION=auth, format='json')
@@ -91,38 +97,38 @@ class JSONWebTokenAuthenticationTests(TestCase):
         response = self.csrf_client.post('/jwt/', {'example': 'example'},
                                          format='json')
         self.assertEqual(response.status_code, status.HTTP_401_UNAUTHORIZED)
-        self.assertEqual(response['WWW-Authenticate'], 'Bearer realm="api"')
+        self.assertEqual(response['WWW-Authenticate'], 'JWT realm="api"')
 
-    def test_post_no_bearer_failing_jwt_auth(self):
+    def test_post_no_jwt_header_failing_jwt_auth(self):
         """
         Ensure POSTing over JWT auth without credentials fails
         """
-        auth = 'Bearer'
+        auth = 'JWT'
         response = self.csrf_client.post(
             '/jwt/', {'example': 'example'},
             HTTP_AUTHORIZATION=auth, format='json')
 
-        msg = 'Invalid bearer header. No credentials provided.'
+        msg = 'Invalid JWT header. No credentials provided.'
 
         self.assertEqual(response.data['detail'], msg)
         self.assertEqual(response.status_code, status.HTTP_401_UNAUTHORIZED)
-        self.assertEqual(response['WWW-Authenticate'], 'Bearer realm="api"')
+        self.assertEqual(response['WWW-Authenticate'], 'JWT realm="api"')
 
-    def test_post_invalid_bearer_failing_jwt_auth(self):
+    def test_post_invalid_jwt_header_failing_jwt_auth(self):
         """
         Ensure POSTing over JWT auth without correct credentials fails
         """
-        auth = 'Bearer abc abc'
+        auth = 'JWT abc abc'
         response = self.csrf_client.post(
             '/jwt/', {'example': 'example'},
             HTTP_AUTHORIZATION=auth, format='json')
 
-        msg = ('Invalid bearer header. Credentials string '
+        msg = ('Invalid JWT header. Credentials string '
                'should not contain spaces.')
 
         self.assertEqual(response.data['detail'], msg)
         self.assertEqual(response.status_code, status.HTTP_401_UNAUTHORIZED)
-        self.assertEqual(response['WWW-Authenticate'], 'Bearer realm="api"')
+        self.assertEqual(response['WWW-Authenticate'], 'JWT realm="api"')
 
     def test_post_expired_token_failing_jwt_auth(self):
         """
@@ -132,7 +138,7 @@ class JSONWebTokenAuthenticationTests(TestCase):
         payload['exp'] = 1
         token = utils.jwt_encode_handler(payload)
 
-        auth = 'Bearer {0}'.format(token)
+        auth = 'JWT {0}'.format(token)
         response = self.csrf_client.post(
             '/jwt/', {'example': 'example'},
             HTTP_AUTHORIZATION=auth, format='json')
@@ -141,13 +147,13 @@ class JSONWebTokenAuthenticationTests(TestCase):
 
         self.assertEqual(response.data['detail'], msg)
         self.assertEqual(response.status_code, status.HTTP_401_UNAUTHORIZED)
-        self.assertEqual(response['WWW-Authenticate'], 'Bearer realm="api"')
+        self.assertEqual(response['WWW-Authenticate'], 'JWT realm="api"')
 
     def test_post_invalid_token_failing_jwt_auth(self):
         """
         Ensure POSTing over JWT auth with invalid token fails
         """
-        auth = 'Bearer abc123'
+        auth = 'JWT abc123'
         response = self.csrf_client.post(
             '/jwt/', {'example': 'example'},
             HTTP_AUTHORIZATION=auth, format='json')
@@ -156,9 +162,9 @@ class JSONWebTokenAuthenticationTests(TestCase):
 
         self.assertEqual(response.data['detail'], msg)
         self.assertEqual(response.status_code, status.HTTP_401_UNAUTHORIZED)
-        self.assertEqual(response['WWW-Authenticate'], 'Bearer realm="api"')
+        self.assertEqual(response['WWW-Authenticate'], 'JWT realm="api"')
 
-    @unittest.skipUnless(oauth2_provider, 'django-oauth2-provider not installed')
+    @unittest.skipUnless(oauth2_provider, DJANGO_OAUTH2_PROVIDER_NOT_INSTALLED)
     def test_post_passing_jwt_auth_with_oauth2_priority(self):
         """
         Ensure POSTing over JWT auth with correct credentials
@@ -168,14 +174,14 @@ class JSONWebTokenAuthenticationTests(TestCase):
         payload = utils.jwt_payload_handler(self.user)
         token = utils.jwt_encode_handler(payload)
 
-        auth = 'Bearer {0}'.format(token)
+        auth = 'JWT {0}'.format(token)
         response = self.csrf_client.post(
             '/oauth2-jwt/', {'example': 'example'},
             HTTP_AUTHORIZATION=auth, format='json')
 
         self.assertEqual(response.status_code, status.HTTP_200_OK, response)
 
-    @unittest.skipUnless(oauth2_provider, 'django-oauth2-provider not installed')
+    @unittest.skipUnless(oauth2_provider, DJANGO_OAUTH2_PROVIDER_NOT_INSTALLED)
     def test_post_passing_oauth2_with_jwt_auth_priority(self):
         """
         Ensure POSTing over OAuth2 with correct credentials

@@ -21,9 +21,9 @@ class JSONWebTokenAuthentication(BaseAuthentication):
     Token based authentication using the JSON Web Token standard.
 
     Clients should authenticate by passing the token key in the "Authorization"
-    HTTP header, prepended with the string "Bearer ".  For example:
+    HTTP header, prepended with the string "JWT ".  For example:
 
-        Authorization: Bearer eyJhbGciOiAiSFMyNTYiLCAidHlwIj
+        Authorization: JWT eyJhbGciOiAiSFMyNTYiLCAidHlwIj
     """
     www_authenticate_realm = 'api'
 
@@ -34,14 +34,14 @@ class JSONWebTokenAuthentication(BaseAuthentication):
         """
         auth = get_authorization_header(request).split()
 
-        if not auth or auth[0].lower() != b'bearer':
+        if not auth or auth[0].lower() != b'jwt':
             return None
 
         if len(auth) == 1:
-            msg = 'Invalid bearer header. No credentials provided.'
+            msg = 'Invalid JWT header. No credentials provided.'
             raise exceptions.AuthenticationFailed(msg)
         elif len(auth) > 2:
-            msg = ('Invalid bearer header. Credentials string '
+            msg = ('Invalid JWT header. Credentials string '
                    'should not contain spaces.')
             raise exceptions.AuthenticationFailed(msg)
 
@@ -78,4 +78,4 @@ class JSONWebTokenAuthentication(BaseAuthentication):
         header in a `401 Unauthenticated` response, or `None` if the
         authentication scheme should return `403 Permission Denied` responses.
         """
-        return 'Bearer realm="{0}"'.format(self.www_authenticate_realm)
+        return 'JWT realm="{0}"'.format(self.www_authenticate_realm)
