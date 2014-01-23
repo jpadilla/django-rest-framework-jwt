@@ -7,13 +7,13 @@ from rest_framework.settings import APISettings
 USER_SETTINGS = getattr(settings, 'JWT_AUTH', None)
 
 DEFAULTS = {
-    'DEFAULT_JWT_ENCODE_HANDLER':
+    'JWT_ENCODE_HANDLER':
     'rest_framework_jwt.utils.jwt_encode_handler',
 
-    'DEFAULT_JWT_DECODE_HANDLER':
+    'JWT_DECODE_HANDLER':
     'rest_framework_jwt.utils.jwt_decode_handler',
 
-    'DEFAULT_JWT_PAYLOAD_HANDLER':
+    'JWT_PAYLOAD_HANDLER':
     'rest_framework_jwt.utils.jwt_payload_handler',
 
     'JWT_SECRET_KEY': settings.SECRET_KEY,
@@ -26,9 +26,9 @@ DEFAULTS = {
 
 # List of settings that may be in string import notation.
 IMPORT_STRINGS = (
-    'DEFAULT_JWT_ENCODE_HANDLER',
-    'DEFAULT_JWT_DECODE_HANDLER',
-    'DEFAULT_JWT_PAYLOAD_HANDLER',
+    'JWT_ENCODE_HANDLER',
+    'JWT_DECODE_HANDLER',
+    'JWT_PAYLOAD_HANDLER',
 )
 
 api_settings = APISettings(USER_SETTINGS, DEFAULTS, IMPORT_STRINGS)

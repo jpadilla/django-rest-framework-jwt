@@ -13,7 +13,7 @@ else:
     User = get_user_model()
 
 
-jwt_decode_handler = api_settings.DEFAULT_JWT_DECODE_HANDLER
+jwt_decode_handler = api_settings.JWT_DECODE_HANDLER
 
 
 class JSONWebTokenAuthentication(BaseAuthentication):
