@@ -54,17 +54,17 @@ class JSONWebTokenAuthentication(BaseAuthentication):
             msg = 'Error decoding signature.'
             raise exceptions.AuthenticationFailed(msg)
 
-        user_id = payload['user_id']
-        user_email = payload['email']
-        user = self.authenticate_credentials(user_id, user_email)
+        user = self.authenticate_credentials(payload)
 
         return (user, auth[1])
 
-    def authenticate_credentials(self, user_id, email):
+    def authenticate_credentials(self, payload):
         """
         Returns an active user that matches the payload's user id and email.
         """
         try:
+            user_id = payload['user_id']
+            email = payload['email']
             user = User.objects.get(pk=user_id, email=email, is_active=True)
         except User.DoesNotExist:
             msg = 'Invalid signature'
