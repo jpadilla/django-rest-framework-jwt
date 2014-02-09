@@ -204,7 +204,7 @@ class JSONWebTokenAuthenticationTests(TestCase):
 
         self.assertEqual(response.status_code, status.HTTP_200_OK, response)
 
-    def test_post_form_passing_jwt_auth(self):
+    def test_post_form_passing_jwt_invalid_payload(self):
         """
         Ensure POSTing json over JWT auth with invalid payload fails
         """
