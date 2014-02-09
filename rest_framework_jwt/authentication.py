@@ -62,9 +62,14 @@ class JSONWebTokenAuthentication(BaseAuthentication):
         Returns an active user that matches the payload's user id and email.
         """
         try:
-            user_id = payload['user_id']
-            email = payload['email']
-            user = User.objects.get(pk=user_id, email=email, is_active=True)
+            user_id = payload.get('user_id')
+            email = payload.get('email')
+
+            if user_id and email:
+                user = User.objects.get(pk=user_id, email=email, is_active=True)
+            else:
+                msg = 'Invalid payload'
+                raise exceptions.AuthenticationFailed(msg)
         except User.DoesNotExist:
             msg = 'Invalid signature'
             raise exceptions.AuthenticationFailed(msg)

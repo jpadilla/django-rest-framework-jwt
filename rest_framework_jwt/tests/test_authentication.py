@@ -203,3 +203,19 @@ class JSONWebTokenAuthenticationTests(TestCase):
             HTTP_AUTHORIZATION=auth, format='json')
 
         self.assertEqual(response.status_code, status.HTTP_200_OK, response)
+
+    def test_post_form_passing_jwt_auth(self):
+        """
+        Ensure POSTing json over JWT auth with invalid payload fails
+        """
+        payload = dict(user_id=1, email=None)
+        token = utils.jwt_encode_handler(payload)
+
+        auth = 'JWT {0}'.format(token)
+        response = self.csrf_client.post(
+            '/jwt/', {'example': 'example'}, HTTP_AUTHORIZATION=auth)
+
+        msg = 'Invalid payload'
+
+        self.assertEqual(response.data['detail'], msg)
+        self.assertEqual(response.status_code, status.HTTP_401_UNAUTHORIZED)
