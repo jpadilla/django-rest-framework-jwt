@@ -60,13 +60,13 @@ There are some additional settings that you can override similar to how you'd do
 
 ```python
 JWT_AUTH = {
-    'DEFAULT_JWT_ENCODE_HANDLER':
+    'JWT_ENCODE_HANDLER':
     'rest_framework_jwt.utils.jwt_encode_handler',
 
-    'DEFAULT_JWT_DECODE_HANDLER':
+    'JWT_DECODE_HANDLER':
     'rest_framework_jwt.utils.jwt_decode_handler',
 
-    'DEFAULT_JWT_PAYLOAD_HANDLER':
+    'JWT_PAYLOAD_HANDLER':
     'rest_framework_jwt.utils.jwt_payload_handler',
 
     'JWT_SECRET_KEY': settings.SECRET_KEY,
