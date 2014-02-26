@@ -13,7 +13,7 @@ description = 'JSON Web Token based authentication for Django REST framework'
 url = 'https://github.com/GetBlimp/django-rest-framework-jwt'
 author = 'Jose Padilla'
 author_email = 'jpadilla@getblimp.com'
-license = 'BSD'
+license = 'MIT'
 install_requires = open('requirements.txt').read().split('\n')
 test_suite = 'rest_framework_jwt.runtests.runtests.main'
 
