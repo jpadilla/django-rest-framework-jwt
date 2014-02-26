@@ -8,7 +8,7 @@ def jwt_payload_handler(user):
     return {
         'user_id': user.id,
         'email': user.email,
-        'username': user.username,
+        'username': user.get_username(),
         'exp': datetime.datetime.utcnow() + api_settings.JWT_EXPIRATION_DELTA
     }
 
