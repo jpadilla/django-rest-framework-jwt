@@ -17,6 +17,7 @@ class UtilsTests(TestCase):
 
         self.assertTrue(isinstance(payload, dict))
         self.assertEqual(payload['user_id'], self.user.id)
+        self.assertEqual(payload['email'], self.email)
         self.assertEqual(payload['username'], self.username)
         self.assertTrue('exp' in payload)
 
