@@ -208,7 +208,7 @@ class JSONWebTokenAuthenticationTests(TestCase):
         """
         Ensure POSTing json over JWT auth with invalid payload fails
         """
-        payload = dict(user_id=1, email=None)
+        payload = dict(email=None)
         token = utils.jwt_encode_handler(payload)
 
         auth = 'JWT {0}'.format(token)
