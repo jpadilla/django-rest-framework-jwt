@@ -63,10 +63,9 @@ class JSONWebTokenAuthentication(BaseAuthentication):
         """
         try:
             user_id = payload.get('user_id')
-            email = payload.get('email')
 
             if user_id:
-                user = User.objects.get(pk=user_id, email=email, is_active=True)
+                user = User.objects.get(pk=user_id, is_active=True)
             else:
                 msg = 'Invalid payload'
                 raise exceptions.AuthenticationFailed(msg)
