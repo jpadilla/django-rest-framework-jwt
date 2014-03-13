@@ -49,6 +49,12 @@ You can easily test if the endpoint is working by doing the following in your te
 $ curl -X POST -d "username=admin&password=abc123" http://localhost:8000/api-token-auth/
 ```
 
+Alternatively, you can use all the content types supported by the Django REST framework to obtain the auth token. For example:
+
+```bash
+$ curl -X POST -H "Content-Type: application/json" -d '{"username":"admin","password":"abc123"}' http://localhost:8000/api-token-auth/
+```
+
 Now in order to access protected api urls you must include the `Authorization: JWT <your_token>` header.
 
 ```bash
