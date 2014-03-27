@@ -3,12 +3,16 @@ import jwt
 
 from rest_framework_jwt.settings import api_settings
 
-
 def jwt_payload_handler(user):
+    try:
+        username = user.get_username()
+    except AttributeError:
+        username = user.username
+
     return {
         'user_id': user.id,
         'email': user.email,
-        'username': user.get_username(),
+        'username': username,
         'exp': datetime.datetime.utcnow() + api_settings.JWT_EXPIRATION_DELTA
     }
 
