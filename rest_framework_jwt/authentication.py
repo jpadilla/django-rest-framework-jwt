@@ -13,6 +13,7 @@ else:
 
 
 jwt_decode_handler = api_settings.JWT_DECODE_HANDLER
+jwt_get_user_id_from_payload = api_settings.JWT_PAYLOAD_GET_USER_ID_HANDLER
 
 
 class JSONWebTokenAuthentication(BaseAuthentication):
@@ -62,7 +63,7 @@ class JSONWebTokenAuthentication(BaseAuthentication):
         Returns an active user that matches the payload's user id and email.
         """
         try:
-            user_id = payload.get('user_id')
+            user_id = jwt_get_user_id_from_payload(payload)
 
             if user_id:
                 user = User.objects.get(pk=user_id, is_active=True)
