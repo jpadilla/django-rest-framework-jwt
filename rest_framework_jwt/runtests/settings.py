@@ -21,6 +21,7 @@ INSTALLED_APPS = (
     'django.contrib.sessions',
     'django.contrib.messages',
     'django.contrib.staticfiles',
+    'rest_framework_jwt.runtests',
 )
 
 # OAuth2 is optional and won't work if there is no provider & oauth2

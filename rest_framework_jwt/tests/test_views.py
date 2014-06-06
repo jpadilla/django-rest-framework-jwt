@@ -1,11 +1,12 @@
 from django.test import TestCase
+from django.conf import settings
 from django.contrib.auth.models import User
 from rest_framework import status
 from rest_framework.compat import patterns
 from rest_framework.test import APIClient
 
 from rest_framework_jwt import utils
-
+from rest_framework_jwt.runtests.models import CustomUser
 
 urlpatterns = patterns(
     '',
@@ -76,3 +77,52 @@ class ObtainJSONWebTokenTests(TestCase):
 
         self.assertEqual(response.status_code, status.HTTP_200_OK)
         self.assertEqual(decoded_payload['username'], self.username)
+
+
+class CustomUserObtainJSONWebTokenTests(TestCase):
+    """JSON Web Token Authentication"""
+    urls = 'rest_framework_jwt.tests.test_views'
+
+    def setUp(self):
+        # set custom user model
+        self.ORIG_AUTH_USER_MODEL = settings.AUTH_USER_MODEL
+        settings.AUTH_USER_MODEL = 'runtests.CustomUser'
+
+        self.email = 'jpueblo@example.com'
+        self.password = 'password'
+        user = CustomUser.objects.create(email=self.email)
+        user.set_password(self.password)
+        user.save()
+        self.user = user
+
+        self.data = {
+            'email': self.email,
+            'password': self.password
+        }
+
+    def test_jwt_login_json(self):
+        """
+        Ensure JWT login view using JSON POST works.
+        """
+        client = APIClient(enforce_csrf_checks=True)
+
+        response = client.post('/auth-token/', self.data, format='json')
+
+        self.assertEqual(response.status_code, status.HTTP_200_OK)
+        decoded_payload = utils.jwt_decode_handler(response.data['token'])
+        self.assertEqual(decoded_payload['username'], self.email)
+
+    def test_jwt_login_json_bad_creds(self):
+        """
+        Ensure JWT login view using JSON POST fails
+        if bad credentials are used.
+        """
+        client = APIClient(enforce_csrf_checks=True)
+
+        self.data['password'] = 'wrong'
+        response = client.post('/auth-token/', self.data, format='json')
+
+        self.assertEqual(response.status_code, 400)
+
+    def tearDown(self):
+        settings.AUTH_USER_MODEL = self.ORIG_AUTH_USER_MODEL

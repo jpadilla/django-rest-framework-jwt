@@ -1,4 +1,4 @@
-from django.contrib.auth import authenticate
+from django.contrib.auth import authenticate, get_user_model
 from rest_framework import serializers
 
 from rest_framework_jwt.settings import api_settings
@@ -12,17 +12,27 @@ class JSONWebTokenSerializer(serializers.Serializer):
     """
     Serializer class used to validate a username and password.
 
+    'username' is identified by the custom UserModel.USERNAME_FIELD.
+
     Returns a JSON Web Token that can be used to authenticate later calls.
     """
-    username = serializers.CharField()
+
     password = serializers.CharField(write_only=True)
 
-    def validate(self, attrs):
-        username = attrs.get('username')
-        password = attrs.get('password')
+    def __init__(self, *args, **kwargs):
+        """Dynamically add the USERNAME_FIELD to self.fields."""
+        super(JSONWebTokenSerializer, self).__init__(*args, **kwargs)
+        self.fields[self.username_field] = serializers.CharField()
 
-        if username and password:
-            user = authenticate(username=username, password=password)
+    @property
+    def username_field(self):
+        return get_user_model().USERNAME_FIELD
+
+    def validate(self, attrs):
+        credentials = {self.username_field: attrs.get(self.username_field),
+                       'password': attrs.get('password')}
+        if all(credentials.values()):
+            user = authenticate(**credentials)
 
             if user:
                 if not user.is_active:
