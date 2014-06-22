@@ -5,7 +5,7 @@ from django.utils import unittest
 
 from rest_framework import permissions, status
 from rest_framework.authentication import OAuth2Authentication
-from rest_framework.compat import oauth2_provider, oauth2_provider_models
+from rest_framework.compat import oauth2_provider
 from rest_framework.compat import patterns
 from rest_framework.test import APIRequestFactory, APIClient
 from rest_framework.views import APIView
@@ -188,11 +188,15 @@ class JSONWebTokenAuthenticationTests(TestCase):
         passes and does not require CSRF when JSONWebTokenAuthentication
         has priority on authentication_classes
         """
-        oauth2_client = oauth2_provider_models.Client.objects.create(
+        Client = oauth2_provider.oauth2.models.Client
+        AccessToken = oauth2_provider.oauth2.models.AccessToken
+
+        oauth2_client = Client.objects.create(
             user=self.user,
             client_type=0,
         )
-        access_token = oauth2_provider_models.AccessToken.objects.create(
+
+        access_token = AccessToken.objects.create(
             user=self.user,
             client=oauth2_client,
         )
