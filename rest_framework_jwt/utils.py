@@ -6,7 +6,7 @@ from rest_framework_jwt.settings import api_settings
 
 def jwt_payload_handler(user):
     return {
-        'user_id': user.id,
+        'user_id': user.pk,
         'email': user.email,
         'username': user.get_username(),
         'exp': datetime.datetime.utcnow() + api_settings.JWT_EXPIRATION_DELTA
