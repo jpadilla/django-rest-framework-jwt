@@ -5,11 +5,15 @@ from rest_framework_jwt.settings import api_settings
 
 
 def jwt_payload_handler(user):
+    delta_timestamp = (datetime.utcnow() + api_settings.JWT_EXPIRATION_DELTA) - datetime(1970,1,1)
+    # total seconds
+    exp = delta_timestamp.seconds + delta_timestamp.days * 24 * 3600
+
     return {
         'user_id': user.pk,
         'email': user.email,
         'username': user.get_username(),
-        'exp': datetime.utcnow() + api_settings.JWT_EXPIRATION_DELTA
+        'exp': exp
     }
 
 
