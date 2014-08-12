@@ -1,5 +1,5 @@
 from calendar import timegm
-from datetime import datetime
+from datetime import datetime, timedelta
 import jwt
 
 from django.contrib.auth import authenticate, get_user_model
@@ -101,9 +101,12 @@ class RefreshJSONWebTokenSerializer(serializers.Serializer):
         orig_iat = payload.get('orig_iat')
         if orig_iat:
             # Verify expiration
+            renewal_limit = api_settings.JWT_TOKEN_RENEWAL_LIMIT
+            if isinstance(renewal_limit, timedelta):
+                renewal_limit = renewal_limit.days * 24 * 3600 + renewal_limit.seconds
             expiration_timestamp = (
                 orig_iat +
-                int(api_settings.JWT_TOKEN_RENEWAL_LIMIT.total_seconds())
+                int(renewal_limit)
             )
             now_timestamp = timegm(datetime.utcnow().utctimetuple())
             if now_timestamp > expiration_timestamp:
