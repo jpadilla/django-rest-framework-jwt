@@ -15,6 +15,7 @@ class ObtainJSONWebToken(APIView):
     """
     throttle_classes = ()
     permission_classes = ()
+    authentication_classes = ()
     parser_classes = (parsers.FormParser, parsers.JSONParser,)
     renderer_classes = (renderers.JSONRenderer,)
     serializer_class = JSONWebTokenSerializer

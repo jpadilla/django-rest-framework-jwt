@@ -78,6 +78,25 @@ class ObtainJSONWebTokenTests(TestCase):
         self.assertEqual(response.status_code, status.HTTP_200_OK)
         self.assertEqual(decoded_payload['username'], self.username)
 
+    def test_jwt_login_with_expired_token(self):
+        """
+        Ensure JWT login view works even if expired token is provided
+        """
+        payload = utils.jwt_payload_handler(self.user)
+        payload['exp'] = 1
+        token = utils.jwt_encode_handler(payload)
+
+        auth = 'JWT {0}'.format(token)
+        client = APIClient(enforce_csrf_checks=True)
+        response = client.post(
+            '/auth-token/', self.data,
+            HTTP_AUTHORIZATION=auth, format='json')
+
+        decoded_payload = utils.jwt_decode_handler(response.data['token'])
+
+        self.assertEqual(response.status_code, status.HTTP_200_OK)
+        self.assertEqual(decoded_payload['username'], self.username)
+
 
 class CustomUserObtainJSONWebTokenTests(TestCase):
     """JSON Web Token Authentication"""
