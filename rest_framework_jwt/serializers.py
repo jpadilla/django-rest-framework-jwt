@@ -3,7 +3,7 @@ from datetime import datetime, timedelta
 import jwt
 
 from django.contrib.auth import authenticate, get_user_model
-from rest_framework import serializers, exceptions
+from rest_framework import serializers
 
 from rest_framework_jwt.settings import api_settings
 
@@ -103,7 +103,8 @@ class RefreshJSONWebTokenSerializer(serializers.Serializer):
             # Verify expiration
             renewal_limit = api_settings.JWT_TOKEN_RENEWAL_LIMIT
             if isinstance(renewal_limit, timedelta):
-                renewal_limit = renewal_limit.days * 24 * 3600 + renewal_limit.seconds
+                renewal_limit = (renewal_limit.days * 24 * 3600 +
+                                 renewal_limit.seconds)
             expiration_timestamp = (
                 orig_iat +
                 int(renewal_limit)
