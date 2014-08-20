@@ -1,16 +1,28 @@
-import datetime
+from datetime import datetime
 import jwt
 
 from rest_framework_jwt.settings import api_settings
 
 
 def jwt_payload_handler(user):
+    delta_timestamp = (datetime.utcnow() + api_settings.JWT_EXPIRATION_DELTA) - datetime(1970,1,1)
+    # total seconds
+    exp = delta_timestamp.seconds + delta_timestamp.days * 24 * 3600
+
     return {
         'user_id': user.pk,
         'email': user.email,
         'username': user.get_username(),
-        'exp': datetime.datetime.utcnow() + api_settings.JWT_EXPIRATION_DELTA
+        'exp': exp
     }
+
+
+def jwt_get_user_id_from_payload_handler(payload):
+    """
+    Override this function if user_id is formatted differently in payload
+    """
+    user_id = payload.get('user_id')
+    return user_id
 
 
 def jwt_encode_handler(payload):
