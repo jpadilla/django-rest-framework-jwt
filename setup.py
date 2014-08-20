@@ -75,5 +75,16 @@ setup(
     packages=get_packages(package),
     package_data=get_package_data(package),
     test_suite=test_suite,
-    install_requires=install_requires
+    install_requires=install_requires,
+    classifiers=[
+        'Development Status :: 5 - Production/Stable',
+        'Environment :: Web Environment',
+        'Framework :: Django',
+        'Intended Audience :: Developers',
+        'License :: OSI Approved :: MIT License',
+        'Operating System :: OS Independent',
+        'Programming Language :: Python',
+        'Programming Language :: Python :: 3',
+        'Topic :: Internet :: WWW/HTTP',
+    ]
 )
