@@ -61,6 +61,21 @@ Now in order to access protected api urls you must include the `Authorization: J
 $ curl -H "Authorization: JWT <your_token>" http://localhost:8000/protected-url/
 ```
 
+## Refresh Token
+If `JWT_ALLOW_TOKEN_RENEWAL` is True, issued tokens can be "refreshed" to obtain a new brand token with renewed expiration time. Add a URL pattern like this:
+```python
+    url(r'^api-token-refresh/', 'rest_framework_jwt.views.refresh_jwt_token'),
+```
+
+Pass in an existing token to the refresh endpoint as follows: `{"token": EXISTING_TOKEN}`. Note that only non-expired tokens will work. The JSON response looks the same as the normal obtain token endpoint `{"token": NEW_TOKEN}`.
+
+```bash
+$ curl -X POST -H "Content-Type: application/json" -d '{"token":"<EXISTING_TOKEN>}' http://localhost:8000/api-token-refresh/
+```
+
+Refresh with tokens can be repeated (token1 -> token2 -> token3), but this chain of token stores the time that the original token (obtained with username/password credentials), as `orig_iat`. You can only keep refreshing tokens up to `JWT_TOKEN_RENEWAL_LIMIT`.
+
+
 ## Additional Settings
 There are some additional settings that you can override similar to how you'd do it with Django REST framework itself. Here are all the available defaults.
 
@@ -74,13 +89,19 @@ JWT_AUTH = {
 
     'JWT_PAYLOAD_HANDLER':
     'rest_framework_jwt.utils.jwt_payload_handler',
+    
+    'JWT_PAYLOAD_GET_USER_ID_HANDLER':
+    'rest_framework_jwt.utils.jwt_get_user_id_from_payload_handler',
 
     'JWT_SECRET_KEY': settings.SECRET_KEY,
     'JWT_ALGORITHM': 'HS256',
     'JWT_VERIFY': True,
     'JWT_VERIFY_EXPIRATION': True,
     'JWT_LEEWAY': 0,
-    'JWT_EXPIRATION_DELTA': datetime.timedelta(seconds=300)
+    'JWT_EXPIRATION_DELTA': datetime.timedelta(seconds=300),
+    
+    'JWT_ALLOW_TOKEN_RENEWAL': False,
+    'JWT_TOKEN_RENEWAL_LIMIT': datetime.timedelta(days=7),
 }
 ```
 This packages uses the JSON Web Token Python implementation, [PyJWT](https://github.com/progrium/pyjwt) and allows to modify some of it's available options.
@@ -126,8 +147,24 @@ Default is `True`.
 
 Default is `0` seconds.
 
-
 ### JWT_EXPIRATION_DELTA
 This is an instance of Python's `datetime.timedelta`. This will be added to `datetime.utcnow()` to set the expiration time.
 
 Default is `datetime.timedelta(seconds=300)`(5 minutes).
+
+### JWT_ALLOW_TOKEN_RENEWAL
+Enable token renewal functionality. Token issued from `rest_framework_jwt.views.obtain_jwt_token` will have an `orig_iat` field. Default is `False`
+
+### JWT_TOKEN_RENEWAL_LIMIT
+Limit on token renewal, is a `datetime.timedelta` instance. This is how much time after the original token that future tokens can be refreshed from.
+
+Default is `datetime.timedelta(days=7)` (7 days).
+
+### JWT_PAYLOAD_HANDLER
+Specify a custom function to generate the token payload
+    
+### JWT_PAYLOAD_GET_USER_ID_HANDLER
+If you store `user_id` differently than the default payload handler does, implement this function to fetch `user_id` from the payload.
+
+
+
