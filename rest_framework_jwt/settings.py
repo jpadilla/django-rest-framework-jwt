@@ -26,8 +26,8 @@ DEFAULTS = {
     'JWT_LEEWAY': 0,
     'JWT_EXPIRATION_DELTA': datetime.timedelta(seconds=300),
 
-    'JWT_ALLOW_TOKEN_RENEWAL': False,
-    'JWT_TOKEN_RENEWAL_LIMIT': datetime.timedelta(days=7),
+    'JWT_ALLOW_TOKEN_REFRESH': False,
+    'JWT_TOKEN_REFRESH_LIMIT': datetime.timedelta(days=7),
 }
 
 # List of settings that may be in string import notation.

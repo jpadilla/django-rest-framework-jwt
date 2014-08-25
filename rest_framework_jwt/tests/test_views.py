@@ -164,7 +164,7 @@ class RefreshJSONWebTokenTests(BaseTestCase):
 
     def setUp(self):
         super(RefreshJSONWebTokenTests, self).setUp()
-        api_settings.JWT_ALLOW_TOKEN_RENEWAL = True
+        api_settings.JWT_ALLOW_TOKEN_REFRESH = True
 
     def get_token(self):
         client = APIClient(enforce_csrf_checks=True)
@@ -231,13 +231,13 @@ class RefreshJSONWebTokenTests(BaseTestCase):
         self.assertRegexpMatches(response.data['non_field_errors'][0],
                                  'Signature has expired')
 
-    def test_refresh_jwt_after_renewal_expiration(self):
+    def test_refresh_jwt_after_refresh_expiration(self):
         """
-        Test that token can't be refreshed after token renewal limit
+        Test that token can't be refreshed after token refresh limit
         """
         client = APIClient(enforce_csrf_checks=True)
 
-        orig_iat = (datetime.utcnow() - api_settings.JWT_TOKEN_RENEWAL_LIMIT -
+        orig_iat = (datetime.utcnow() - api_settings.JWT_TOKEN_REFRESH_LIMIT -
                     timedelta(seconds=5))
         token = self.create_token(
             self.user,
@@ -253,5 +253,5 @@ class RefreshJSONWebTokenTests(BaseTestCase):
 
     def tearDown(self):
         # Restore original settings
-        api_settings.JWT_ALLOW_TOKEN_RENEWAL = \
-            DEFAULTS['JWT_ALLOW_TOKEN_RENEWAL']
+        api_settings.JWT_ALLOW_TOKEN_REFRESH = \
+            DEFAULTS['JWT_ALLOW_TOKEN_REFRESH']

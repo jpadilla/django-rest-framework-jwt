@@ -62,7 +62,7 @@ $ curl -H "Authorization: JWT <your_token>" http://localhost:8000/protected-url/
 ```
 
 ## Refresh Token
-If `JWT_ALLOW_TOKEN_RENEWAL` is True, issued tokens can be "refreshed" to obtain a new brand token with renewed expiration time. Add a URL pattern like this:
+If `JWT_ALLOW_TOKEN_REFRESH` is True, issued tokens can be "refreshed" to obtain a new brand token with renewed expiration time. Add a URL pattern like this:
 ```python
     url(r'^api-token-refresh/', 'rest_framework_jwt.views.refresh_jwt_token'),
 ```
@@ -73,7 +73,7 @@ Pass in an existing token to the refresh endpoint as follows: `{"token": EXISTIN
 $ curl -X POST -H "Content-Type: application/json" -d '{"token":"<EXISTING_TOKEN>}' http://localhost:8000/api-token-refresh/
 ```
 
-Refresh with tokens can be repeated (token1 -> token2 -> token3), but this chain of token stores the time that the original token (obtained with username/password credentials), as `orig_iat`. You can only keep refreshing tokens up to `JWT_TOKEN_RENEWAL_LIMIT`.
+Refresh with tokens can be repeated (token1 -> token2 -> token3), but this chain of token stores the time that the original token (obtained with username/password credentials), as `orig_iat`. You can only keep refreshing tokens up to `JWT_TOKEN_REFRESH_LIMIT`.
 
 
 ## Additional Settings
@@ -100,8 +100,8 @@ JWT_AUTH = {
     'JWT_LEEWAY': 0,
     'JWT_EXPIRATION_DELTA': datetime.timedelta(seconds=300),
     
-    'JWT_ALLOW_TOKEN_RENEWAL': False,
-    'JWT_TOKEN_RENEWAL_LIMIT': datetime.timedelta(days=7),
+    'JWT_ALLOW_TOKEN_REFRESH': False,
+    'JWT_TOKEN_REFRESH_LIMIT': datetime.timedelta(days=7),
 }
 ```
 This packages uses the JSON Web Token Python implementation, [PyJWT](https://github.com/progrium/pyjwt) and allows to modify some of it's available options.
@@ -152,11 +152,11 @@ This is an instance of Python's `datetime.timedelta`. This will be added to `dat
 
 Default is `datetime.timedelta(seconds=300)`(5 minutes).
 
-### JWT_ALLOW_TOKEN_RENEWAL
-Enable token renewal functionality. Token issued from `rest_framework_jwt.views.obtain_jwt_token` will have an `orig_iat` field. Default is `False`
+### JWT_ALLOW_TOKEN_REFRESH
+Enable token refresh functionality. Token issued from `rest_framework_jwt.views.obtain_jwt_token` will have an `orig_iat` field. Default is `False`
 
-### JWT_TOKEN_RENEWAL_LIMIT
-Limit on token renewal, is a `datetime.timedelta` instance. This is how much time after the original token that future tokens can be refreshed from.
+### JWT_TOKEN_REFRESH_LIMIT
+Limit on token refresh, is a `datetime.timedelta` instance. This is how much time after the original token that future tokens can be refreshed from.
 
 Default is `datetime.timedelta(days=7)` (7 days).
 

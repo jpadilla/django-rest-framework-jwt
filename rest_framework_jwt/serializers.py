@@ -49,7 +49,7 @@ class JSONWebTokenSerializer(serializers.Serializer):
 
                 # Include original issued at time for a brand new token,
                 # to allow token refresh
-                if api_settings.JWT_ALLOW_TOKEN_RENEWAL:
+                if api_settings.JWT_ALLOW_TOKEN_REFRESH:
                     payload['orig_iat'] = timegm(
                         datetime.utcnow().utctimetuple()
                     )
@@ -101,13 +101,13 @@ class RefreshJSONWebTokenSerializer(serializers.Serializer):
         orig_iat = payload.get('orig_iat')
         if orig_iat:
             # Verify expiration
-            renewal_limit = api_settings.JWT_TOKEN_RENEWAL_LIMIT
-            if isinstance(renewal_limit, timedelta):
-                renewal_limit = (renewal_limit.days * 24 * 3600 +
-                                 renewal_limit.seconds)
+            refresh_limit = api_settings.JWT_TOKEN_REFRESH_LIMIT
+            if isinstance(refresh_limit, timedelta):
+                refresh_limit = (refresh_limit.days * 24 * 3600 +
+                                 refresh_limit.seconds)
             expiration_timestamp = (
                 orig_iat +
-                int(renewal_limit)
+                int(refresh_limit)
             )
             now_timestamp = timegm(datetime.utcnow().utctimetuple())
             if now_timestamp > expiration_timestamp:
