@@ -49,7 +49,7 @@ class JSONWebTokenSerializer(serializers.Serializer):
 
                 # Include original issued at time for a brand new token,
                 # to allow token refresh
-                if api_settings.JWT_ALLOW_TOKEN_REFRESH:
+                if api_settings.JWT_ALLOW_REFRESH:
                     payload['orig_iat'] = timegm(
                         datetime.utcnow().utctimetuple()
                     )

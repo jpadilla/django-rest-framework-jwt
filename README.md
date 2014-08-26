@@ -62,7 +62,7 @@ $ curl -H "Authorization: JWT <your_token>" http://localhost:8000/protected-url/
 ```
 
 ## Refresh Token
-If `JWT_ALLOW_TOKEN_REFRESH` is True, issued tokens can be "refreshed" to obtain a new brand token with renewed expiration time. Add a URL pattern like this:
+If `JWT_ALLOW_REFRESH` is True, issued tokens can be "refreshed" to obtain a new brand token with renewed expiration time. Add a URL pattern like this:
 ```python
     url(r'^api-token-refresh/', 'rest_framework_jwt.views.refresh_jwt_token'),
 ```
@@ -101,7 +101,7 @@ JWT_AUTH = {
     'JWT_LEEWAY': 0,
     'JWT_EXPIRATION_DELTA': datetime.timedelta(seconds=300),
 
-    'JWT_ALLOW_TOKEN_REFRESH': False,
+    'JWT_ALLOW_REFRESH': False,
     'JWT_REFRESH_EXPIRATION_DELTA': datetime.timedelta(days=7),
 }
 ```
@@ -153,7 +153,7 @@ This is an instance of Python's `datetime.timedelta`. This will be added to `dat
 
 Default is `datetime.timedelta(seconds=300)`(5 minutes).
 
-### JWT_ALLOW_TOKEN_REFRESH
+### JWT_ALLOW_REFRESH
 Enable token refresh functionality. Token issued from `rest_framework_jwt.views.obtain_jwt_token` will have an `orig_iat` field. Default is `False`
 
 ### JWT_REFRESH_EXPIRATION_DELTA

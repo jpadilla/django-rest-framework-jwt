@@ -164,7 +164,7 @@ class RefreshJSONWebTokenTests(BaseTestCase):
 
     def setUp(self):
         super(RefreshJSONWebTokenTests, self).setUp()
-        api_settings.JWT_ALLOW_TOKEN_REFRESH = True
+        api_settings.JWT_ALLOW_REFRESH = True
 
     def get_token(self):
         client = APIClient(enforce_csrf_checks=True)
@@ -253,5 +253,5 @@ class RefreshJSONWebTokenTests(BaseTestCase):
 
     def tearDown(self):
         # Restore original settings
-        api_settings.JWT_ALLOW_TOKEN_REFRESH = \
-            DEFAULTS['JWT_ALLOW_TOKEN_REFRESH']
+        api_settings.JWT_ALLOW_REFRESH = \
+            DEFAULTS['JWT_ALLOW_REFRESH']
