@@ -27,7 +27,7 @@ DEFAULTS = {
     'JWT_EXPIRATION_DELTA': datetime.timedelta(seconds=300),
 
     'JWT_ALLOW_TOKEN_REFRESH': False,
-    'JWT_TOKEN_REFRESH_LIMIT': datetime.timedelta(days=7),
+    'JWT_REFRESH_EXPIRATION_DELTA': datetime.timedelta(days=7),
 }
 
 # List of settings that may be in string import notation.

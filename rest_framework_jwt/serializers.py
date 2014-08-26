@@ -101,7 +101,7 @@ class RefreshJSONWebTokenSerializer(serializers.Serializer):
         orig_iat = payload.get('orig_iat')
         if orig_iat:
             # Verify expiration
-            refresh_limit = api_settings.JWT_TOKEN_REFRESH_LIMIT
+            refresh_limit = api_settings.JWT_REFRESH_EXPIRATION_DELTA
             if isinstance(refresh_limit, timedelta):
                 refresh_limit = (refresh_limit.days * 24 * 3600 +
                                  refresh_limit.seconds)
