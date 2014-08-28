@@ -61,6 +61,22 @@ Now in order to access protected api urls you must include the `Authorization: J
 $ curl -H "Authorization: JWT <your_token>" http://localhost:8000/protected-url/
 ```
 
+## Refresh Token
+If `JWT_ALLOW_REFRESH` is True, issued tokens can be "refreshed" to obtain a new brand token with renewed expiration time. Add a URL pattern like this:
+```python
+    url(r'^api-token-refresh/', 'rest_framework_jwt.views.refresh_jwt_token'),
+```
+
+Pass in an existing token to the refresh endpoint as follows: `{"token": EXISTING_TOKEN}`. Note that only non-expired tokens will work. The JSON response looks the same as the normal obtain token endpoint `{"token": NEW_TOKEN}`.
+
+```bash
+$ curl -X POST -H "Content-Type: application/json" -d '{"token":"<EXISTING_TOKEN>}' http://localhost:8000/api-token-refresh/
+```
+
+Refresh with tokens can be repeated (token1 -> token2 -> token3), but this chain of token stores the time that the original token (obtained with username/password credentials), as `orig_iat`. You can only keep refreshing tokens up to `JWT_REFRESH_EXPIRATION_DELTA`.
+
+A typical use case might be a web app where you'd like to keep the user "logged in" the site without having to re-enter their password, or get kicked out by surprise before their token expired. Imagine they had a 1-hour token and are just at the last minute while they're still doing something. With mobile you could perhaps store the username/password to get a new token, but this is not a great idea in a browser. Each time the user loads the page, you can check if there is an existing non-expired token and if it's close to being expired, refresh it to extend their session. In other words, if a user is actively using your site, they can keep their "session" alive.
+
 ## Additional Settings
 There are some additional settings that you can override similar to how you'd do it with Django REST framework itself. Here are all the available defaults.
 
@@ -75,12 +91,18 @@ JWT_AUTH = {
     'JWT_PAYLOAD_HANDLER':
     'rest_framework_jwt.utils.jwt_payload_handler',
 
+    'JWT_PAYLOAD_GET_USER_ID_HANDLER':
+    'rest_framework_jwt.utils.jwt_get_user_id_from_payload_handler',
+
     'JWT_SECRET_KEY': settings.SECRET_KEY,
     'JWT_ALGORITHM': 'HS256',
     'JWT_VERIFY': True,
     'JWT_VERIFY_EXPIRATION': True,
     'JWT_LEEWAY': 0,
-    'JWT_EXPIRATION_DELTA': datetime.timedelta(seconds=300)
+    'JWT_EXPIRATION_DELTA': datetime.timedelta(seconds=300),
+
+    'JWT_ALLOW_REFRESH': False,
+    'JWT_REFRESH_EXPIRATION_DELTA': datetime.timedelta(days=7),
 }
 ```
 This packages uses the JSON Web Token Python implementation, [PyJWT](https://github.com/progrium/pyjwt) and allows to modify some of it's available options.
@@ -126,8 +148,21 @@ Default is `True`.
 
 Default is `0` seconds.
 
-
 ### JWT_EXPIRATION_DELTA
 This is an instance of Python's `datetime.timedelta`. This will be added to `datetime.utcnow()` to set the expiration time.
 
 Default is `datetime.timedelta(seconds=300)`(5 minutes).
+
+### JWT_ALLOW_REFRESH
+Enable token refresh functionality. Token issued from `rest_framework_jwt.views.obtain_jwt_token` will have an `orig_iat` field. Default is `False`
+
+### JWT_REFRESH_EXPIRATION_DELTA
+Limit on token refresh, is a `datetime.timedelta` instance. This is how much time after the original token that future tokens can be refreshed from.
+
+Default is `datetime.timedelta(days=7)` (7 days).
+
+### JWT_PAYLOAD_HANDLER
+Specify a custom function to generate the token payload
+
+### JWT_PAYLOAD_GET_USER_ID_HANDLER
+If you store `user_id` differently than the default payload handler does, implement this function to fetch `user_id` from the payload.
