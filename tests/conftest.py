@@ -5,7 +5,8 @@ def pytest_configure():
         DEBUG_PROPAGATE_EXCEPTIONS=True,
         DATABASES={
             'default': {
-                'ENGINE': 'django.db.backends.sqlite3'
+                'ENGINE': 'django.db.backends.sqlite3',
+                'NAME':  'db.sqlite3'
             }
         },
         SECRET_KEY='r-4p2y=uc56fmqsncog%3h!7hc=y+g)xtz+9y(prx*1o9dpry0',
