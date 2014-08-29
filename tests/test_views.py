@@ -1,9 +1,11 @@
+import time
 from calendar import timegm
 from datetime import datetime, timedelta
-import time
 
+from django import get_version
 from django.test import TestCase
 from django.test.utils import override_settings
+from django.utils import unittest
 from django.contrib.auth.models import User
 from django.conf.urls import patterns
 
@@ -14,6 +16,9 @@ from rest_framework_jwt import utils
 from rest_framework_jwt.settings import api_settings, DEFAULTS
 
 from .models import CustomUser
+
+
+NO_CUSTOM_USER_MODEL = 'Custom User Model only supported after Django 1.5'
 
 urlpatterns = patterns(
     '',
@@ -111,6 +116,7 @@ class ObtainJSONWebTokenTests(BaseTestCase):
         self.assertEqual(decoded_payload['username'], self.username)
 
 
+@unittest.skipIf(get_version() < '1.5.0', 'No Configurable User model feature')
 @override_settings(AUTH_USER_MODEL='tests.CustomUser')
 class CustomUserObtainJSONWebTokenTests(TestCase):
     """JSON Web Token Authentication"""
@@ -248,5 +254,4 @@ class RefreshJSONWebTokenTests(BaseTestCase):
 
     def tearDown(self):
         # Restore original settings
-        api_settings.JWT_ALLOW_REFRESH = \
-            DEFAULTS['JWT_ALLOW_REFRESH']
+        api_settings.JWT_ALLOW_REFRESH = DEFAULTS['JWT_ALLOW_REFRESH']
