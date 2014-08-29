@@ -3,16 +3,17 @@ from datetime import datetime, timedelta
 import time
 
 from django.test import TestCase
-from django.conf import settings
+from django.test.utils import override_settings
 from django.contrib.auth.models import User
+from django.conf.urls import patterns
 
 from rest_framework import status
-from rest_framework.compat import patterns
 from rest_framework.test import APIClient
 
 from rest_framework_jwt import utils
-from rest_framework_jwt.runtests.models import CustomUser
 from rest_framework_jwt.settings import api_settings, DEFAULTS
+
+from .models import CustomUser
 
 urlpatterns = patterns(
     '',
@@ -24,7 +25,7 @@ orig_datetime = datetime
 
 
 class BaseTestCase(TestCase):
-    urls = 'rest_framework_jwt.tests.test_views'
+    urls = 'tests.test_views'
 
     def setUp(self):
         self.email = 'jpueblo@example.com'
@@ -110,15 +111,12 @@ class ObtainJSONWebTokenTests(BaseTestCase):
         self.assertEqual(decoded_payload['username'], self.username)
 
 
+@override_settings(AUTH_USER_MODEL='tests.CustomUser')
 class CustomUserObtainJSONWebTokenTests(TestCase):
     """JSON Web Token Authentication"""
-    urls = 'rest_framework_jwt.tests.test_views'
+    urls = 'tests.test_views'
 
     def setUp(self):
-        # set custom user model
-        self.ORIG_AUTH_USER_MODEL = settings.AUTH_USER_MODEL
-        settings.AUTH_USER_MODEL = 'runtests.CustomUser'
-
         self.email = 'jpueblo@example.com'
         self.password = 'password'
         user = CustomUser.objects.create(email=self.email)
@@ -155,12 +153,9 @@ class CustomUserObtainJSONWebTokenTests(TestCase):
 
         self.assertEqual(response.status_code, 400)
 
-    def tearDown(self):
-        settings.AUTH_USER_MODEL = self.ORIG_AUTH_USER_MODEL
-
 
 class RefreshJSONWebTokenTests(BaseTestCase):
-    urls = 'rest_framework_jwt.tests.test_views'
+    urls = 'tests.test_views'
 
     def setUp(self):
         super(RefreshJSONWebTokenTests, self).setUp()

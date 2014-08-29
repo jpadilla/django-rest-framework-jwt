@@ -2,9 +2,10 @@ from calendar import timegm
 from datetime import datetime, timedelta
 import jwt
 
-from django.contrib.auth import authenticate, get_user_model
+from django.contrib.auth import authenticate
 from rest_framework import serializers
 
+from rest_framework_jwt import utils
 from rest_framework_jwt.settings import api_settings
 
 
@@ -32,7 +33,12 @@ class JSONWebTokenSerializer(serializers.Serializer):
 
     @property
     def username_field(self):
-        return get_user_model().USERNAME_FIELD
+        User = utils.get_user_model()
+
+        try:
+            return User.USERNAME_FIELD
+        except AttributeError:
+            return 'username'
 
     def validate(self, attrs):
         credentials = {self.username_field: attrs.get(self.username_field),
@@ -72,6 +78,7 @@ class RefreshJSONWebTokenSerializer(serializers.Serializer):
     token = serializers.CharField()
 
     def validate(self, attrs):
+        User = utils.get_user_model()
         token = attrs['token']
 
         # Check payload valid (based off of JSONWebTokenAuthentication,
@@ -86,34 +93,38 @@ class RefreshJSONWebTokenSerializer(serializers.Serializer):
             raise serializers.ValidationError(msg)
 
         # Make sure user exists (may want to refactor this)
-        User = get_user_model()
         try:
             user_id = jwt_get_user_id_from_payload(payload)
+
             if user_id:
                 user = User.objects.get(pk=user_id, is_active=True)
             else:
                 msg = 'Invalid payload'
                 raise serializers.ValidationError(msg)
         except User.DoesNotExist:
-            raise serializers.ValidationError("User doesn't exist")
+            msg = "User doesn't exist"
+            raise serializers.ValidationError(msg)
 
         # Get and check 'orig_iat'
         orig_iat = payload.get('orig_iat')
+
         if orig_iat:
             # Verify expiration
             refresh_limit = api_settings.JWT_REFRESH_EXPIRATION_DELTA
+
             if isinstance(refresh_limit, timedelta):
                 refresh_limit = (refresh_limit.days * 24 * 3600 +
                                  refresh_limit.seconds)
-            expiration_timestamp = (
-                orig_iat +
-                int(refresh_limit)
-            )
+
+            expiration_timestamp = orig_iat + int(refresh_limit)
             now_timestamp = timegm(datetime.utcnow().utctimetuple())
+
             if now_timestamp > expiration_timestamp:
-                raise serializers.ValidationError("Refresh has expired")
+                msg = 'Refresh has expired'
+                raise serializers.ValidationError(msg)
         else:
-            raise serializers.ValidationError("orig_iat field is required")
+            msg = 'orig_iat field is required'
+            raise serializers.ValidationError(msg)
 
         new_payload = jwt_payload_handler(user)
         new_payload['orig_iat'] = orig_iat

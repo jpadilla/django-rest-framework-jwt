@@ -4,11 +4,29 @@ import jwt
 from rest_framework_jwt.settings import api_settings
 
 
+def get_user_model():
+    try:
+        from django.contrib.auth import get_user_model
+    except ImportError:  # django < 1.5
+        from django.contrib.auth.models import User
+    else:
+        User = get_user_model()
+
+    return User
+
+
 def jwt_payload_handler(user):
+    try:
+        username = user.get_username()
+    except AttributeError:
+        username = user.username
+
+    print(username)
+
     return {
         'user_id': user.pk,
         'email': user.email,
-        'username': user.get_username(),
+        'username': username,
         'exp': datetime.utcnow() + api_settings.JWT_EXPIRATION_DELTA
     }
 

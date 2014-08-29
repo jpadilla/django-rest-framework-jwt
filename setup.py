@@ -1,10 +1,25 @@
 #!/usr/bin/env python
 # -*- coding: utf-8 -*-
 
-from setuptools import setup
 import re
 import os
 import sys
+from setuptools import setup
+from setuptools.command.test import test as TestCommand
+
+
+# This command has been borrowed from
+# https://github.com/getsentry/sentry/blob/master/setup.py
+class PyTest(TestCommand):
+    def finalize_options(self):
+        TestCommand.finalize_options(self)
+        self.test_args = ['tests']
+        self.test_suite = True
+
+    def run_tests(self):
+        import pytest
+        errno = pytest.main(self.test_args)
+        sys.exit(errno)
 
 
 name = 'djangorestframework-jwt'
@@ -15,7 +30,6 @@ author = 'Jose Padilla'
 author_email = 'jpadilla@getblimp.com'
 license = 'MIT'
 install_requires = open('requirements.txt').read().split('\n')
-test_suite = 'rest_framework_jwt.runtests.runtests.main'
 
 
 def get_version(package):
@@ -74,7 +88,7 @@ setup(
     author_email=author_email,
     packages=get_packages(package),
     package_data=get_package_data(package),
-    test_suite=test_suite,
+    cmdclass={'test': PyTest},
     install_requires=install_requires,
     classifiers=[
         'Development Status :: 5 - Production/Stable',

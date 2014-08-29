@@ -2,11 +2,11 @@ from django.contrib.auth.models import User
 from django.http import HttpResponse
 from django.test import TestCase
 from django.utils import unittest
+from django.conf.urls import patterns
 
 from rest_framework import permissions, status
 from rest_framework.authentication import OAuth2Authentication
 from rest_framework.compat import oauth2_provider
-from rest_framework.compat import patterns
 from rest_framework.test import APIRequestFactory, APIClient
 from rest_framework.views import APIView
 
@@ -46,7 +46,7 @@ urlpatterns = patterns(
 
 class JSONWebTokenAuthenticationTests(TestCase):
     """JSON Web Token Authentication"""
-    urls = 'rest_framework_jwt.tests.test_authentication'
+    urls = 'tests.test_authentication'
 
     def setUp(self):
         self.csrf_client = APIClient(enforce_csrf_checks=True)
