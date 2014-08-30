@@ -1,8 +1,11 @@
 import jwt
+
 from rest_framework import exceptions
-from rest_framework_jwt.settings import api_settings
+from rest_framework.compat import smart_text
 from rest_framework.authentication import (BaseAuthentication,
                                            get_authorization_header)
+
+from rest_framework_jwt.settings import api_settings
 
 try:
     from django.contrib.auth import get_user_model
@@ -33,9 +36,9 @@ class JSONWebTokenAuthentication(BaseAuthentication):
         supplied using JWT-based authentication.  Otherwise returns `None`.
         """
         auth = get_authorization_header(request).split()
-        jwt_auth_header_prefix = api_settings.JWT_AUTH_HEADER_PREFIX
+        auth_header_prefix = api_settings.JWT_AUTH_HEADER_PREFIX.lower()
 
-        if not auth or auth[0].lower() != jwt_auth_header_prefix.lower():
+        if not auth or smart_text(auth[0].lower()) != auth_header_prefix:
             return None
 
         if len(auth) == 1:
