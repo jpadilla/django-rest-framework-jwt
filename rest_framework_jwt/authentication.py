@@ -24,7 +24,8 @@ class JSONWebTokenAuthentication(BaseAuthentication):
     Token based authentication using the JSON Web Token standard.
 
     Clients should authenticate by passing the token key in the "Authorization"
-    HTTP header, prepended with the string "JWT ".  For example:
+    HTTP header, prepended with the string specified in the setting
+    `JWT_AUTH_HEADER_PREFIX`. For example:
 
         Authorization: JWT eyJhbGciOiAiSFMyNTYiLCAidHlwIj
     """
