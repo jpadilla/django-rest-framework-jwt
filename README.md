@@ -103,6 +103,8 @@ JWT_AUTH = {
 
     'JWT_ALLOW_REFRESH': False,
     'JWT_REFRESH_EXPIRATION_DELTA': datetime.timedelta(days=7),
+
+    'JWT_AUTH_HEADER_PREFIX': 'JWT',
 }
 ```
 This packages uses the JSON Web Token Python implementation, [PyJWT](https://github.com/progrium/pyjwt) and allows to modify some of it's available options.

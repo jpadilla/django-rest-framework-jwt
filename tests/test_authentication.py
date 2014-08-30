@@ -11,6 +11,7 @@ from rest_framework.test import APIRequestFactory, APIClient
 from rest_framework.views import APIView
 
 from rest_framework_jwt import utils
+from rest_framework_jwt.settings import api_settings, DEFAULTS
 from rest_framework_jwt.authentication import JSONWebTokenAuthentication
 
 
@@ -56,7 +57,7 @@ class JSONWebTokenAuthenticationTests(TestCase):
 
     def test_post_form_passing_jwt_auth(self):
         """
-        Ensure POSTing json over JWT auth with correct credentials
+        Ensure POSTing form over JWT auth with correct credentials
         passes and does not require CSRF
         """
         payload = utils.jwt_payload_handler(self.user)
@@ -70,7 +71,7 @@ class JSONWebTokenAuthenticationTests(TestCase):
 
     def test_post_json_passing_jwt_auth(self):
         """
-        Ensure POSTing form over JWT auth with correct credentials
+        Ensure POSTing JSON over JWT auth with correct credentials
         passes and does not require CSRF
         """
         payload = utils.jwt_payload_handler(self.user)
@@ -108,7 +109,7 @@ class JSONWebTokenAuthenticationTests(TestCase):
             '/jwt/', {'example': 'example'},
             HTTP_AUTHORIZATION=auth, format='json')
 
-        msg = 'Invalid JWT header. No credentials provided.'
+        msg = 'Invalid Authorization header. No credentials provided.'
 
         self.assertEqual(response.data['detail'], msg)
         self.assertEqual(response.status_code, status.HTTP_401_UNAUTHORIZED)
@@ -123,7 +124,7 @@ class JSONWebTokenAuthenticationTests(TestCase):
             '/jwt/', {'example': 'example'},
             HTTP_AUTHORIZATION=auth, format='json')
 
-        msg = ('Invalid JWT header. Credentials string '
+        msg = ('Invalid Authorization header. Credentials string '
                'should not contain spaces.')
 
         self.assertEqual(response.data['detail'], msg)
@@ -223,3 +224,23 @@ class JSONWebTokenAuthenticationTests(TestCase):
 
         self.assertEqual(response.data['detail'], msg)
         self.assertEqual(response.status_code, status.HTTP_401_UNAUTHORIZED)
+
+    def test_different_auth_header_prefix(self):
+        """
+        Ensure using a different setting for `JWT_AUTH_HEADER_PREFIX` and
+        with correct credentials passes.
+        """
+        api_settings.JWT_AUTH_HEADER_PREFIX = 'Bearer'
+
+        payload = utils.jwt_payload_handler(self.user)
+        token = utils.jwt_encode_handler(payload)
+
+        auth = 'Bearer {0}'.format(token)
+        response = self.csrf_client.post(
+            '/jwt/', {'example': 'example'},
+            HTTP_AUTHORIZATION=auth, format='json')
+
+        self.assertEqual(response.status_code, status.HTTP_200_OK)
+
+        # Restore original settings
+        api_settings.JWT_AUTH_HEADER_PREFIX = DEFAULTS['JWT_AUTH_HEADER_PREFIX']

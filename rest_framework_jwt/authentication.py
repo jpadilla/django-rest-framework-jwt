@@ -1,8 +1,8 @@
 import jwt
 from rest_framework import exceptions
+from rest_framework_jwt.settings import api_settings
 from rest_framework.authentication import (BaseAuthentication,
                                            get_authorization_header)
-from rest_framework_jwt.settings import api_settings
 
 try:
     from django.contrib.auth import get_user_model
@@ -33,15 +33,16 @@ class JSONWebTokenAuthentication(BaseAuthentication):
         supplied using JWT-based authentication.  Otherwise returns `None`.
         """
         auth = get_authorization_header(request).split()
+        jwt_auth_header_prefix = api_settings.JWT_AUTH_HEADER_PREFIX
 
-        if not auth or auth[0].lower() != b'jwt':
+        if not auth or auth[0].lower() != jwt_auth_header_prefix.lower():
             return None
 
         if len(auth) == 1:
-            msg = 'Invalid JWT header. No credentials provided.'
+            msg = 'Invalid Authorization header. No credentials provided.'
             raise exceptions.AuthenticationFailed(msg)
         elif len(auth) > 2:
-            msg = ('Invalid JWT header. Credentials string '
+            msg = ('Invalid Authorization header. Credentials string '
                    'should not contain spaces.')
             raise exceptions.AuthenticationFailed(msg)
 
