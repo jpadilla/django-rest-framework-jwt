@@ -21,8 +21,6 @@ def jwt_payload_handler(user):
     except AttributeError:
         username = user.username
 
-    print(username)
-
     return {
         'user_id': user.pk,
         'email': user.email,
