@@ -168,3 +168,10 @@ Specify a custom function to generate the token payload
 
 ### JWT_PAYLOAD_GET_USER_ID_HANDLER
 If you store `user_id` differently than the default payload handler does, implement this function to fetch `user_id` from the payload.
+
+### JWT_AUTH_HEADER_PREFIX
+You can modify the Authorization header value prefix that is required to be sent together with the token. The default value is `JWT`. This decision was introduced in PR [#4](https://github.com/GetBlimp/django-rest-framework-jwt/pull/4) to allow using both this package and OAuth2 in DRF.
+
+Another common value used for tokens and Authorization headers is `Bearer`.
+
+Default is `JWT`.
