@@ -1,3 +1,5 @@
+import django
+
 # Django settings for testproject project.
 
 DEBUG = True
@@ -64,7 +66,7 @@ MEDIA_ROOT = ''
 MEDIA_URL = ''
 
 # Make this unique, and don't share it with anybody.
-SECRET_KEY = 'r-4p2y=uc56fmqsncog%3h!7hc=y+g)xtz+9y(prx*1o9dpry0',
+SECRET_KEY = 'r-4p2y=uc56fmqsncog%3h!7hc=y+g)xtz+9y(prx*1o9dpry0'
 
 # List of callables that know how to import templates from various sources.
 TEMPLATE_LOADERS = (
@@ -118,6 +120,9 @@ else:
         'provider.oauth2',
     )
 
+if django.VERSION >= (1, 5):
+    INSTALLED_APPS += ('tests',)
+
 STATIC_URL = '/static/'
 
 PASSWORD_HASHERS = (
@@ -130,8 +135,3 @@ PASSWORD_HASHERS = (
 )
 
 AUTH_USER_MODEL = 'auth.User'
-
-import django
-
-if django.VERSION >= (1, 5):
-    INSTALLED_APPS += ('tests',)
