@@ -95,7 +95,6 @@ INSTALLED_APPS = (
     'django.contrib.sites',
     'django.contrib.messages',
     'django.contrib.staticfiles',
-    'tests',
 )
 
 # OAuth is optional and won't work if there is no oauth_provider & oauth2
@@ -134,5 +133,5 @@ AUTH_USER_MODEL = 'auth.User'
 
 import django
 
-if django.VERSION < (1, 3):
-    INSTALLED_APPS += ('staticfiles',)
+if django.VERSION >= (1, 5):
+    INSTALLED_APPS += ('tests',)

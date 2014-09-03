@@ -15,8 +15,6 @@ from rest_framework.test import APIClient
 from rest_framework_jwt import utils
 from rest_framework_jwt.settings import api_settings, DEFAULTS
 
-from .models import CustomUser
-
 
 NO_CUSTOM_USER_MODEL = 'Custom User Model only supported after Django 1.5'
 
@@ -123,6 +121,8 @@ class CustomUserObtainJSONWebTokenTests(TestCase):
     urls = 'tests.test_views'
 
     def setUp(self):
+        from .models import CustomUser
+
         self.email = 'jpueblo@example.com'
         self.password = 'password'
         user = CustomUser.objects.create(email=self.email)

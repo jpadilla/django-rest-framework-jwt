@@ -1,3 +1,6 @@
+import django
+
+
 def pytest_configure():
     from django.conf import settings
 
@@ -32,7 +35,6 @@ def pytest_configure():
             'django.contrib.sessions',
             'django.contrib.messages',
             'django.contrib.staticfiles',
-            'tests',
         ),
         PASSWORD_HASHERS=(
             'django.contrib.auth.hashers.SHA1PasswordHasher',
@@ -64,8 +66,10 @@ def pytest_configure():
             'provider.oauth2',
         )
 
+    if django.VERSION >= (1, 5):
+        settings.INSTALLED_APPS += ('tests',)
+
     try:
-        import django
         django.setup()
     except AttributeError:
         pass
