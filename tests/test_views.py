@@ -113,6 +113,21 @@ class ObtainJSONWebTokenTests(BaseTestCase):
         self.assertEqual(response.status_code, status.HTTP_200_OK)
         self.assertEqual(decoded_payload['username'], self.username)
 
+    def test_jwt_login_using_zero(self):
+        """
+        Test to reproduce issue #33
+        """
+        client = APIClient(enforce_csrf_checks=True)
+
+        data = {
+            'username': '0',
+            'password': '0'
+        }
+
+        response = client.post('/auth-token/', data, format='json')
+
+        self.assertEqual(response.status_code, 400)
+
 
 @unittest.skipIf(get_version() < '1.5.0', 'No Configurable User model feature')
 @override_settings(AUTH_USER_MODEL='tests.CustomUser')
