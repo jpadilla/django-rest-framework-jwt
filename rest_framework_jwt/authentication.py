@@ -7,12 +7,8 @@ from rest_framework.authentication import (BaseAuthentication,
 
 from rest_framework_jwt.settings import api_settings
 
-try:
-    from django.contrib.auth import get_user_model
-except ImportError:  # Django < 1.5
-    from django.contrib.auth.models import User
-else:
-    User = get_user_model()
+from django.conf import settings
+from django.contrib.auth import load_backend
 
 
 jwt_decode_handler = api_settings.JWT_DECODE_HANDLER
@@ -69,15 +65,19 @@ class JSONWebTokenAuthentication(BaseAuthentication):
         """
         try:
             user_id = jwt_get_user_id_from_payload(payload)
+            if not user_id:
+                raise exceptions.AuthenticationFailed('Invalid payload')
 
-            if user_id:
-                user = User.objects.get(pk=user_id, is_active=True)
-            else:
-                msg = 'Invalid payload'
-                raise exceptions.AuthenticationFailed(msg)
-        except User.DoesNotExist:
-            msg = 'Invalid signature'
-            raise exceptions.AuthenticationFailed(msg)
+            backend_path = payload.get('backend')
+            assert backend_path in settings.AUTHENTICATION_BACKENDS
+            backend = load_backend(backend_path)
+
+            user = backend.get_user(user_id)
+            if user is None:
+                raise exceptions.AuthenticationFailed('Invalid signature')
+
+        except (KeyError, AssertionError):
+            raise exceptions.AuthenticationFailed('Invalid signature')
 
         return user
 

@@ -3,10 +3,12 @@ from datetime import datetime, timedelta
 import jwt
 
 from django.contrib.auth import authenticate
-from rest_framework import serializers
+from rest_framework import serializers, exceptions
 
 from rest_framework_jwt import utils
 from rest_framework_jwt.settings import api_settings
+
+from .authentication import JSONWebTokenAuthentication
 
 
 jwt_payload_handler = api_settings.JWT_PAYLOAD_HANDLER
@@ -53,6 +55,8 @@ class JSONWebTokenSerializer(serializers.Serializer):
 
                 payload = jwt_payload_handler(user)
 
+                payload['backend'] = user.backend
+
                 # Include original issued at time for a brand new token,
                 # to allow token refresh
                 if api_settings.JWT_ALLOW_REFRESH:
@@ -78,7 +82,6 @@ class RefreshJSONWebTokenSerializer(serializers.Serializer):
     token = serializers.CharField()
 
     def validate(self, attrs):
-        User = utils.get_user_model()
         token = attrs['token']
 
         # Check payload valid (based off of JSONWebTokenAuthentication,
@@ -94,16 +97,9 @@ class RefreshJSONWebTokenSerializer(serializers.Serializer):
 
         # Make sure user exists (may want to refactor this)
         try:
-            user_id = jwt_get_user_id_from_payload(payload)
-
-            if user_id:
-                user = User.objects.get(pk=user_id, is_active=True)
-            else:
-                msg = 'Invalid payload'
-                raise serializers.ValidationError(msg)
-        except User.DoesNotExist:
-            msg = "User doesn't exist"
-            raise serializers.ValidationError(msg)
+            user = JSONWebTokenAuthentication().authenticate_credentials(payload)
+        except exceptions.AuthenticationFailed as e:
+            raise serializers.ValidationError(e.detail)
 
         # Get and check 'orig_iat'
         orig_iat = payload.get('orig_iat')
