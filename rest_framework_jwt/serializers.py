@@ -42,9 +42,9 @@ class JSONWebTokenSerializer(serializers.Serializer):
         except AttributeError:
             return 'username'
 
-    def validate(self, attrs):
-        credentials = {self.username_field: attrs.get(self.username_field),
-                       'password': attrs.get('password')}
+    def validate(self, credentials):
+        # credentials = {self.username_field: attrs.get(self.username_field),
+        #                'password': attrs.get('password')}
         if all(credentials.values()):
             user = authenticate(**credentials)
 
