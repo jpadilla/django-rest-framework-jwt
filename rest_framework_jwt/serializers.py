@@ -26,12 +26,12 @@ class JSONWebTokenSerializer(serializers.Serializer):
     Returns a JSON Web Token that can be used to authenticate later calls.
     """
 
-    password = serializers.CharField(write_only=True)
+    password = serializers.CharField(write_only=True, required=False)
 
     def __init__(self, *args, **kwargs):
         """Dynamically add the USERNAME_FIELD to self.fields."""
         super(JSONWebTokenSerializer, self).__init__(*args, **kwargs)
-        self.fields[self.username_field] = serializers.CharField()
+        self.fields[self.username_field] = serializers.CharField(required=False)
 
     @property
     def username_field(self):
