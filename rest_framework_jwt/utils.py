@@ -49,5 +49,7 @@ def jwt_decode_handler(token):
     return jwt.decode(
         token,
         api_settings.JWT_SECRET_KEY,
-        api_settings.JWT_VERIFY
+        api_settings.JWT_VERIFY,
+        verify_expiration=api_settings.JWT_VERIFY_EXPIRATION,
+        leeway=api_settings.JWT_LEEWAY
     )
