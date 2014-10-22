@@ -50,6 +50,6 @@ def jwt_decode_handler(token):
         token,
         api_settings.JWT_SECRET_KEY,
         api_settings.JWT_VERIFY,
-        api_settings.JWT_VERIFY_EXPIRATION,
-        api_settings.JWT_LEEWAY
+        verify_expiration=api_settings.JWT_VERIFY_EXPIRATION,
+        leeway=api_settings.JWT_LEEWAY
     )
