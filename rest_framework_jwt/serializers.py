@@ -4,6 +4,7 @@ import jwt
 
 from django.contrib.auth import authenticate
 from rest_framework import serializers
+from .compat import Serializer
 
 from rest_framework_jwt import utils
 from rest_framework_jwt.settings import api_settings
@@ -15,7 +16,7 @@ jwt_decode_handler = api_settings.JWT_DECODE_HANDLER
 jwt_get_user_id_from_payload = api_settings.JWT_PAYLOAD_GET_USER_ID_HANDLER
 
 
-class JSONWebTokenSerializer(serializers.Serializer):
+class JSONWebTokenSerializer(Serializer):
     """
     Serializer class used to validate a username and password.
 
@@ -71,7 +72,7 @@ class JSONWebTokenSerializer(serializers.Serializer):
             raise serializers.ValidationError(msg)
 
 
-class RefreshJSONWebTokenSerializer(serializers.Serializer):
+class RefreshJSONWebTokenSerializer(Serializer):
     """
     Check an access token
     """
