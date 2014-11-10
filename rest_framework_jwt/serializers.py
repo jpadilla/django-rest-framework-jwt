@@ -96,7 +96,7 @@ class RefreshJSONWebTokenSerializer(serializers.Serializer):
         try:
             user_id = jwt_get_user_id_from_payload(payload)
 
-            if user_id:
+            if user_id is not None:
                 user = User.objects.get(pk=user_id, is_active=True)
             else:
                 msg = 'Invalid payload'
