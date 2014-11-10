@@ -8,16 +8,20 @@ python:
   - "3.4"
 
 env:
-  - DJANGO="django==1.7"
-  - DJANGO="django==1.6.5"
-  - DJANGO="django==1.5.8"
-  - DJANGO="django==1.4.13"
+  - DJANGO="django==1.7" DRF="djangorestframework>=2.3.11"
+  - DJANGO="django==1.6.5" DRF="djangorestframework>=2.3.11"
+  - DJANGO="django==1.5.8" DRF="djangorestframework>=2.3.11"
+  - DJANGO="django==1.4.13" DRF="djangorestframework>=2.3.11"
+  - DJANGO="django==1.7" DRF="https://github.com/tomchristie/django-rest-framework/archive/version-3.0.zip"
+  - DJANGO="django==1.6.5" DRF="https://github.com/tomchristie/django-rest-framework/archive/version-3.0.zip"
+  - DJANGO="django==1.5.8" DRF="https://github.com/tomchristie/django-rest-framework/archive/version-3.0.zip"
+  - DJANGO="django==1.4.13" DRF="https://github.com/tomchristie/django-rest-framework/archive/version-3.0.zip"
 
 install:
   - pip install $DJANGO
   - pip install pytest-django==2.6.1
   - pip install flake8==2.2.2
-  - pip install djangorestframework>=2.3.11
+  - pip install $DRF
   - pip install PyJWT>=0.1.8
   - "if [[ ${TRAVIS_PYTHON_VERSION::1} != '3' ]]; then pip install django-oauth2-provider==0.2.4; fi"
   - export PYTHONPATH=.
@@ -28,10 +32,18 @@ script:
 matrix:
   exclude:
     - python: "2.6"
-      env: DJANGO="django==1.7"
+      env: DJANGO="django==1.7" DRF="djangorestframework>=2.3.11"
     - python: "3.2"
-      env: DJANGO="django==1.4.13"
+      env: DJANGO="django==1.4.13" DRF="djangorestframework>=2.3.11"
     - python: "3.3"
-      env: DJANGO="django==1.4.13"
+      env: DJANGO="django==1.4.13" DRF="djangorestframework>=2.3.11"
     - python: "3.4"
-      env: DJANGO="django==1.4.13"
+      env: DJANGO="django==1.4.13" DRF="djangorestframework>=2.3.11"
+    - python: "2.6"
+      env: DJANGO="django==1.7" DRF="https://github.com/tomchristie/django-rest-framework/archive/version-3.0.zip"
+    - python: "3.2"
+      env: DJANGO="django==1.4.13" DRF="https://github.com/tomchristie/django-rest-framework/archive/version-3.0.zip"
+    - python: "3.3"
+      env: DJANGO="django==1.4.13" DRF="https://github.com/tomchristie/django-rest-framework/archive/version-3.0.zip"
+    - python: "3.4"
+      env: DJANGO="django==1.4.13" DRF="https://github.com/tomchristie/django-rest-framework/archive/version-3.0.zip"
