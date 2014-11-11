@@ -70,7 +70,7 @@ If `JWT_ALLOW_REFRESH` is True, issued tokens can be "refreshed" to obtain a new
 Pass in an existing token to the refresh endpoint as follows: `{"token": EXISTING_TOKEN}`. Note that only non-expired tokens will work. The JSON response looks the same as the normal obtain token endpoint `{"token": NEW_TOKEN}`.
 
 ```bash
-$ curl -X POST -H "Content-Type: application/json" -d '{"token":"<EXISTING_TOKEN>}' http://localhost:8000/api-token-refresh/
+$ curl -X POST -H "Content-Type: application/json" -d '{"token":"<EXISTING_TOKEN>"}' http://localhost:8000/api-token-refresh/
 ```
 
 Refresh with tokens can be repeated (token1 -> token2 -> token3), but this chain of token stores the time that the original token (obtained with username/password credentials), as `orig_iat`. You can only keep refreshing tokens up to `JWT_REFRESH_EXPIRATION_DELTA`.
