@@ -71,7 +71,7 @@ class JSONWebTokenAuthentication(BaseAuthentication):
         Returns an active user that matches the payload's user id and email.
         """
         user_id = jwt_get_user_id_from_payload(payload)
-        if not user_id:
+        if user_id is None:
             raise exceptions.AuthenticationFailed('Invalid payload')
 
         try:
