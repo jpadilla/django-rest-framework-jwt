@@ -1,8 +1,16 @@
+from distutils.version import StrictVersion
+
+import rest_framework
 from django.test import TestCase
+from django.utils import unittest
 from django.contrib.auth.models import User
 
 from rest_framework_jwt.serializers import JSONWebTokenSerializer
 from rest_framework_jwt import utils
+
+
+drf2 = rest_framework.VERSION < StrictVersion('3.0.0')
+drf3 = rest_framework.VERSION >= StrictVersion('3.0.0')
 
 
 class JSONWebTokenSerializerTests(TestCase):
@@ -18,10 +26,21 @@ class JSONWebTokenSerializerTests(TestCase):
             'password': self.password
         }
 
-    def test_empty(self):
+    @unittest.skipUnless(drf2, 'not supported in this version')
+    def test_empty_drf2(self):
         serializer = JSONWebTokenSerializer()
         expected = {
             'username': ''
+        }
+
+        self.assertEqual(serializer.data, expected)
+
+    @unittest.skipUnless(drf3, 'not supported in this version')
+    def test_empty_drf3(self):
+        serializer = JSONWebTokenSerializer()
+        expected = {
+            'username': '',
+            'password': '',
         }
 
         self.assertEqual(serializer.data, expected)
