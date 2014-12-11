@@ -29,7 +29,9 @@ url = 'https://github.com/GetBlimp/django-rest-framework-jwt'
 author = 'Jose Padilla'
 author_email = 'jpadilla@getblimp.com'
 license = 'MIT'
-install_requires = open('requirements.txt').read().split('\n')
+install_requires = [
+    'PyJWT>=0.3.0,<0.4',
+]
 
 
 def get_version(package):

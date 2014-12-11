@@ -1,1 +1,14 @@
-PyJWT>=0.3.0,<0.4
+# Minimum Django and DRF version
+Django>=1.6
+djangorestframework>=2.4.3
+
+# Test requirements
+pytest-django==2.6
+pytest==2.5.2
+pytest-cov==1.6
+flake8==2.2.2
+
+# Optional packages
+django-oauth-plus>=2.2.1
+oauth2>=1.5.211
+django-oauth2-provider>=0.2.4
