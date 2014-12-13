@@ -7,6 +7,12 @@ This package provides [JSON Web Token Authentication](http://tools.ietf.org/html
 
 If you want to read more about JWT, here's a great blog post by the guys at Auth0 that talks about [Cookie vs Token based authentication](http://blog.auth0.com/2014/01/07/angularjs-authentication-with-cookies-vs-token/).
 
+## Requirements
+
+- Python (2.7, 3.2, 3.3, 3.4)
+- Django (1.6, 1.7)
+- Django REST Framework (2.4.3, 2.4.4, 3.0.0)
+
 ## Installation
 
 Install using `pip`...
