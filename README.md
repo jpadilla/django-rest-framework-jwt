@@ -116,7 +116,7 @@ JWT_AUTH = {
 This packages uses the JSON Web Token Python implementation, [PyJWT](https://github.com/progrium/pyjwt) and allows to modify some of it's available options.
 
 ### JWT_SECRET_KEY
-This is the secret key used to encrypt the JWT. Make sure this is safe and not shared or public.
+This is the secret key used to sign the JWT. Make sure this is safe and not shared or public.
 
 Default is your project's `settings.SECRET_KEY`.
 
