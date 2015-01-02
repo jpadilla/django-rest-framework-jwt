@@ -68,10 +68,8 @@ class JSONWebTokenSerializer(Serializer):
                 msg = 'Unable to login with provided credentials.'
                 raise serializers.ValidationError(msg)
         else:
-            msg = 'Must include "{0}" and "{1}"'.format(
-                self.username_field,
-                'password'
-            )
+            msg = 'Must include "{0}" and "password"'.format(
+                self.username_field)
             raise serializers.ValidationError(msg)
 
 
