@@ -181,6 +181,15 @@ If you store `user_id` differently than the default payload handler does, implem
 ### JWT_RESPONSE_PAYLOAD_HANDLER
 Attach additional data to the auth login response such as the currently logged in User. Accepts the User object as argument.
 
+Example:
+```
+def jwt_response_payload(user):
+    serializer = UserSerializer(user)
+    return {
+        'user': serializer.data
+    }
+```
+
 Default is `{}`
 
 ### JWT_AUTH_HEADER_PREFIX
