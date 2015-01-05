@@ -64,7 +64,7 @@ class JSONWebTokenSerializer(Serializer):
 
                 # Obtain the token and construct the kwarg.
                 token = {
-                    'token': jwt_encode_handler(payload)
+                    'token': jwt_encode_handler(token_payload)
                 }
 
                 # Construct the payload.
