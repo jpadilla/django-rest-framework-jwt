@@ -14,6 +14,7 @@ jwt_payload_handler = api_settings.JWT_PAYLOAD_HANDLER
 jwt_encode_handler = api_settings.JWT_ENCODE_HANDLER
 jwt_decode_handler = api_settings.JWT_DECODE_HANDLER
 jwt_get_user_id_from_payload = api_settings.JWT_PAYLOAD_GET_USER_ID_HANDLER
+jwt_response_payload_handler = api_settings.JWT_REPONSE_PAYLOAD_HANDLER
 
 
 class JSONWebTokenSerializer(Serializer):
@@ -52,18 +53,28 @@ class JSONWebTokenSerializer(Serializer):
                     msg = 'User account is disabled.'
                     raise serializers.ValidationError(msg)
 
-                payload = jwt_payload_handler(user)
+                token_payload = jwt_payload_handler(user)
 
                 # Include original issued at time for a brand new token,
                 # to allow token refresh
                 if api_settings.JWT_ALLOW_REFRESH:
-                    payload['orig_iat'] = timegm(
+                    token_payload['orig_iat'] = timegm(
                         datetime.utcnow().utctimetuple()
                     )
 
-                return {
+                # Obtain the token and construct the kwarg.
+                token = {
                     'token': jwt_encode_handler(payload)
                 }
+
+                # Construct the payload.
+                payload = {}
+                payload.update(token)
+
+                # Attach additional payload response data.
+                payload.update(jwt_response_payload_handler(user))
+
+                return payload
             else:
                 msg = 'Unable to login with provided credentials.'
                 raise serializers.ValidationError(msg)
