@@ -55,8 +55,8 @@ def jwt_decode_handler(token):
     )
 
 
-def jwt_response_payload_handler(user):
+def jwt_response_payload(user):
     """
-    Override to attach additional data to the response payload.
+    Override this function to include extra data in the login response.
     """
     return {}

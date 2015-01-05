@@ -9,12 +9,11 @@ from .compat import Serializer
 from rest_framework_jwt import utils
 from rest_framework_jwt.settings import api_settings
 
-
 jwt_payload_handler = api_settings.JWT_PAYLOAD_HANDLER
 jwt_encode_handler = api_settings.JWT_ENCODE_HANDLER
 jwt_decode_handler = api_settings.JWT_DECODE_HANDLER
 jwt_get_user_id_from_payload = api_settings.JWT_PAYLOAD_GET_USER_ID_HANDLER
-jwt_response_payload_handler = api_settings.JWT_RESPONSE_PAYLOAD_HANDLER
+jwt_response_payload = api_settings.JWT_RESPONSE_PAYLOAD
 
 
 class JSONWebTokenSerializer(Serializer):
@@ -62,7 +61,7 @@ class JSONWebTokenSerializer(Serializer):
                         datetime.utcnow().utctimetuple()
                     )
 
-                # Obtain the token and construct the kwarg.
+                # Obtain token and build kwarg.
                 token = {
                     'token': jwt_encode_handler(token_payload)
                 }
@@ -71,16 +70,15 @@ class JSONWebTokenSerializer(Serializer):
                 payload = {}
                 payload.update(token)
 
-                # Attach additional payload response data.
-                payload.update(jwt_response_payload_handler(user))
-
+                # Attach any additional data to the response.
+                payload.update(jwt_response_payload(user))
+                    
                 return payload
             else:
                 msg = 'Unable to login with provided credentials.'
                 raise serializers.ValidationError(msg)
         else:
-            msg = 'Must include "{0}" and "password"'.format(
-                self.username_field)
+            msg = 'Must include "username" and "password"'
             raise serializers.ValidationError(msg)
 
 
