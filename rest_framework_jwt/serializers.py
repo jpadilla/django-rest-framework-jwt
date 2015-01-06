@@ -1,6 +1,7 @@
+import jwt
+
 from calendar import timegm
 from datetime import datetime, timedelta
-import jwt
 
 from django.contrib.auth import authenticate
 from rest_framework import serializers
@@ -61,15 +62,11 @@ class JSONWebTokenSerializer(Serializer):
                     token_payload['orig_iat'] = timegm(
                         datetime.utcnow().utctimetuple()
                     )
-
-                # Obtain the token and construct the kwarg.
-                token = {
+                
+                # Obtain the token and construct the payload.
+                payload = {
                     'token': jwt_encode_handler(token_payload)
                 }
-
-                # Construct the payload.
-                payload = {}
-                payload.update(token)
 
                 # Attach additional payload response data.
                 data = jwt_response_payload_handler(user)
@@ -144,14 +141,10 @@ class RefreshJSONWebTokenSerializer(Serializer):
         token_payload = jwt_payload_handler(user)
         token_payload['orig_iat'] = orig_iat
 
-        # Obtain the token and construct the kwarg.
-        token = {
+        # Obtain the token and construct the payload.
+        payload = {
             'token': jwt_encode_handler(token_payload)
         }
-
-        # Construct the payload.
-        payload = {}
-        payload.update(token)
 
         # Attach additional payload response data.
         data = jwt_response_payload_handler(user)
