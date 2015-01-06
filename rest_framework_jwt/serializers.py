@@ -72,7 +72,9 @@ class JSONWebTokenSerializer(Serializer):
                 payload.update(token)
 
                 # Attach additional payload response data.
-                payload.update(jwt_response_payload_handler(user))
+                data = jwt_response_payload_handler(user)
+                if isinstance(data, dict):
+                    payload.update(data)
 
                 return payload
             else:
@@ -152,6 +154,8 @@ class RefreshJSONWebTokenSerializer(Serializer):
         payload.update(token)
 
         # Attach additional payload response data.
-        payload.update(jwt_response_payload_handler(user))
+        data = jwt_response_payload_handler(user)
+        if isinstance(data, dict):
+            payload.update(data)
 
         return payload
