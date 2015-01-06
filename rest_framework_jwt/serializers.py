@@ -14,6 +14,7 @@ jwt_payload_handler = api_settings.JWT_PAYLOAD_HANDLER
 jwt_encode_handler = api_settings.JWT_ENCODE_HANDLER
 jwt_decode_handler = api_settings.JWT_DECODE_HANDLER
 jwt_get_user_id_from_payload = api_settings.JWT_PAYLOAD_GET_USER_ID_HANDLER
+jwt_response_payload_handler = api_settings.JWT_RESPONSE_PAYLOAD_HANDLER
 
 
 class JSONWebTokenSerializer(Serializer):
@@ -52,18 +53,28 @@ class JSONWebTokenSerializer(Serializer):
                     msg = 'User account is disabled.'
                     raise serializers.ValidationError(msg)
 
-                payload = jwt_payload_handler(user)
+                token_payload = jwt_payload_handler(user)
 
                 # Include original issued at time for a brand new token,
                 # to allow token refresh
                 if api_settings.JWT_ALLOW_REFRESH:
-                    payload['orig_iat'] = timegm(
+                    token_payload['orig_iat'] = timegm(
                         datetime.utcnow().utctimetuple()
                     )
 
-                return {
-                    'token': jwt_encode_handler(payload)
+                # Obtain the token and construct the kwarg.
+                token = {
+                    'token': jwt_encode_handler(token_payload)
                 }
+
+                # Construct the payload.
+                payload = {}
+                payload.update(token)
+
+                # Attach additional payload response data.
+                payload.update(jwt_response_payload_handler(user))
+
+                return payload
             else:
                 msg = 'Unable to login with provided credentials.'
                 raise serializers.ValidationError(msg)
@@ -86,7 +97,7 @@ class RefreshJSONWebTokenSerializer(Serializer):
         # Check payload valid (based off of JSONWebTokenAuthentication,
         # may want to refactor)
         try:
-            payload = jwt_decode_handler(token)
+            token_payload = jwt_decode_handler(token)
         except jwt.ExpiredSignature:
             msg = 'Signature has expired.'
             raise serializers.ValidationError(msg)
@@ -96,7 +107,7 @@ class RefreshJSONWebTokenSerializer(Serializer):
 
         # Make sure user exists (may want to refactor this)
         try:
-            user_id = jwt_get_user_id_from_payload(payload)
+            user_id = jwt_get_user_id_from_payload(token_payload)
 
             if user_id is not None:
                 user = User.objects.get(pk=user_id, is_active=True)
@@ -108,7 +119,7 @@ class RefreshJSONWebTokenSerializer(Serializer):
             raise serializers.ValidationError(msg)
 
         # Get and check 'orig_iat'
-        orig_iat = payload.get('orig_iat')
+        orig_iat = token_payload.get('orig_iat')
 
         if orig_iat:
             # Verify expiration
@@ -128,9 +139,19 @@ class RefreshJSONWebTokenSerializer(Serializer):
             msg = 'orig_iat field is required'
             raise serializers.ValidationError(msg)
 
-        new_payload = jwt_payload_handler(user)
-        new_payload['orig_iat'] = orig_iat
+        token_payload = jwt_payload_handler(user)
+        token_payload['orig_iat'] = orig_iat
 
-        return {
-            'token': jwt_encode_handler(new_payload)
+        # Obtain the token and construct the kwarg.
+        token = {
+            'token': jwt_encode_handler(token_payload)
         }
+
+        # Construct the payload.
+        payload = {}
+        payload.update(token)
+
+        # Attach additional payload response data.
+        payload.update(jwt_response_payload_handler(user))
+
+        return payload

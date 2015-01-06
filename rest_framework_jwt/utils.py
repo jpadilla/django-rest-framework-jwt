@@ -53,3 +53,10 @@ def jwt_decode_handler(token):
         verify_expiration=api_settings.JWT_VERIFY_EXPIRATION,
         leeway=api_settings.JWT_LEEWAY
     )
+
+
+def jwt_response_payload_handler(user):
+    """
+    Override to attach additional data to the response payload.
+    """
+    return {}

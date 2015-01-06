@@ -23,7 +23,7 @@ class ObtainJSONWebToken(APIView):
     def post(self, request):
         serializer = self.serializer_class(data=request.DATA)
         if serializer.is_valid():
-            return Response({'token': serializer.object['token']})
+            return Response(serializer.object)
         return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
 
 
@@ -45,7 +45,7 @@ class RefreshJSONWebToken(APIView):
     def post(self, request):
         serializer = self.serializer_class(data=request.DATA)
         if serializer.is_valid():
-            return Response({'token': serializer.object['token']})
+            return Response(serializer.object)
         return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
 
 
