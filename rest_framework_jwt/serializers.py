@@ -62,7 +62,7 @@ class JSONWebTokenSerializer(Serializer):
                     )
 
                 return {
-                    'token': jwt_encode_handler(payload)
+                    'token': jwt_encode_handler(payload, user)
                 }
             else:
                 msg = 'Unable to login with provided credentials.'
@@ -80,10 +80,9 @@ class RefreshJSONWebTokenSerializer(Serializer):
     token = serializers.CharField()
 
     def validate(self, attrs):
-        User = utils.get_user_model()
         token = attrs['token']
 
-        # Check payload valid (based off of JSONWebTokenAuthentication,
+        # Check for a valid payload (based off of JSONWebTokenAuthentication,
         # may want to refactor)
         try:
             payload = jwt_decode_handler(token)
@@ -94,7 +93,26 @@ class RefreshJSONWebTokenSerializer(Serializer):
             msg = 'Error decoding signature.'
             raise serializers.ValidationError(msg)
 
-        # Make sure user exists (may want to refactor this)
+        user = self.get_user_from_payload(payload)
+
+        orig_iat = payload.get('orig_iat')
+        self.check_refresh_expiration(orig_iat)
+
+        new_payload = jwt_payload_handler(user)
+        new_payload['orig_iat'] = orig_iat
+
+        return {
+            'token': jwt_encode_handler(new_payload, user)
+        }
+
+    def get_user_from_payload(self, payload):
+        """
+        Return the user specified by the payload.
+
+        Raises serializers.ValidationError() if a user cannot be retrieved.
+        """
+        User = utils.get_user_model()
+
         try:
             user_id = jwt_get_user_id_from_payload(payload)
 
@@ -106,10 +124,14 @@ class RefreshJSONWebTokenSerializer(Serializer):
         except User.DoesNotExist:
             msg = "User doesn't exist"
             raise serializers.ValidationError(msg)
+        return user
 
-        # Get and check 'orig_iat'
-        orig_iat = payload.get('orig_iat')
+    def check_refresh_expiration(self, orig_iat):
+        """
+        Check that a token is still eligible for refresh.
 
+        Raise serializers.ValidationError() if token cannot be refreshed.
+        """
         if orig_iat:
             # Verify expiration
             refresh_limit = api_settings.JWT_REFRESH_EXPIRATION_DELTA
@@ -127,10 +149,3 @@ class RefreshJSONWebTokenSerializer(Serializer):
         else:
             msg = 'orig_iat field is required'
             raise serializers.ValidationError(msg)
-
-        new_payload = jwt_payload_handler(user)
-        new_payload['orig_iat'] = orig_iat
-
-        return {
-            'token': jwt_encode_handler(new_payload)
-        }
