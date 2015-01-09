@@ -30,10 +30,12 @@ class JSONWebTokenAuthentication(BaseAuthentication):
     """
     www_authenticate_realm = 'api'
 
-    def authenticate(self, request):
+    def get_auth_header(self, request):
         """
-        Returns a two-tuple of `User` and token if a valid signature has been
-        supplied using JWT-based authentication.  Otherwise returns `None`.
+        Returns the authentication header string split into
+        [auth_header_prefix, token] or `None` if there is no authentication header.
+
+        Raises exceptions.AuthenticationFailed() if the auth header is malformed.
         """
         auth = get_authorization_header(request).split()
         auth_header_prefix = api_settings.JWT_AUTH_HEADER_PREFIX.lower()
@@ -48,6 +50,18 @@ class JSONWebTokenAuthentication(BaseAuthentication):
             msg = ('Invalid Authorization header. Credentials string '
                    'should not contain spaces.')
             raise exceptions.AuthenticationFailed(msg)
+
+        return auth
+
+    def authenticate(self, request):
+        """
+        Returns a two-tuple of `User` and token if a valid signature has been
+        supplied using JWT-based authentication.  Otherwise returns `None`.
+        """
+        auth = self.get_auth_header(request)
+
+        if auth is None:
+            return None
 
         try:
             payload = jwt_decode_handler(auth[1])
