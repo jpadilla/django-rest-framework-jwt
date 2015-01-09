@@ -37,7 +37,7 @@ def jwt_get_user_id_from_payload_handler(payload):
     return user_id
 
 
-def jwt_encode_handler(payload):
+def jwt_encode_handler(payload, user=None):
     return jwt.encode(
         payload,
         api_settings.JWT_SECRET_KEY,
@@ -45,7 +45,7 @@ def jwt_encode_handler(payload):
     ).decode('utf-8')
 
 
-def jwt_decode_handler(token):
+def jwt_decode_handler(token, user=None):
     return jwt.decode(
         token,
         api_settings.JWT_SECRET_KEY,
