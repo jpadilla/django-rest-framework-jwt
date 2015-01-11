@@ -1,5 +1,6 @@
-from datetime import datetime
 import jwt
+
+from datetime import datetime
 
 from rest_framework_jwt.settings import api_settings
 

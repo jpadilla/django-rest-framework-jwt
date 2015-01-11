@@ -1,6 +1,7 @@
+import jwt
+
 from calendar import timegm
 from datetime import datetime, timedelta
-import jwt
 
 from django.contrib.auth import authenticate
 from rest_framework import serializers
