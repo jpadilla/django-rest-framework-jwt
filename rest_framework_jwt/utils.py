@@ -56,8 +56,11 @@ def jwt_decode_handler(token):
     )
 
 
-def jwt_response_payload_handler(user):
+def jwt_response_payload_handler(token, user=None):
     """
-    Override to attach additional data to the response payload.
+    Return's the response data for both the login and refresh views.
+    Override to return a custom response such as including the User.
     """
-    return {}
+    return {
+        'token': token
+    }
