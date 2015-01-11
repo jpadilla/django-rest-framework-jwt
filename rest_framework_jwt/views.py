@@ -1,10 +1,17 @@
+from django.utils.translation import ugettext_lazy as _
+
 from rest_framework.views import APIView
+from rest_framework import exceptions
 from rest_framework import status
 from rest_framework import parsers
 from rest_framework import renderers
 from rest_framework.response import Response
 
+from rest_framework_jwt.settings import api_settings
+
 from .serializers import JSONWebTokenSerializer, RefreshJSONWebTokenSerializer
+
+jwt_response_payload_handler = api_settings.JWT_RESPONSE_PAYLOAD_HANDLER
 
 
 class ObtainJSONWebToken(APIView):
@@ -23,7 +30,11 @@ class ObtainJSONWebToken(APIView):
     def post(self, request):
         serializer = self.serializer_class(data=request.DATA)
         if serializer.is_valid():
-            return Response(serializer.object)
+            user = serializer.object.get('user') or request.user
+            response_data = jwt_response_payload_handler(user)
+            if not isinstance(response_data, dict):
+                raise TypeError(_('Response data must be a dictionary.'))
+            return Response(serializer.object + response_data)
         return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
 
 
@@ -45,7 +56,11 @@ class RefreshJSONWebToken(APIView):
     def post(self, request):
         serializer = self.serializer_class(data=request.DATA)
         if serializer.is_valid():
-            return Response(serializer.object)
+            user = serializer.object.get('user') or request.user
+            response_data = jwt_response_payload_handler(user)
+            if not isinstance(response_data, dict):
+                raise TypeError(_('Response data must be a dictionary.'))
+            return Response(serializer.object + response_data)
         return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
 
 
