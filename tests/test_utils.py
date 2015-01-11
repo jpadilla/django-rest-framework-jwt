@@ -36,3 +36,10 @@ class UtilsTests(TestCase):
         decoded_payload = utils.jwt_decode_handler(token)
 
         self.assertEqual(decoded_payload, payload)
+
+    def test_jwt_response_payload(self):
+        payload = utils.jwt_payload_handler(self.user)
+        token = utils.jwt_encode_handler(payload)
+        response_data = utils.jwt_response_payload_handler(token, self.user)
+
+        self.assertEqual(response_data, dict(token=token))
