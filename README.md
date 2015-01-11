@@ -179,14 +179,16 @@ Specify a custom function to generate the token payload
 If you store `user_id` differently than the default payload handler does, implement this function to fetch `user_id` from the payload.
 
 ### JWT_RESPONSE_PAYLOAD_HANDLER
-Attach additional data to the auth login response such as the currently logged in User. Accepts the User object as argument.
+Responsible for controlling the response data returned after login or refresh. Override to return a custom response such as including the serialized representation of the User.
+
+Defaults to return the JWT token.
 
 Example:
 ```
-def jwt_response_payload(user):
-    serializer = UserSerializer(user)
+def jwt_response_payload_handler(token, user=None):
     return {
-        'user': serializer.data
+        'token': token,
+        'user': UserSerializer(user).data
     }
 ```
 
