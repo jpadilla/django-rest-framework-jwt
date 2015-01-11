@@ -1,5 +1,3 @@
-from django.utils.translation import ugettext_lazy as _
-
 from rest_framework.views import APIView
 from rest_framework import exceptions
 from rest_framework import status
