@@ -73,10 +73,10 @@ class JSONWebTokenAuthentication(BaseAuthentication):
             if user_id is not None:
                 user = User.objects.get(pk=user_id, is_active=True)
             else:
-                msg = _('Invalid payload')
+                msg = _('Invalid payload.')
                 raise exceptions.AuthenticationFailed(msg)
         except User.DoesNotExist:
-            msg = _('Invalid signature')
+            msg = _('Invalid signature.')
             raise exceptions.AuthenticationFailed(msg)
 
         return user

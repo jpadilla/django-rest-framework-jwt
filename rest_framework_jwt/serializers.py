@@ -69,7 +69,7 @@ class JSONWebTokenSerializer(Serializer):
                 msg = _('Unable to login with provided credentials.')
                 raise serializers.ValidationError(msg)
         else:
-            msg = _('Must include "{username_field}" and "password"')
+            msg = _('Must include "{username_field}" and "password".')
             msg = msg.format(username_field=self.username_field)
             raise serializers.ValidationError(msg)
 
@@ -102,10 +102,10 @@ class RefreshJSONWebTokenSerializer(Serializer):
             if user_id is not None:
                 user = User.objects.get(pk=user_id, is_active=True)
             else:
-                msg = _('Invalid payload')
+                msg = _('Invalid payload.')
                 raise serializers.ValidationError(msg)
         except User.DoesNotExist:
-            msg = _("User doesn't exist")
+            msg = _("User doesn't exist.")
             raise serializers.ValidationError(msg)
 
         # Get and check 'orig_iat'
@@ -123,10 +123,10 @@ class RefreshJSONWebTokenSerializer(Serializer):
             now_timestamp = timegm(datetime.utcnow().utctimetuple())
 
             if now_timestamp > expiration_timestamp:
-                msg = _('Refresh has expired')
+                msg = _('Refresh has expired.')
                 raise serializers.ValidationError(msg)
         else:
-            msg = _('orig_iat field is required')
+            msg = _('orig_iat field is required.')
             raise serializers.ValidationError(msg)
 
         new_payload = jwt_payload_handler(user)
