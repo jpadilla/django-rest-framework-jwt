@@ -8,7 +8,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: PACKAGE VERSION\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2015-01-13 23:31+0100\n"
+"POT-Creation-Date: 2015-01-16 18:06+0100\n"
 "PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
 "Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
 "Language-Team: LANGUAGE <LL@li.org>\n"
@@ -35,11 +35,11 @@ msgid "Error decoding signature."
 msgstr ""
 
 #: authentication.py:76 serializers.py:105
-msgid "Invalid payload"
+msgid "Invalid payload."
 msgstr ""
 
 #: authentication.py:79
-msgid "Invalid signature"
+msgid "Invalid signature."
 msgstr ""
 
 #: serializers.py:53
@@ -52,17 +52,17 @@ msgstr ""
 
 #: serializers.py:72
 #, python-brace-format
-msgid "Must include \"{username_field}\" and \"password\""
+msgid "Must include \"{username_field}\" and \"password\"."
 msgstr ""
 
 #: serializers.py:108
-msgid "User doesn't exist"
+msgid "User doesn't exist."
 msgstr ""
 
 #: serializers.py:126
-msgid "Refresh has expired"
+msgid "Refresh has expired."
 msgstr ""
 
 #: serializers.py:129
-msgid "orig_iat field is required"
+msgid "orig_iat field is required."
 msgstr ""
