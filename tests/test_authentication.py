@@ -220,7 +220,7 @@ class JSONWebTokenAuthenticationTests(TestCase):
         response = self.csrf_client.post(
             '/jwt/', {'example': 'example'}, HTTP_AUTHORIZATION=auth)
 
-        msg = 'Invalid payload'
+        msg = 'Invalid payload.'
 
         self.assertEqual(response.data['detail'], msg)
         self.assertEqual(response.status_code, status.HTTP_401_UNAUTHORIZED)
