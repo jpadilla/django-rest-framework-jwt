@@ -15,6 +15,8 @@ from rest_framework.test import APIClient
 from rest_framework_jwt import utils
 from rest_framework_jwt.settings import api_settings, DEFAULTS
 
+from . import utils as test_utils
+
 User = get_user_model()
 
 NO_CUSTOM_USER_MODEL = 'Custom User Model only supported after Django 1.5'
@@ -44,6 +46,32 @@ class BaseTestCase(TestCase):
         }
 
 
+class TestCustomResponsePayload(BaseTestCase):
+
+    def setUp(self):
+        api_settings.JWT_RESPONSE_PAYLOAD_HANDLER = test_utils\
+            .jwt_response_payload_handler
+        return super(TestCustomResponsePayload, self).setUp()
+
+    def test_jwt_login_custom_response_json(self):
+        """
+        Ensure JWT login view using JSON POST works.
+        """
+        client = APIClient(enforce_csrf_checks=True)
+
+        response = client.post('/auth-token/', self.data, format='json')
+
+        decoded_payload = utils.jwt_decode_handler(response.data['token'])
+
+        self.assertEqual(response.status_code, status.HTTP_200_OK)
+        self.assertEqual(decoded_payload['username'], self.username)
+        self.assertEqual(response.data['user'], self.username)
+
+    def tearDown(self):
+        api_settings.JWT_RESPONSE_PAYLOAD_HANDLER =\
+            DEFAULTS['JWT_RESPONSE_PAYLOAD_HANDLER']
+
+
 class ObtainJSONWebTokenTests(BaseTestCase):
 
     def test_jwt_login_json(self):
@@ -58,21 +86,6 @@ class ObtainJSONWebTokenTests(BaseTestCase):
 
         self.assertEqual(response.status_code, status.HTTP_200_OK)
         self.assertEqual(decoded_payload['username'], self.username)
-
-    @override_settings(JWT_AUTH['JWT_RESPONSE_PAYLOAD_HANDLER']=utils.jwt_response_payload_handler)
-    def test_jwt_login_custom_response_json(self):
-        """
-        Ensure JWT login view using JSON POST works.
-        """
-        client = APIClient(enforce_csrf_checks=True)
-
-        response = client.post('/auth-token/', self.data, format='json')
-
-        decoded_payload = utils.jwt_decode_handler(response.data['token'])
-
-        self.assertEqual(response.status_code, status.HTTP_200_OK)
-        self.assertEqual(decoded_payload['username'], self.username)
-        self.assertEqual(response.data['user'], self.username)
 
     def test_jwt_login_json_bad_creds(self):
         """
