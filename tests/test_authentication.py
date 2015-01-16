@@ -1,8 +1,8 @@
-from django.contrib.auth.models import User
 from django.http import HttpResponse
 from django.test import TestCase
 from django.utils import unittest
 from django.conf.urls import patterns
+from django.contrib.auth import get_user_model
 
 from rest_framework import permissions, status
 from rest_framework.authentication import OAuth2Authentication
@@ -14,6 +14,7 @@ from rest_framework_jwt import utils
 from rest_framework_jwt.settings import api_settings, DEFAULTS
 from rest_framework_jwt.authentication import JSONWebTokenAuthentication
 
+User = get_user_model()
 
 DJANGO_OAUTH2_PROVIDER_NOT_INSTALLED = 'django-oauth2-provider not installed'
 
