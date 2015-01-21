@@ -1,18 +1,11 @@
 import jwt
-
 from django.utils.encoding import smart_text
 from django.utils.translation import ugettext as _
 from rest_framework import exceptions
-from rest_framework_jwt.settings import api_settings
 from rest_framework.authentication import (BaseAuthentication,
                                            get_authorization_header)
 
-try:
-    from django.contrib.auth import get_user_model
-except ImportError:  # Django < 1.5
-    from django.contrib.auth.models import User
-else:
-    User = get_user_model()
+from rest_framework_jwt.settings import api_settings
 
 
 jwt_decode_handler = api_settings.JWT_DECODE_HANDLER
@@ -67,6 +60,12 @@ class JSONWebTokenAuthentication(BaseAuthentication):
         """
         Returns an active user that matches the payload's user id and email.
         """
+        try:
+            from django.contrib.auth import get_user_model
+        except ImportError:  # Django < 1.5
+            from django.contrib.auth.models import User
+        else:
+            User = get_user_model()
         try:
             user_id = jwt_get_user_id_from_payload(payload)
 
