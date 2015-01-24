@@ -1,28 +1,16 @@
 #!/usr/bin/env python
 # -*- coding: utf-8 -*-
 
-import re
 import os
 import sys
+
+import rest_framework_jwt
+
 from setuptools import setup
-from setuptools.command.test import test as TestCommand
-
-
-# This command has been borrowed from
-# https://github.com/getsentry/sentry/blob/master/setup.py
-class PyTest(TestCommand):
-    def finalize_options(self):
-        TestCommand.finalize_options(self)
-        self.test_args = ['tests']
-        self.test_suite = True
-
-    def run_tests(self):
-        import pytest
-        errno = pytest.main(self.test_args)
-        sys.exit(errno)
 
 
 name = 'djangorestframework-jwt'
+version = rest_framework_jwt.__version__
 package = 'rest_framework_jwt'
 description = 'JSON Web Token based authentication for Django REST framework'
 url = 'https://github.com/GetBlimp/django-rest-framework-jwt'
@@ -30,17 +18,8 @@ author = 'Jose Padilla'
 author_email = 'jpadilla@getblimp.com'
 license = 'MIT'
 install_requires = [
-    'PyJWT>=0.3.0,<0.4',
+    'PyJWT>=0.3.0,<0.5',
 ]
-
-
-def get_version(package):
-    """
-    Return package version as listed in `__version__` in `init.py`.
-    """
-    init_py = open(os.path.join(package, '__init__.py')).read()
-    return re.search("^__version__ = ['\"]([^'\"]+)['\"]",
-                     init_py, re.MULTILINE).group(1)
 
 
 def get_packages(package):
@@ -68,9 +47,6 @@ def get_package_data(package):
     return {package: filepaths}
 
 
-version = get_version(package)
-
-
 if sys.argv[-1] == 'publish':
     os.system("python setup.py sdist upload")
     os.system("python setup.py bdist_wheel upload")
@@ -90,7 +66,6 @@ setup(
     author_email=author_email,
     packages=get_packages(package),
     package_data=get_package_data(package),
-    cmdclass={'test': PyTest},
     install_requires=install_requires,
     classifiers=[
         'Development Status :: 5 - Production/Stable',
