@@ -1,0 +1,23 @@
+body.homepage div.col-md-9 h1:first-of-type {
+    text-align: center;
+    font-size: 60px;
+    font-weight: 300;
+    margin-top: 0;
+}
+
+body.homepage div.col-md-9 p:first-of-type {
+    text-align: center;
+}
+
+body.homepage .badges {
+    text-align: right;
+}
+
+body.homepage .badges a {
+    display: inline-block;
+}
+
+body.homepage .badges a img {
+    padding: 0;
+    margin: 0;
+}

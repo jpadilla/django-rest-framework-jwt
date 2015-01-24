@@ -1,0 +1,5 @@
+site_name: Django REST framework JWT
+site_description: JSON Web Token Authentication support for Django REST Framework
+site_dir: html
+
+repo_url: https://github.com/GetBlimp/django-rest-framework-jwt
