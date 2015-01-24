@@ -1,0 +1,284 @@
+<!DOCTYPE html>
+<html lang="en">
+    <head>
+        <meta charset="utf-8">
+        <meta http-equiv="X-UA-Compatible" content="IE=edge">
+        <meta name="viewport" content="width=device-width, initial-scale=1.0">
+        <meta name="description" content="JSON Web Token Authentication support for Django REST Framework">
+        
+        
+        <link rel="shortcut icon" href="./img/favicon.ico">
+
+        <title>Django REST framework JWT</title>
+
+        <link href="./css/bootstrap-custom.min.css" rel="stylesheet">
+        <link href="./css/font-awesome-4.0.3.css" rel="stylesheet">
+        <link href="./css/base.css" rel="stylesheet">
+        <link rel="stylesheet" href="./css/highlight.css">
+        <link href="./css/extra.css" rel="stylesheet">
+
+        <!-- HTML5 shim and Respond.js IE8 support of HTML5 elements and media queries -->
+        <!--[if lt IE 9]>
+            <script src="https://oss.maxcdn.com/libs/html5shiv/3.7.0/html5shiv.js"></script>
+            <script src="https://oss.maxcdn.com/libs/respond.js/1.3.0/respond.min.js"></script>
+        <![endif]-->
+
+        
+    </head>
+
+    <body class="homepage">
+
+        <div class="navbar navbar-default navbar-fixed-top" role="navigation">
+    <div class="container">
+
+        <!-- Collapsed navigation -->
+        <div class="navbar-header">
+            
+            <!-- Expander button -->
+            <button type="button" class="navbar-toggle" data-toggle="collapse" data-target=".navbar-collapse">
+                <span class="sr-only">Toggle navigation</span>
+                <span class="icon-bar"></span>
+                <span class="icon-bar"></span>
+                <span class="icon-bar"></span>
+            </button>
+            
+
+            <!-- Main title -->
+            <a class="navbar-brand" href=".">Django REST framework JWT</a>
+        </div>
+
+        <!-- Expanded navigation -->
+        <div class="navbar-collapse collapse">
+            
+
+            
+            <!-- Search, Navigation and Repo links -->
+            <ul class="nav navbar-nav navbar-right">
+                
+                
+                
+                <li>
+                    <a href="https://github.com/GetBlimp/django-rest-framework-jwt">
+                        
+                            <i class="fa fa-github"></i>
+                        
+                        GitHub
+                    </a>
+                </li>
+                
+            </ul>
+            
+        </div>
+    </div>
+</div>
+
+        <div class="container">
+            
+                <div class="col-md-3"><div class="bs-sidebar hidden-print affix well" role="complementary">
+    <ul class="nav bs-sidenav">
+    
+        <li class="main active"><a href="#drf-jwt-auth">DRF JWT Auth</a></li>
+        
+            <li><a href="#overview">Overview</a></li>
+        
+            <li><a href="#requirements">Requirements</a></li>
+        
+            <li><a href="#installation">Installation</a></li>
+        
+            <li><a href="#usage">Usage</a></li>
+        
+            <li><a href="#refresh-token">Refresh Token</a></li>
+        
+            <li><a href="#additional-settings">Additional Settings</a></li>
+        
+    
+    </ul>
+</div></div>
+                <div class="col-md-9" role="main">
+
+<div class="badges">
+    <a href="https://travis-ci.org/GetBlimp/django-rest-framework-jwt">
+        <img src="https://travis-ci.org/GetBlimp/django-rest-framework-jwt.png?branch=master">
+    </a>
+    <a href="https://pypi.python.org/pypi/djangorestframework-jwt">
+        <img src="https://pypip.in/version/djangorestframework-jwt/badge.svg">
+    </a>
+</div>
+
+<hr />
+<h1 id="drf-jwt-auth">DRF JWT Auth</h1>
+<p>JSON Web Token Authentication support for Django REST Framework</p>
+<hr />
+<h2 id="overview">Overview</h2>
+<p>This package provides <a href="http://tools.ietf.org/html/draft-ietf-oauth-json-web-token">JSON Web Token Authentication</a> support for <a href="http://django-rest-framework.org/">Django REST framework</a>.</p>
+<p>If you want to read more about JWT, here's a great blog post by the guys at Auth0 that talks about <a href="http://blog.auth0.com/2014/01/07/angularjs-authentication-with-cookies-vs-token/">Cookie vs Token based authentication</a>.</p>
+<h2 id="requirements">Requirements</h2>
+<ul>
+<li>Python (2.7, 3.2, 3.3, 3.4)</li>
+<li>Django (1.6, 1.7)</li>
+<li>Django REST Framework (2.4.3, 2.4.4, 3.0.0)</li>
+</ul>
+<h2 id="installation">Installation</h2>
+<p>Install using <code>pip</code>...</p>
+<pre><code>$ pip install djangorestframework-jwt
+</code></pre>
+
+<h2 id="usage">Usage</h2>
+<p>In your <code>settings.py</code>, add <code>JSONWebTokenAuthentication</code> to Django REST framework's <code>DEFAULT_AUTHENTICATION_CLASSES</code>.</p>
+<pre><code class="python">REST_FRAMEWORK = {
+    'DEFAULT_PERMISSION_CLASSES': (
+        'rest_framework.permissions.IsAuthenticated',
+    ),
+    'DEFAULT_AUTHENTICATION_CLASSES': (
+        'rest_framework.authentication.SessionAuthentication',
+        'rest_framework.authentication.BasicAuthentication',
+        'rest_framework_jwt.authentication.JSONWebTokenAuthentication',
+    ),
+}
+</code></pre>
+
+<p>In your <code>urls.py</code> add the following URL route to enable obtaining a token via a POST included the user's username and password.</p>
+<pre><code class="python">urlpatterns = patterns(
+    '',
+    # ...
+
+    url(r'^api-token-auth/', 'rest_framework_jwt.views.obtain_jwt_token'),
+)
+</code></pre>
+
+<p>You can easily test if the endpoint is working by doing the following in your terminal, if you had a user created with the username <strong>admin</strong> and password <strong>abc123</strong>.</p>
+<pre><code class="bash">$ curl -X POST -d &quot;username=admin&amp;password=abc123&quot; http://localhost:8000/api-token-auth/
+</code></pre>
+
+<p>Alternatively, you can use all the content types supported by the Django REST framework to obtain the auth token. For example:</p>
+<pre><code class="bash">$ curl -X POST -H &quot;Content-Type: application/json&quot; -d '{&quot;username&quot;:&quot;admin&quot;,&quot;password&quot;:&quot;abc123&quot;}' http://localhost:8000/api-token-auth/
+</code></pre>
+
+<p>Now in order to access protected api urls you must include the <code>Authorization: JWT &lt;your_token&gt;</code> header.</p>
+<pre><code class="bash">$ curl -H &quot;Authorization: JWT &lt;your_token&gt;&quot; http://localhost:8000/protected-url/
+</code></pre>
+
+<h2 id="refresh-token">Refresh Token</h2>
+<p>If <code>JWT_ALLOW_REFRESH</code> is True, issued tokens can be "refreshed" to obtain a new brand token with renewed expiration time. Add a URL pattern like this:</p>
+<pre><code class="python">    url(r'^api-token-refresh/', 'rest_framework_jwt.views.refresh_jwt_token'),
+</code></pre>
+
+<p>Pass in an existing token to the refresh endpoint as follows: <code>{"token": EXISTING_TOKEN}</code>. Note that only non-expired tokens will work. The JSON response looks the same as the normal obtain token endpoint <code>{"token": NEW_TOKEN}</code>.</p>
+<pre><code class="bash">$ curl -X POST -H &quot;Content-Type: application/json&quot; -d '{&quot;token&quot;:&quot;&lt;EXISTING_TOKEN&gt;&quot;}' http://localhost:8000/api-token-refresh/
+</code></pre>
+
+<p>Refresh with tokens can be repeated (token1 -&gt; token2 -&gt; token3), but this chain of token stores the time that the original token (obtained with username/password credentials), as <code>orig_iat</code>. You can only keep refreshing tokens up to <code>JWT_REFRESH_EXPIRATION_DELTA</code>.</p>
+<p>A typical use case might be a web app where you'd like to keep the user "logged in" the site without having to re-enter their password, or get kicked out by surprise before their token expired. Imagine they had a 1-hour token and are just at the last minute while they're still doing something. With mobile you could perhaps store the username/password to get a new token, but this is not a great idea in a browser. Each time the user loads the page, you can check if there is an existing non-expired token and if it's close to being expired, refresh it to extend their session. In other words, if a user is actively using your site, they can keep their "session" alive.</p>
+<h2 id="additional-settings">Additional Settings</h2>
+<p>There are some additional settings that you can override similar to how you'd do it with Django REST framework itself. Here are all the available defaults.</p>
+<pre><code class="python">JWT_AUTH = {
+    'JWT_ENCODE_HANDLER':
+    'rest_framework_jwt.utils.jwt_encode_handler',
+
+    'JWT_DECODE_HANDLER':
+    'rest_framework_jwt.utils.jwt_decode_handler',
+
+    'JWT_PAYLOAD_HANDLER':
+    'rest_framework_jwt.utils.jwt_payload_handler',
+
+    'JWT_PAYLOAD_GET_USER_ID_HANDLER':
+    'rest_framework_jwt.utils.jwt_get_user_id_from_payload_handler',
+
+    'JWT_RESPONSE_PAYLOAD_HANDLER':
+    'rest_framework_jwt.utils.jwt_response_payload_handler',
+
+    'JWT_SECRET_KEY': settings.SECRET_KEY,
+    'JWT_ALGORITHM': 'HS256',
+    'JWT_VERIFY': True,
+    'JWT_VERIFY_EXPIRATION': True,
+    'JWT_LEEWAY': 0,
+    'JWT_EXPIRATION_DELTA': datetime.timedelta(seconds=300),
+
+    'JWT_ALLOW_REFRESH': False,
+    'JWT_REFRESH_EXPIRATION_DELTA': datetime.timedelta(days=7),
+
+    'JWT_AUTH_HEADER_PREFIX': 'JWT',
+}
+</code></pre>
+
+<p>This packages uses the JSON Web Token Python implementation, <a href="https://github.com/progrium/pyjwt">PyJWT</a> and allows to modify some of it's available options.</p>
+<h3 id="jwt_secret_key">JWT_SECRET_KEY</h3>
+<p>This is the secret key used to sign the JWT. Make sure this is safe and not shared or public.</p>
+<p>Default is your project's <code>settings.SECRET_KEY</code>.</p>
+<h3 id="jwt_algorithm">JWT_ALGORITHM</h3>
+<p>Possible values:</p>
+<blockquote>
+<ul>
+<li>HS256 - HMAC using SHA-256 hash algorithm (default)</li>
+<li>HS384 - HMAC using SHA-384 hash algorithm</li>
+<li>HS512 - HMAC using SHA-512 hash algorithm</li>
+<li>RS256 - RSASSA-PKCS1-v1_5 signature algorithm using SHA-256 hash algorithm</li>
+<li>RS384 - RSASSA-PKCS1-v1_5 signature algorithm using SHA-384 hash algorithm</li>
+<li>RS512 - RSASSA-PKCS1-v1_5 signature algorithm using SHA-512 hash algorithm</li>
+</ul>
+</blockquote>
+<p>Note:</p>
+<blockquote>
+<p>For the RSASSA-PKCS1-v1_5 algorithms, the "secret" argument in jwt.encode is supposed to be a private RSA key as
+imported with Crypto.PublicKey.RSA.importKey. Likewise, the "secret" argument in jwt.decode is supposed to be the
+public RSA key imported with the same method.</p>
+</blockquote>
+<p>Default is <code>"HS256"</code>.</p>
+<h3 id="jwt_verify">JWT_VERIFY</h3>
+<p>If the secret is wrong, it will raise a jwt.DecodeError telling you as such. You can still get at the payload by setting the <code>JWT_VERIFY</code> to <code>False</code>.</p>
+<p>Default is <code>True</code>.</p>
+<h3 id="jwt_verify_expiration">JWT_VERIFY_EXPIRATION</h3>
+<p>You can turn off expiration time verification with by setting <code>JWT_VERIFY_EXPIRATION</code> to <code>False</code>.</p>
+<p>Default is <code>True</code>.</p>
+<h3 id="jwt_leeway">JWT_LEEWAY</h3>
+<blockquote>
+<p>This allows you to validate an expiration time which is in the past but no very far. For example, if you have a JWT payload with an expiration time set to 30 seconds after creation but you know that sometimes you will process it after 30 seconds, you can set a leeway of 10 seconds in order to have some margin.</p>
+</blockquote>
+<p>Default is <code>0</code> seconds.</p>
+<h3 id="jwt_expiration_delta">JWT_EXPIRATION_DELTA</h3>
+<p>This is an instance of Python's <code>datetime.timedelta</code>. This will be added to <code>datetime.utcnow()</code> to set the expiration time.</p>
+<p>Default is <code>datetime.timedelta(seconds=300)</code>(5 minutes).</p>
+<h3 id="jwt_allow_refresh">JWT_ALLOW_REFRESH</h3>
+<p>Enable token refresh functionality. Token issued from <code>rest_framework_jwt.views.obtain_jwt_token</code> will have an <code>orig_iat</code> field. Default is <code>False</code></p>
+<h3 id="jwt_refresh_expiration_delta">JWT_REFRESH_EXPIRATION_DELTA</h3>
+<p>Limit on token refresh, is a <code>datetime.timedelta</code> instance. This is how much time after the original token that future tokens can be refreshed from.</p>
+<p>Default is <code>datetime.timedelta(days=7)</code> (7 days).</p>
+<h3 id="jwt_payload_handler">JWT_PAYLOAD_HANDLER</h3>
+<p>Specify a custom function to generate the token payload</p>
+<h3 id="jwt_payload_get_user_id_handler">JWT_PAYLOAD_GET_USER_ID_HANDLER</h3>
+<p>If you store <code>user_id</code> differently than the default payload handler does, implement this function to fetch <code>user_id</code> from the payload.</p>
+<h3 id="jwt_response_payload_handler">JWT_RESPONSE_PAYLOAD_HANDLER</h3>
+<p>Responsible for controlling the response data returned after login or refresh. Override to return a custom response such as including the serialized representation of the User.</p>
+<p>Defaults to return the JWT token.</p>
+<p>Example:</p>
+<pre><code>def jwt_response_payload_handler(token, user=None):
+    return {
+        'token': token,
+        'user': UserSerializer(user).data
+    }
+</code></pre>
+
+<p>Default is <code>{'token': token}</code></p>
+<h3 id="jwt_auth_header_prefix">JWT_AUTH_HEADER_PREFIX</h3>
+<p>You can modify the Authorization header value prefix that is required to be sent together with the token. The default value is <code>JWT</code>. This decision was introduced in PR <a href="https://github.com/GetBlimp/django-rest-framework-jwt/pull/4">#4</a> to allow using both this package and OAuth2 in DRF.</p>
+<p>Another common value used for tokens and Authorization headers is <code>Bearer</code>.</p>
+<p>Default is <code>JWT</code>.</p>
+</div>
+            
+        </div>
+
+        <footer class="col-md-12">
+            <hr>
+            
+            <p>Documentation built with <a href="http://www.mkdocs.org/">MkDocs</a>.</p>
+        </footer>
+
+        
+
+        <script src="https://code.jquery.com/jquery-1.10.2.min.js"></script>
+        <script src="./js/bootstrap-3.0.3.min.js"></script>
+        <script src="./js/prettify-1.0.min.js"></script>
+        <script src="./js/highlight.pack.js"></script>
+        <script src="./js/base.js"></script>
+    </body>
+</html>
