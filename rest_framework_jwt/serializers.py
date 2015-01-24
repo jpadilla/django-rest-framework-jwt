@@ -30,7 +30,9 @@ class JSONWebTokenSerializer(Serializer):
     password = serializers.CharField(write_only=True)
 
     def __init__(self, *args, **kwargs):
-        """Dynamically add the USERNAME_FIELD to self.fields."""
+        """
+        Dynamically add the USERNAME_FIELD to self.fields.
+        """
         super(JSONWebTokenSerializer, self).__init__(*args, **kwargs)
         self.fields[self.username_field] = serializers.CharField()
 
@@ -44,8 +46,11 @@ class JSONWebTokenSerializer(Serializer):
             return 'username'
 
     def validate(self, attrs):
-        credentials = {self.username_field: attrs.get(self.username_field),
-                       'password': attrs.get('password')}
+        credentials = {
+            self.username_field: attrs.get(self.username_field),
+            'password': attrs.get('password')
+        }
+
         if all(credentials.values()):
             user = authenticate(**credentials)
 
