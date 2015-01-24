@@ -1,9 +1,11 @@
 import json
 from jwt import base64url_decode
 
+from django.contrib.auth import get_user_model
 from django.test import TestCase
-from django.contrib.auth.models import User
 from rest_framework_jwt import utils
+
+User = get_user_model()
 
 
 class UtilsTests(TestCase):
@@ -36,3 +38,10 @@ class UtilsTests(TestCase):
         decoded_payload = utils.jwt_decode_handler(token)
 
         self.assertEqual(decoded_payload, payload)
+
+    def test_jwt_response_payload(self):
+        payload = utils.jwt_payload_handler(self.user)
+        token = utils.jwt_encode_handler(payload)
+        response_data = utils.jwt_response_payload_handler(token, self.user)
+
+        self.assertEqual(response_data, dict(token=token))

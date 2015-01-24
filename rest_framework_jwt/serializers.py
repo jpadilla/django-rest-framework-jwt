@@ -1,6 +1,7 @@
+import jwt
+
 from calendar import timegm
 from datetime import datetime, timedelta
-import jwt
 
 from django.contrib.auth import authenticate
 from django.utils.translation import ugettext as _
@@ -63,7 +64,8 @@ class JSONWebTokenSerializer(Serializer):
                     )
 
                 return {
-                    'token': jwt_encode_handler(payload)
+                    'token': jwt_encode_handler(payload),
+                    'user': user
                 }
             else:
                 msg = _('Unable to login with provided credentials.')
@@ -133,5 +135,6 @@ class RefreshJSONWebTokenSerializer(Serializer):
         new_payload['orig_iat'] = orig_iat
 
         return {
-            'token': jwt_encode_handler(new_payload)
+            'token': jwt_encode_handler(new_payload),
+            'user': user
         }

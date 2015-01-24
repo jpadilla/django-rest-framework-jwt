@@ -1,5 +1,6 @@
-from datetime import datetime
 import jwt
+
+from datetime import datetime
 
 from rest_framework_jwt.settings import api_settings
 
@@ -53,3 +54,23 @@ def jwt_decode_handler(token):
         verify_expiration=api_settings.JWT_VERIFY_EXPIRATION,
         leeway=api_settings.JWT_LEEWAY
     )
+
+
+def jwt_response_payload_handler(token, user=None):
+    """
+    Returns the response data for both the login and refresh views.
+    Override to return a custom response such as including the
+    serialized representation of the User.
+
+    Example:
+
+    def jwt_response_payload_handler(token, user=None):
+        return {
+            'token': token,
+            'user': UserSerializer(user).data
+        }
+
+    """
+    return {
+        'token': token
+    }

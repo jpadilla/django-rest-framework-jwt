@@ -3,11 +3,12 @@ from distutils.version import StrictVersion
 import rest_framework
 from django.test import TestCase
 from django.utils import unittest
-from django.contrib.auth.models import User
+from django.contrib.auth import get_user_model
 
 from rest_framework_jwt.serializers import JSONWebTokenSerializer
 from rest_framework_jwt import utils
 
+User = get_user_model()
 
 drf2 = rest_framework.VERSION < StrictVersion('3.0.0')
 drf3 = rest_framework.VERSION >= StrictVersion('3.0.0')

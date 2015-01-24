@@ -28,11 +28,11 @@ In your `settings.py`, add `JSONWebTokenAuthentication` to Django REST framework
 ```python
 REST_FRAMEWORK = {
     'DEFAULT_PERMISSION_CLASSES': (
-    	'rest_framework.permissions.IsAuthenticated',
+        'rest_framework.permissions.IsAuthenticated',
     ),
     'DEFAULT_AUTHENTICATION_CLASSES': (
-    	'rest_framework.authentication.SessionAuthentication',
-	    'rest_framework.authentication.BasicAuthentication',
+        'rest_framework.authentication.SessionAuthentication',
+        'rest_framework.authentication.BasicAuthentication',
         'rest_framework_jwt.authentication.JSONWebTokenAuthentication',
     ),
 }
@@ -99,6 +99,9 @@ JWT_AUTH = {
 
     'JWT_PAYLOAD_GET_USER_ID_HANDLER':
     'rest_framework_jwt.utils.jwt_get_user_id_from_payload_handler',
+
+    'JWT_RESPONSE_PAYLOAD_HANDLER':
+    'rest_framework_jwt.utils.jwt_response_payload_handler',
 
     'JWT_SECRET_KEY': settings.SECRET_KEY,
     'JWT_ALGORITHM': 'HS256',
@@ -174,6 +177,22 @@ Specify a custom function to generate the token payload
 
 ### JWT_PAYLOAD_GET_USER_ID_HANDLER
 If you store `user_id` differently than the default payload handler does, implement this function to fetch `user_id` from the payload.
+
+### JWT_RESPONSE_PAYLOAD_HANDLER
+Responsible for controlling the response data returned after login or refresh. Override to return a custom response such as including the serialized representation of the User.
+
+Defaults to return the JWT token.
+
+Example:
+```
+def jwt_response_payload_handler(token, user=None):
+    return {
+        'token': token,
+        'user': UserSerializer(user).data
+    }
+```
+
+Default is `{'token': token}`
 
 ### JWT_AUTH_HEADER_PREFIX
 You can modify the Authorization header value prefix that is required to be sent together with the token. The default value is `JWT`. This decision was introduced in PR [#4](https://github.com/GetBlimp/django-rest-framework-jwt/pull/4) to allow using both this package and OAuth2 in DRF.
