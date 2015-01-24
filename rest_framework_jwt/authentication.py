@@ -5,6 +5,7 @@ from rest_framework import exceptions
 from rest_framework.authentication import (BaseAuthentication,
                                            get_authorization_header)
 
+from rest_framework_jwt import utils
 from rest_framework_jwt.settings import api_settings
 
 
@@ -60,12 +61,8 @@ class JSONWebTokenAuthentication(BaseAuthentication):
         """
         Returns an active user that matches the payload's user id and email.
         """
-        try:
-            from django.contrib.auth import get_user_model
-        except ImportError:  # Django < 1.5
-            from django.contrib.auth.models import User
-        else:
-            User = get_user_model()
+        User = utils.get_user_model()
+
         try:
             user_id = jwt_get_user_id_from_payload(payload)
 
