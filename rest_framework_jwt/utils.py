@@ -53,7 +53,8 @@ def jwt_decode_handler(token):
         api_settings.JWT_VERIFY,
         verify_expiration=api_settings.JWT_VERIFY_EXPIRATION,
         leeway=api_settings.JWT_LEEWAY,
-        audience=api_settings.JWT_AUDIENCE
+        audience=api_settings.JWT_AUDIENCE,
+        issuer=api_settings.JWT_ISSUER
     )
 
 
