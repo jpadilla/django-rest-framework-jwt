@@ -1,11 +1,20 @@
 import json
-from jwt import base64url_decode
+import base64
 
 from django.contrib.auth import get_user_model
 from django.test import TestCase
 from rest_framework_jwt import utils
 
 User = get_user_model()
+
+
+def base64url_decode(input):
+    rem = len(input) % 4
+
+    if rem > 0:
+        input += b'=' * (4 - rem)
+
+    return base64.urlsafe_b64decode(input)
 
 
 class UtilsTests(TestCase):
