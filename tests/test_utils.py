@@ -3,7 +3,9 @@ import base64
 
 from django.contrib.auth import get_user_model
 from django.test import TestCase
+import jwt.exceptions
 from rest_framework_jwt import utils
+from rest_framework_jwt.settings import api_settings, DEFAULTS
 
 User = get_user_model()
 
@@ -54,3 +56,71 @@ class UtilsTests(TestCase):
         response_data = utils.jwt_response_payload_handler(token, self.user)
 
         self.assertEqual(response_data, dict(token=token))
+
+
+class TestAudience(TestCase):
+    def setUp(self):
+        api_settings.JWT_AUDIENCE = "my_aud"
+
+        self.username = 'jpueblo'
+        self.email = 'jpueblo@example.com'
+        self.user = User.objects.create_user(self.username, self.email)
+
+        return super(TestAudience, self).setUp()
+
+    def test_fail_audience_missing(self):
+        payload = utils.jwt_payload_handler(self.user)
+        token = utils.jwt_encode_handler(payload)
+        with self.assertRaises(jwt.exceptions.InvalidAudienceError):
+            utils.jwt_decode_handler(token)
+
+    def test_fail_audience_wrong(self):
+        payload = utils.jwt_payload_handler(self.user)
+        payload['aud'] = "my_aud2"
+        token = utils.jwt_encode_handler(payload)
+        with self.assertRaises(jwt.exceptions.InvalidAudienceError):
+            utils.jwt_decode_handler(token)
+
+    def test_correct_audience(self):
+        payload = utils.jwt_payload_handler(self.user)
+        payload['aud'] = "my_aud"
+        token = utils.jwt_encode_handler(payload)
+        decoded_payload = utils.jwt_decode_handler(token)
+        self.assertEqual(decoded_payload, payload)
+
+    def tearDown(self):
+        api_settings.JWT_AUDIENCE = DEFAULTS['JWT_AUDIENCE']
+
+
+class TestIssuer(TestCase):
+    def setUp(self):
+        api_settings.JWT_ISSUER = "example.com"
+
+        self.username = 'jpueblo'
+        self.email = 'jpueblo@example.com'
+        self.user = User.objects.create_user(self.username, self.email)
+
+        return super(TestIssuer, self).setUp()
+
+    def test_fail_issuer_missing(self):
+        payload = utils.jwt_payload_handler(self.user)
+        token = utils.jwt_encode_handler(payload)
+        with self.assertRaises(jwt.exceptions.InvalidIssuerError):
+            utils.jwt_decode_handler(token)
+
+    def test_fail_issuer_wrong(self):
+        payload = utils.jwt_payload_handler(self.user)
+        token = utils.jwt_encode_handler(payload)
+        payload['iss'] = "example2.com"
+        with self.assertRaises(jwt.exceptions.InvalidIssuerError):
+            utils.jwt_decode_handler(token)
+
+    def test_correct_issuer(self):
+        payload = utils.jwt_payload_handler(self.user)
+        payload['iss'] = "example.com"
+        token = utils.jwt_encode_handler(payload)
+        decoded_payload = utils.jwt_decode_handler(token)
+        self.assertEqual(decoded_payload, payload)
+
+    def tearDown(self):
+        api_settings.JWT_ISSUER = DEFAULTS['JWT_ISSUER']
