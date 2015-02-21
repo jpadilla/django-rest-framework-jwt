@@ -127,6 +127,8 @@ JWT_AUTH = {
     'JWT_VERIFY_EXPIRATION': True,
     'JWT_LEEWAY': 0,
     'JWT_EXPIRATION_DELTA': datetime.timedelta(seconds=300),
+    'JWT_AUDIENCE': None,
+    'JWT_ISSUER': None,
 
     'JWT_ALLOW_REFRESH': False,
     'JWT_REFRESH_EXPIRATION_DELTA': datetime.timedelta(days=7),
@@ -181,6 +183,16 @@ Default is `0` seconds.
 This is an instance of Python's `datetime.timedelta`. This will be added to `datetime.utcnow()` to set the expiration time.
 
 Default is `datetime.timedelta(seconds=300)`(5 minutes).
+
+### JWT_AUDIENCE
+This is a string that will be checked against the `aud` field of the token, if present.
+
+Default is `None`(fail if `aud` present on JWT).
+
+### JWT_ISSUER
+This is a string that will be checked against the `iss` field of the token.
+
+Default is `None`(do not check `iss` on JWT).
 
 ### JWT_ALLOW_REFRESH
 Enable token refresh functionality. Token issued from `rest_framework_jwt.views.obtain_jwt_token` will have an `orig_iat` field. Default is `False`
