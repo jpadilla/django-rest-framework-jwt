@@ -14,58 +14,47 @@ from .serializers import (
 jwt_response_payload_handler = api_settings.JWT_RESPONSE_PAYLOAD_HANDLER
 
 
-class ObtainJSONWebToken(APIView):
+class JWTAPIView(APIView):
+    """
+    Base API View that various JWT interactions inherit from.
+    """
+    throttle_classes = ()
+    permission_classes = ()
+    authentication_classes = ()
+    parser_classes = (parsers.FormParser, parsers.JSONParser,)
+    renderer_classes = (renderers.JSONRenderer,)
+
+    def post(self, request):
+        serializer = self.serializer_class(data=request.DATA)
+
+        if serializer.is_valid():
+            user = serializer.object.get('user') or request.user
+            token = serializer.object.get('token')
+            response_data = jwt_response_payload_handler(token, user, request)
+
+            return Response(response_data)
+
+        return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
+
+
+class ObtainJSONWebToken(JWTAPIView):
     """
     API View that receives a POST with a user's username and password.
 
     Returns a JSON Web Token that can be used for authenticated requests.
     """
-    throttle_classes = ()
-    permission_classes = ()
-    authentication_classes = ()
-    parser_classes = (parsers.FormParser, parsers.JSONParser,)
-    renderer_classes = (renderers.JSONRenderer,)
     serializer_class = JSONWebTokenSerializer
 
-    def post(self, request):
-        serializer = self.serializer_class(data=request.DATA)
 
-        if serializer.is_valid():
-            user = serializer.object.get('user') or request.user
-            token = serializer.object.get('token')
-            response_data = jwt_response_payload_handler(token, user, request)
-
-            return Response(response_data)
-
-        return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
-
-
-class VerifyJSONWebToken(APIView):
+class VerifyJSONWebToken(JWTAPIView):
     """
     API View that checks the veracity of a token, returning the token if it
     is valid.
     """
-    throttle_classes = ()
-    permission_classes = ()
-    authentication_classes = ()
-    parser_classes = (parsers.FormParser, parsers.JSONParser,)
-    renderer_classes = (renderers.JSONRenderer,)
     serializer_class = VerifyJSONWebTokenSerializer
 
-    def post(self, request):
-        serializer = self.serializer_class(data=request.DATA)
 
-        if serializer.is_valid():
-            user = serializer.object.get('user') or request.user
-            token = serializer.object.get('token')
-            response_data = jwt_response_payload_handler(token, user, request)
-
-            return Response(response_data)
-
-        return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
-
-
-class RefreshJSONWebToken(VerifyJSONWebToken):
+class RefreshJSONWebToken(JWTAPIView):
     """
     API View that returns a refreshed token (with new expiration) based on
     existing token

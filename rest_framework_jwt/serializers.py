@@ -88,7 +88,7 @@ class VerificationBaseSerializer(Serializer):
     token = serializers.CharField()
 
     def validate(self, attrs):
-        msg = _('Please define a validate method.')
+        msg = 'Please define a validate method.'
         raise NotImplementedError(msg)
 
     def _check_payload(self, token):
