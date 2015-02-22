@@ -14,7 +14,7 @@ from .serializers import (
 jwt_response_payload_handler = api_settings.JWT_RESPONSE_PAYLOAD_HANDLER
 
 
-class JWTAPIView(APIView):
+class JSONWebTokenAPIView(APIView):
     """
     Base API View that various JWT interactions inherit from.
     """
@@ -37,7 +37,7 @@ class JWTAPIView(APIView):
         return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
 
 
-class ObtainJSONWebToken(JWTAPIView):
+class ObtainJSONWebToken(JSONWebTokenAPIView):
     """
     API View that receives a POST with a user's username and password.
 
@@ -46,7 +46,7 @@ class ObtainJSONWebToken(JWTAPIView):
     serializer_class = JSONWebTokenSerializer
 
 
-class VerifyJSONWebToken(JWTAPIView):
+class VerifyJSONWebToken(JSONWebTokenAPIView):
     """
     API View that checks the veracity of a token, returning the token if it
     is valid.
@@ -54,7 +54,7 @@ class VerifyJSONWebToken(JWTAPIView):
     serializer_class = VerifyJSONWebTokenSerializer
 
 
-class RefreshJSONWebToken(JWTAPIView):
+class RefreshJSONWebToken(JSONWebTokenAPIView):
     """
     API View that returns a refreshed token (with new expiration) based on
     existing token
