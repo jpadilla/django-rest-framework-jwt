@@ -136,7 +136,7 @@ JWT_AUTH = {
     'JWT_AUTH_HEADER_PREFIX': 'JWT',
 }
 ```
-This packages uses the JSON Web Token Python implementation, [PyJWT](https://github.com/progrium/pyjwt) and allows to modify some of it's available options.
+This packages uses the JSON Web Token Python implementation, [PyJWT](https://github.com/jpadilla/pyjwt) and allows to modify some of it's available options.
 
 ### JWT_SECRET_KEY
 This is the secret key used to sign the JWT. Make sure this is safe and not shared or public.
@@ -145,19 +145,7 @@ Default is your project's `settings.SECRET_KEY`.
 
 ### JWT_ALGORITHM
 
-Possible values:
-
-> * HS256 - HMAC using SHA-256 hash algorithm (default)
-> * HS384 - HMAC using SHA-384 hash algorithm
-> * HS512 - HMAC using SHA-512 hash algorithm
-> * RS256 - RSASSA-PKCS1-v1_5 signature algorithm using SHA-256 hash algorithm
-> * RS384 - RSASSA-PKCS1-v1_5 signature algorithm using SHA-384 hash algorithm
-> * RS512 - RSASSA-PKCS1-v1_5 signature algorithm using SHA-512 hash algorithm
-
-Note:
-> For the RSASSA-PKCS1-v1_5 algorithms, the "secret" argument in jwt.encode is supposed to be a private RSA key as
-> imported with Crypto.PublicKey.RSA.importKey. Likewise, the "secret" argument in jwt.decode is supposed to be the
-> public RSA key imported with the same method.
+Possible values are any of the [supported algorithms](https://github.com/jpadilla/pyjwt#algorithms) for cryptographic signing in PyJWT.
 
 Default is `"HS256"`.
 
