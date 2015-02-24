@@ -204,6 +204,49 @@ class CustomUserObtainJSONWebTokenTests(TestCase):
         self.assertEqual(response.status_code, 400)
 
 
+@unittest.skipIf(get_version() < '1.5.0', 'No Configurable User model feature')
+@override_settings(AUTH_USER_MODEL='tests.CustomUserWithBackend', AUTHENTICATION_BACKENDS = ('tests.models.CustomAuthenticationBackend',))
+class CustomUserWithBackendObtainJSONWebTokenTests(TestCase):
+    """JSON Web Token Authentication"""
+    urls = 'tests.test_views'
+
+    def setUp(self):
+        from .models import CustomUserWithBackend, CustomAuthenticationBackend
+
+        self.username = 'jpueblo'
+        user = CustomUserWithBackend.objects.create(username=self.username)
+        user.save()
+        self.user = user
+
+        self.data = {
+            'username': self.username
+        }
+
+    def test_jwt_login_json(self):
+        """
+        Ensure JWT login view using JSON POST works.
+        """
+        client = APIClient(enforce_csrf_checks=True)
+
+        response = client.post('/auth-token/', self.data, format='json')
+
+        self.assertEqual(response.status_code, status.HTTP_200_OK)
+        decoded_payload = utils.jwt_decode_handler(response.data['token'])
+        self.assertEqual(decoded_payload['username'], self.username)
+
+    def test_jwt_login_json_bad_creds(self):
+        """
+        Ensure JWT login view using JSON POST fails
+        if bad credentials are used.
+        """
+        client = APIClient(enforce_csrf_checks=True)
+
+        self.data['username'] = 'wrong'
+        response = client.post('/auth-token/', self.data, format='json')
+
+        self.assertEqual(response.status_code, 400)
+
+
 class RefreshJSONWebTokenTests(BaseTestCase):
     urls = 'tests.test_views'
 
