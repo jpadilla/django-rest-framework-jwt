@@ -13,7 +13,7 @@ jwt_decode_handler = api_settings.JWT_DECODE_HANDLER
 jwt_get_user_id_from_payload = api_settings.JWT_PAYLOAD_GET_USER_ID_HANDLER
 
 
-class JSONWebTokenAuthenticationBase(BaseAuthentication):
+class BaseJSONWebTokenAuthentication(BaseAuthentication):
     """
     Token based authentication using the JSON Web Token standard.
     """
@@ -61,7 +61,7 @@ class JSONWebTokenAuthenticationBase(BaseAuthentication):
         return user
 
 
-class JSONWebTokenAuthentication(JSONWebTokenAuthenticationBase):
+class JSONWebTokenAuthentication(BaseJSONWebTokenAuthentication):
     """
     Clients should authenticate by passing the token key in the "Authorization"
     HTTP header, prepended with the string specified in the setting
