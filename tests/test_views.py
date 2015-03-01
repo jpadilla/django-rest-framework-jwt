@@ -25,6 +25,8 @@ urlpatterns = patterns(
     '',
     (r'^auth-token/$', 'rest_framework_jwt.views.obtain_jwt_token'),
     (r'^auth-token-refresh/$', 'rest_framework_jwt.views.refresh_jwt_token'),
+    (r'^auth-token-verify/$', 'rest_framework_jwt.views.verify_jwt_token'),
+
 )
 
 orig_datetime = datetime
@@ -204,12 +206,10 @@ class CustomUserObtainJSONWebTokenTests(TestCase):
         self.assertEqual(response.status_code, 400)
 
 
-class RefreshJSONWebTokenTests(BaseTestCase):
-    urls = 'tests.test_views'
-
-    def setUp(self):
-        super(RefreshJSONWebTokenTests, self).setUp()
-        api_settings.JWT_ALLOW_REFRESH = True
+class TokenTestCase(BaseTestCase):
+    """
+    Handlers for getting tokens from the API, or creating arbitrary ones.
+    """
 
     def get_token(self):
         client = APIClient(enforce_csrf_checks=True)
@@ -217,7 +217,7 @@ class RefreshJSONWebTokenTests(BaseTestCase):
         return response.data['token']
 
     def create_token(self, user, exp=None, orig_iat=None):
-        payload = utils.jwt_payload_handler(self.user)
+        payload = utils.jwt_payload_handler(user)
         if exp:
             payload['exp'] = exp
 
@@ -226,6 +226,84 @@ class RefreshJSONWebTokenTests(BaseTestCase):
 
         token = utils.jwt_encode_handler(payload)
         return token
+
+
+class VerifyJSONWebTokenTests(TokenTestCase):
+
+    def test_verify_jwt(self):
+        """
+        Test that a valid, non-expired token will return a 200 response
+        and itself when passed to the validation endpoint.
+        """
+        client = APIClient(enforce_csrf_checks=True)
+
+        orig_token = self.get_token()
+
+        # Now try to get a refreshed token
+        response = client.post('/auth-token-verify/', {'token': orig_token},
+                               format='json')
+        self.assertEqual(response.status_code, status.HTTP_200_OK)
+
+        self.assertEqual(response.data['token'], orig_token)
+
+    def test_verify_jwt_fails_with_expired_token(self):
+        """
+        Test that an expired token will fail with the correct error.
+        """
+        client = APIClient(enforce_csrf_checks=True)
+
+        # Make an expired token..
+        token = self.create_token(
+            self.user,
+            exp=datetime.utcnow() - timedelta(seconds=5),
+            orig_iat=datetime.utcnow() - timedelta(hours=1)
+        )
+
+        response = client.post('/auth-token-verify/', {'token': token},
+                               format='json')
+        self.assertEqual(response.status_code, status.HTTP_400_BAD_REQUEST)
+        self.assertRegexpMatches(response.data['non_field_errors'][0],
+                                 'Signature has expired')
+
+    def test_verify_jwt_fails_with_bad_token(self):
+        """
+        Test that an invalid token will fail with the correct error.
+        """
+        client = APIClient(enforce_csrf_checks=True)
+
+        token = "i am not a correctly formed token"
+
+        response = client.post('/auth-token-verify/', {'token': token},
+                               format='json')
+        self.assertEqual(response.status_code, status.HTTP_400_BAD_REQUEST)
+        self.assertRegexpMatches(response.data['non_field_errors'][0],
+                                 'Error decoding signature')
+
+    def test_verify_jwt_fails_with_missing_user(self):
+        """
+        Test that an invalid token will fail with a user that does not exist.
+        """
+        client = APIClient(enforce_csrf_checks=True)
+
+        user = User.objects.create_user(
+            email='jsmith@example.com', username='jsmith', password='password')
+
+        token = self.create_token(user)
+        # Delete the user used to make the token
+        user.delete()
+
+        response = client.post('/auth-token-verify/', {'token': token},
+                               format='json')
+        self.assertEqual(response.status_code, status.HTTP_400_BAD_REQUEST)
+        self.assertRegexpMatches(response.data['non_field_errors'][0],
+                                 "User doesn't exist")
+
+
+class RefreshJSONWebTokenTests(TokenTestCase):
+
+    def setUp(self):
+        super(RefreshJSONWebTokenTests, self).setUp()
+        api_settings.JWT_ALLOW_REFRESH = True
 
     def test_refresh_jwt(self):
         """
@@ -256,25 +334,6 @@ class RefreshJSONWebTokenTests(BaseTestCase):
         # Make sure 'orig_iat' on the new token is same as original
         self.assertEquals(new_token_decoded['orig_iat'], orig_iat)
         self.assertGreater(new_token_decoded['exp'], orig_token_decoded['exp'])
-
-    def test_refresh_jwt_fails_with_expired_token(self):
-        """
-        Test that using an expired token to refresh won't work
-        """
-        client = APIClient(enforce_csrf_checks=True)
-
-        # Make an expired token..
-        token = self.create_token(
-            self.user,
-            exp=datetime.utcnow() - timedelta(seconds=5),
-            orig_iat=datetime.utcnow() - timedelta(hours=1)
-        )
-
-        response = client.post('/auth-token-refresh/', {'token': token},
-                               format='json')
-        self.assertEqual(response.status_code, status.HTTP_400_BAD_REQUEST)
-        self.assertRegexpMatches(response.data['non_field_errors'][0],
-                                 'Signature has expired')
 
     def test_refresh_jwt_after_refresh_expiration(self):
         """

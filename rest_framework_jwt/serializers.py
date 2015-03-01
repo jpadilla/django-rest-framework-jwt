@@ -81,16 +81,17 @@ class JSONWebTokenSerializer(Serializer):
             raise serializers.ValidationError(msg)
 
 
-class RefreshJSONWebTokenSerializer(Serializer):
+class VerificationBaseSerializer(Serializer):
     """
-    Check an access token
+    Abstract serializer used for verifying and refreshing JWTs.
     """
     token = serializers.CharField()
 
     def validate(self, attrs):
-        User = utils.get_user_model()
-        token = attrs['token']
+        msg = 'Please define a validate method.'
+        raise NotImplementedError(msg)
 
+    def _check_payload(self, token):
         # Check payload valid (based off of JSONWebTokenAuthentication,
         # may want to refactor)
         try:
@@ -102,6 +103,10 @@ class RefreshJSONWebTokenSerializer(Serializer):
             msg = _('Error decoding signature.')
             raise serializers.ValidationError(msg)
 
+        return payload
+
+    def _check_user(self, payload):
+        User = utils.get_user_model()
         # Make sure user exists (may want to refactor this)
         try:
             user_id = jwt_get_user_id_from_payload(payload)
@@ -115,6 +120,38 @@ class RefreshJSONWebTokenSerializer(Serializer):
             msg = _("User doesn't exist.")
             raise serializers.ValidationError(msg)
 
+        return user
+
+
+class VerifyJSONWebTokenSerializer(VerificationBaseSerializer):
+    """
+    Check the veracity of an access token.
+    """
+
+    def validate(self, attrs):
+        token = attrs['token']
+
+        payload = self._check_payload(token=token)
+        user = self._check_user(payload=payload)
+
+        new_payload = jwt_payload_handler(user)
+
+        return {
+            'token': jwt_encode_handler(new_payload),
+            'user': user
+        }
+
+
+class RefreshJSONWebTokenSerializer(VerificationBaseSerializer):
+    """
+    Refresh an access token.
+    """
+
+    def validate(self, attrs):
+        token = attrs['token']
+
+        payload = self._check_payload(token=token)
+        user = self._check_user(payload=payload)
         # Get and check 'orig_iat'
         orig_iat = payload.get('orig_iat')
 
