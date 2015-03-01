@@ -219,6 +219,17 @@ Another common value used for tokens and Authorization headers is `Bearer`.
 
 Default is `JWT`.
 
+## Extending `JSONWebTokenAuthentication`
+
+Right now `JSONWebTokenAuthentication` assumes that the JWT will come in the header. The JWT spec does not require this (see: [Making a service Call](https://developer.atlassian.com/static/connect/docs/concepts/authentication.html)). For example, the JWT may come in the querystring. The ability to send the JWT in the querystring is needed in cases where the user cannot set the header (for example the src element in HTML).
+
+To achieve this functionality, the user might write a custom `Authentication`:
+```python
+class JSONWebTokenAuthenticationQS(BaseJSONWebTokenAuthentication):
+    def get_jwt_value(self, request):
+         return request.QUERY_PARAMS.get('jwt')
+```
+It is recommended to use `BaseJSONWebTokenAuthentication`, a new base class with no logic around parsing the HTTP headers.
 
 [jwt-auth-spec]: http://tools.ietf.org/html/draft-ietf-oauth-json-web-token
 [drf]: http://django-rest-framework.org/
