@@ -8,7 +8,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: PACKAGE VERSION\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2015-01-16 18:06+0100\n"
+"POT-Creation-Date: 2015-03-01 21:35+0100\n"
 "PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
 "Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
 "Language-Team: LANGUAGE <LL@li.org>\n"
@@ -17,52 +17,52 @@ msgstr ""
 "Content-Type: text/plain; charset=UTF-8\n"
 "Content-Transfer-Encoding: 8bit\n"
 
-#: authentication.py:46
+#: authentication.py:33 serializers.py:100
+msgid "Signature has expired."
+msgstr ""
+
+#: authentication.py:36 serializers.py:103
+msgid "Error decoding signature."
+msgstr ""
+
+#: authentication.py:55
+msgid "Invalid signature."
+msgstr ""
+
+#: authentication.py:58 serializers.py:117
+msgid "Invalid payload."
+msgstr ""
+
+#: authentication.py:82
 msgid "Invalid Authorization header. No credentials provided."
 msgstr ""
 
-#: authentication.py:49
+#: authentication.py:85
 msgid ""
 "Invalid Authorization header. Credentials string should not contain spaces."
 msgstr ""
 
-#: authentication.py:56 serializers.py:92
-msgid "Signature has expired."
-msgstr ""
-
-#: authentication.py:59 serializers.py:95
-msgid "Error decoding signature."
-msgstr ""
-
-#: authentication.py:76 serializers.py:105
-msgid "Invalid payload."
-msgstr ""
-
-#: authentication.py:79
-msgid "Invalid signature."
-msgstr ""
-
-#: serializers.py:53
+#: serializers.py:59
 msgid "User account is disabled."
 msgstr ""
 
-#: serializers.py:69
+#: serializers.py:76
 msgid "Unable to login with provided credentials."
 msgstr ""
 
-#: serializers.py:72
+#: serializers.py:79
 #, python-brace-format
 msgid "Must include \"{username_field}\" and \"password\"."
 msgstr ""
 
-#: serializers.py:108
+#: serializers.py:120
 msgid "User doesn't exist."
 msgstr ""
 
-#: serializers.py:126
+#: serializers.py:170
 msgid "Refresh has expired."
 msgstr ""
 
-#: serializers.py:129
+#: serializers.py:173
 msgid "orig_iat field is required."
 msgstr ""
