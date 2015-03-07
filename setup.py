@@ -22,6 +22,14 @@ install_requires = [
 ]
 
 
+def read(*paths):
+    """
+    Build a file path from paths and return the contents.
+    """
+    with open(os.path.join(*paths), 'r') as f:
+        return f.read()
+
+
 def get_packages(package):
     """
     Return root package and all sub-packages.
@@ -62,6 +70,7 @@ setup(
     url=url,
     license=license,
     description=description,
+    long_description=read('README.rst'),
     author=author,
     author_email=author_email,
     packages=get_packages(package),
