@@ -29,7 +29,7 @@ Requirements
 Installation
 ------------
 
-Install using ``pip``\ …
+Install using ``pip``\ ...
 
 .. code:: bash
 
