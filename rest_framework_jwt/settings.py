@@ -35,6 +35,8 @@ DEFAULTS = {
     'JWT_REFRESH_EXPIRATION_DELTA': datetime.timedelta(days=7),
 
     'JWT_AUTH_HEADER_PREFIX': 'JWT',
+
+    'JWT_ENABLE_BLACKLIST': False,
 }
 
 # List of settings that may be in string import notation.
