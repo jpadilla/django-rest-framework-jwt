@@ -13,3 +13,4 @@ freezegun==0.3.2
 django-oauth-plus>=2.2.1
 oauth2>=1.5.211
 django-oauth2-provider>=0.2.4
+pymongo==2.8

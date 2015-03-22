@@ -103,6 +103,10 @@ class VerificationBaseSerializer(Serializer):
             msg = _('Error decoding signature.')
             raise serializers.ValidationError(msg)
 
+        if api_settings.JWT_ENABLE_BLACKLIST and utils.jwt_is_blacklisted(payload):
+            msg = _("Token is blacklisted")
+            raise serializers.ValidationError(msg)
+
         return payload
 
     def _check_user(self, payload):
@@ -150,6 +154,7 @@ class RefreshJSONWebTokenSerializer(VerificationBaseSerializer):
 
         payload = self._check_payload(token=token)
         user = self._check_user(payload=payload)
+
         # Get and check 'orig_iat'
         orig_iat = payload.get('orig_iat')
 
@@ -176,5 +181,31 @@ class RefreshJSONWebTokenSerializer(VerificationBaseSerializer):
 
         return {
             'token': jwt_encode_handler(new_payload),
+            'user': user
+        }
+
+
+class BlacklistJSONWebTokenSerializer(VerificationBaseSerializer):
+    """
+    Blacklist an access token.
+    """
+
+    def validate(self, attrs):
+        if not api_settings.JWT_ENABLE_BLACKLIST:
+            msg = _('JWT_ENABLE_BLACKLIST is set to False.')
+            raise serializers.ValidationError(msg)
+
+        token = attrs['token']
+
+        payload = self._check_payload(token=token)
+        user = self._check_user(payload=payload)
+        # Get and check 'jti'
+        jti = payload.get('jti')
+
+        if jti:
+            utils.jwt_blacklist(payload)
+
+        return {
+            'token': None,
             'user': user
         }

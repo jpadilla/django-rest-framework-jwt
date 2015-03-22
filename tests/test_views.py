@@ -27,6 +27,8 @@ urlpatterns = patterns(
     (r'^auth-token/$', 'rest_framework_jwt.views.obtain_jwt_token'),
     (r'^auth-token-refresh/$', 'rest_framework_jwt.views.refresh_jwt_token'),
     (r'^auth-token-verify/$', 'rest_framework_jwt.views.verify_jwt_token'),
+    (r'^auth-token-blacklist/$', 'rest_framework_jwt.views.blacklist_jwt_token'),
+
 
 )
 
@@ -234,7 +236,7 @@ class VerifyJSONWebTokenTests(TokenTestCase):
     def test_verify_jwt(self):
         """
         Test that a valid, non-expired token will return a 200 response
-        and itself when passed to the validation endpoint.
+        when passed to the validation endpoint.
         """
         client = APIClient(enforce_csrf_checks=True)
 
@@ -246,8 +248,6 @@ class VerifyJSONWebTokenTests(TokenTestCase):
                 response = client.post('/auth-token-verify/', {'token': orig_token},
                                        format='json')
         self.assertEqual(response.status_code, status.HTTP_200_OK)
-
-        self.assertEqual(response.data['token'], orig_token)
 
     def test_verify_jwt_fails_with_expired_token(self):
         """
@@ -300,6 +300,29 @@ class VerifyJSONWebTokenTests(TokenTestCase):
         self.assertEqual(response.status_code, status.HTTP_400_BAD_REQUEST)
         self.assertRegexpMatches(response.data['non_field_errors'][0],
                                  "User doesn't exist")
+
+    def test_verify_jwt_fails_with_blacklisted_token(self):
+        """
+        Test that a blacklisted token will fail.
+        """
+        api_settings.JWT_ENABLE_BLACKLIST = True
+        client = APIClient(enforce_csrf_checks=True)
+
+        user = User.objects.create_user(
+            email='jsmith@example.com', username='jsmith', password='password')
+
+        token = self.create_token(user)
+
+        response = client.post('/auth-token-blacklist/', {'token': token},
+                               format='json')
+
+        self.assertIsNone(response.data['token'])
+
+        response = client.post('/auth-token-verify/', {'token': token},
+                               format='json')
+
+        self.assertRegexpMatches(response.data['non_field_errors'][0],
+                                 "Token is blacklisted")
 
 
 class RefreshJSONWebTokenTests(TokenTestCase):
