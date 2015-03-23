@@ -100,7 +100,7 @@ def jwt_is_blacklisted(payload):
     if 'jti' not in payload or api_settings.JWT_ENABLE_BLACKLIST is False:
         return False
 
-    return jti_collection.find_one({'jti': payload['jti']}) is not None
+    return jti_collection.find_one({str(payload['user_id']): payload['jti']}) is not None
 
 
 def jwt_blacklist(payload):
@@ -108,5 +108,5 @@ def jwt_blacklist(payload):
         raise ValueError(_("Can't blacklist payloads that don't have a jti claim"))
 
     if not jwt_is_blacklisted(payload):
-        jti_collection.insert({'jti': payload['jti'],
+        jti_collection.insert({str(payload['user_id']): payload['jti'],
                                'payload': payload})
