@@ -53,7 +53,7 @@ class UtilsTests(TestCase):
     def test_jwt_response_payload(self):
         payload = utils.jwt_payload_handler(self.user)
         token = utils.jwt_encode_handler(payload)
-        response_data = utils.jwt_response_payload_handler(token, self.user)
+        response_data = utils.jwt_response_payload_handler(token)
 
         self.assertEqual(response_data, dict(token=token))
 
