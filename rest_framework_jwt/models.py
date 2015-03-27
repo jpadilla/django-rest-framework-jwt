@@ -2,7 +2,6 @@ from django.db import models
 
 # Django 1.8 includes UUIDField
 if hasattr(models, 'UUIDField'):
-    import uuid
     jti_field = models.UUIDField(editable=False, unique=True)
 else:
     try:

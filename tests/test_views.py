@@ -347,9 +347,9 @@ class RefreshJSONWebTokenTests(TokenTestCase):
         client = APIClient(enforce_csrf_checks=True)
 
         orig_iat = (
-            datetime.utcnow()
-            - api_settings.JWT_REFRESH_EXPIRATION_DELTA
-            - timedelta(seconds=5)
+            datetime.utcnow() -
+            api_settings.JWT_REFRESH_EXPIRATION_DELTA -
+            timedelta(seconds=5)
         )
         token = self.create_token(
             self.user,
