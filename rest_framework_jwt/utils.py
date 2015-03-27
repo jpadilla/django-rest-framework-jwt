@@ -111,5 +111,5 @@ def jwt_blacklist_set_handler(payload):
     Default implementation that blacklists a jwt token.
     """
     jti = payload.get('jti')
-    
+
     return models.JWTBlackListToken.objects.create(jti=jti)
