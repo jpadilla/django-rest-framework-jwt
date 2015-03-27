@@ -1,15 +1,15 @@
+import jwt
+import uuid
 import random
 import string
+
 from datetime import datetime
 
-import jwt
 from django.utils.translation import gettext_lazy as _
 
 from rest_framework_jwt.settings import api_settings
 
-if api_settings.JWT_ENABLE_BLACKLIST:
-    import pymongo
-    jti_collection = pymongo.MongoClient().jwt_db.jti_collection
+from . import models
 
 
 def get_user_model():
@@ -29,17 +29,13 @@ def jwt_payload_handler(user):
     except AttributeError:
         username = user.username
 
-    payload = {
+    return {
         'user_id': user.pk,
         'email': user.email,
         'username': username,
-        'exp': datetime.utcnow() + api_settings.JWT_EXPIRATION_DELTA
+        'exp': datetime.utcnow() + api_settings.JWT_EXPIRATION_DELTA,
+        'jti': uuid.uuid4()
     }
-
-    if 'jti' not in payload:
-        payload['jti'] = ''.join(random.SystemRandom().choice(string.ascii_letters + string.digits) for _ in range(20))
-
-    return payload
 
 
 def jwt_get_user_id_from_payload_handler(payload):
@@ -92,17 +88,24 @@ def jwt_response_payload_handler(token, user=None, request=None):
     }
 
 
-def jwt_is_blacklisted(payload):
-    if 'jti' not in payload or api_settings.JWT_ENABLE_BLACKLIST is False:
+def jwt_blacklist_get_handler(payload):
+    """
+    Default implementation to check if a blacklisted jwt token exists.
+    """
+    jti = payload.get('jti')
+
+    try:
+        token = models.JWTBlackListToken.objects.get(jti=jti)
+    except models.JWTBlackListToken.DoesNotExist:
         return False
+    else:
+        return True
 
-    return jti_collection.find_one({str(payload['user_id']): payload['jti']}) is not None
 
-
-def jwt_blacklist(payload):
-    if 'jti' not in payload:
-        raise ValueError(_("Can't blacklist payloads that don't have a jti claim"))
-
-    if not jwt_is_blacklisted(payload):
-        jti_collection.insert({str(payload['user_id']): payload['jti'],
-                               'payload': payload})
+def jwt_blacklist_set_handler(payload):
+    """
+    Default implementation that blacklists a jwt token.
+    """
+    jti = payload.get('jti')
+    
+    return models.JWTBlackListToken.objects.create(jti=jti)
