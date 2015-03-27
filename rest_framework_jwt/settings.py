@@ -25,7 +25,7 @@ DEFAULTS = {
     'JWT_BLACKLIST_GET_HANDLER':
     'rest_framework_jwt.utils.jwt_blacklist_get_handler',
 
-    'JWT_BLACKLIST_DET_HANDLER':
+    'JWT_BLACKLIST_SET_HANDLER':
     'rest_framework_jwt.utils.jwt_blacklist_set_handler',
 
     'JWT_SECRET_KEY': settings.SECRET_KEY,
@@ -36,12 +36,9 @@ DEFAULTS = {
     'JWT_EXPIRATION_DELTA': datetime.timedelta(seconds=300),
     'JWT_AUDIENCE': None,
     'JWT_ISSUER': None,
-
     'JWT_ALLOW_REFRESH': False,
     'JWT_REFRESH_EXPIRATION_DELTA': datetime.timedelta(days=7),
-
     'JWT_AUTH_HEADER_PREFIX': 'JWT',
-
     'JWT_ENABLE_BLACKLIST': False,
 }
 
