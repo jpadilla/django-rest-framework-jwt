@@ -9,7 +9,8 @@ else:
         from uuidfield import UUIDField
         jti_field = UUIDField(auto=False, unique=True)
     except ImportError:
-        jti_field = models.CharField(max_length=64, editable= False, unique=True)
+        jti_field = models.CharField(max_length=64,
+                                     editable=False, unique=True)
 
 
 class JWTBlackListToken(models.Model):

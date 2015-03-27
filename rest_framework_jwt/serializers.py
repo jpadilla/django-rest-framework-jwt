@@ -198,7 +198,7 @@ class BlacklistJSONWebTokenSerializer(VerificationBaseSerializer):
     """
 
     def validate(self, attrs):
-        
+
         token = attrs['token']
 
         if not api_settings.JWT_ENABLE_BLACKLIST:
@@ -206,7 +206,7 @@ class BlacklistJSONWebTokenSerializer(VerificationBaseSerializer):
             raise serializers.ValidationError(msg)
 
         payload = self._check_payload(token=token)
-        
+
         # Handle blacklisting a token.
         jwt_blacklist_set_handler(payload)
 

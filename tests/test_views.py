@@ -26,9 +26,8 @@ urlpatterns = patterns(
     (r'^auth-token/$', 'rest_framework_jwt.views.obtain_jwt_token'),
     (r'^auth-token-refresh/$', 'rest_framework_jwt.views.refresh_jwt_token'),
     (r'^auth-token-verify/$', 'rest_framework_jwt.views.verify_jwt_token'),
-    (r'^auth-token-blacklist/$', 'rest_framework_jwt.views.blacklist_jwt_token'),
-
-
+    (r'^auth-token-blacklist/$',
+        'rest_framework_jwt.views.blacklist_jwt_token'),
 )
 
 orig_datetime = datetime
@@ -347,8 +346,11 @@ class RefreshJSONWebTokenTests(TokenTestCase):
         """
         client = APIClient(enforce_csrf_checks=True)
 
-        orig_iat = (datetime.utcnow() - api_settings.JWT_REFRESH_EXPIRATION_DELTA -
-                    timedelta(seconds=5))
+        orig_iat = (
+            datetime.utcnow()
+            - api_settings.JWT_REFRESH_EXPIRATION_DELTA
+            - timedelta(seconds=5)
+        )
         token = self.create_token(
             self.user,
             exp=datetime.utcnow() + timedelta(hours=1),
