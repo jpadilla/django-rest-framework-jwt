@@ -5,8 +5,11 @@ if hasattr(models, 'UUIDField'):
     import uuid
     jti_field = models.UUIDField(editable=False, unique=True)
 else:
-    from uuidfield import UUIDField
-    jti_field = UUIDField(auto=False, unique=True)
+    try:
+        from uuidfield import UUIDField
+        jti_field = UUIDField(auto=False, unique=True)
+    except ImportError:
+        jti_field = CharField(max_length=64, editable= False, unique=True)
 
 
 class JWTBlackListToken(models.Model):
