@@ -1,11 +1,7 @@
 import jwt
 import uuid
-import random
-import string
 
 from datetime import datetime
-
-from django.utils.translation import gettext_lazy as _
 
 from rest_framework_jwt.settings import api_settings
 
@@ -103,7 +99,7 @@ def jwt_blacklist_get_handler(payload):
     except models.JWTBlackListToken.DoesNotExist:
         return False
     else:
-        return True
+        return bool(token)
 
 
 def jwt_blacklist_set_handler(payload):
