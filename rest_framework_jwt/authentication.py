@@ -11,6 +11,7 @@ from rest_framework_jwt.settings import api_settings
 
 jwt_decode_handler = api_settings.JWT_DECODE_HANDLER
 jwt_get_user_id_from_payload = api_settings.JWT_PAYLOAD_GET_USER_ID_HANDLER
+jwt_blacklist_get_handler = api_settings.JWT_BLACKLIST_GET_HANDLER
 
 
 class BaseJSONWebTokenAuthentication(BaseAuthentication):
@@ -37,6 +38,13 @@ class BaseJSONWebTokenAuthentication(BaseAuthentication):
             raise exceptions.AuthenticationFailed(msg)
         except jwt.InvalidTokenError:
             raise exceptions.AuthenticationFailed()
+
+        # Check if the token has been blacklisted.
+        if api_settings.JWT_ENABLE_BLACKLIST:
+            blacklisted = jwt_blacklist_get_handler(payload)
+
+            if blacklisted:
+                raise serializers.ValidationError(_('Token is blacklisted.'))
 
         user = self.authenticate_credentials(payload)
 
