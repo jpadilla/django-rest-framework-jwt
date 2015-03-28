@@ -107,12 +107,12 @@ def jwt_blacklist_set_handler(payload):
     Should return a black listed token or None.
     """
     data = {
-        'jti': payload.get('jti')
+        'jti': payload.get('jti'),
+        'created': datetime.now(pytz.utc)
     }
     try:
         data.update({
-            'expires': datetime.fromtimestamp(payload.get('exp')),
-            'created': datetime.now(pytz.utc)
+            'expires': datetime.fromtimestamp(payload.get('exp'))
         })
     except TypeError:
         return None
