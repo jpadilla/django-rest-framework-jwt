@@ -90,15 +90,17 @@ def jwt_response_payload_handler(token, user=None, request=None):
 def jwt_blacklist_get_handler(payload):
     """
     Default implementation to check if a blacklisted jwt token exists.
+
+    Should return a black listed token or None.
     """
     jti = payload.get('jti')
 
     try:
         token = models.JWTBlackListToken.objects.get(jti=jti)
     except models.JWTBlackListToken.DoesNotExist:
-        return False
+        return None
     else:
-        return bool(token)
+        return token
 
 
 def jwt_blacklist_set_handler(payload):
@@ -106,5 +108,6 @@ def jwt_blacklist_set_handler(payload):
     Default implementation that blacklists a jwt token.
     """
     jti = payload.get('jti')
+    exp = datetime.fromtimestamp(payload.get('exp'))
 
-    return models.JWTBlackListToken.objects.create(jti=jti)
+    return models.JWTBlackListToken.objects.create(jti=jti, expires_at=exp)
