@@ -15,7 +15,7 @@ else:
             return self.validated_data
 
 
-def get_uuid_field(object):
+def get_uuid_field():
     """
     Returns a partial object that when called instantiates a UUIDField
     either from Django 1.8's native implementation, from django-uuidfield,
