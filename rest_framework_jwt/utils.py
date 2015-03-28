@@ -38,8 +38,7 @@ def jwt_get_user_id_from_payload_handler(payload):
     """
     Override this function if user_id is formatted differently in payload
     """
-    user_id = payload.get('user_id')
-    return user_id
+    return payload.get('user_id')
 
 
 def jwt_encode_handler(payload):
