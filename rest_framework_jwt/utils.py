@@ -3,6 +3,9 @@ import uuid
 
 from datetime import datetime
 
+from django.utils.translations import ugettext_lazy as _
+
+from rest_framework import exceptions
 from rest_framework_jwt.settings import api_settings
 
 from . import models
@@ -102,8 +105,17 @@ def jwt_blacklist_get_handler(payload):
 def jwt_blacklist_set_handler(payload):
     """
     Default implementation that blacklists a jwt token.
-    """
-    jti = payload.get('jti')
-    exp = datetime.fromtimestamp(payload.get('exp'))
 
-    return models.JWTBlackListToken.objects.create(jti=jti, expires_at=exp)
+    Should return a black listed token.
+    """
+    data = {
+        'jti': payload.get('jti')
+    }
+    try:
+        data.update({
+            'exp': datetime.fromtimestamp(payload.get('exp'))
+        })
+    except TypeError:
+        return None
+    else:
+        return models.JWTBlackListToken.objects.create(**data)
