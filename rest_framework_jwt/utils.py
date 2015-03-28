@@ -1,4 +1,5 @@
 import jwt
+import pytz
 import uuid
 
 from datetime import datetime
@@ -110,7 +111,8 @@ def jwt_blacklist_set_handler(payload):
     }
     try:
         data.update({
-            'expires_at': datetime.fromtimestamp(payload.get('exp'))
+            'expires': datetime.fromtimestamp(payload.get('exp')),
+            'created': datetime.now(pytz.utc)
         })
     except TypeError:
         return None
