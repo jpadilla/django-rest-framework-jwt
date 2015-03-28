@@ -1,5 +1,7 @@
 from django.contrib import admin
 
+from rest_framework_jwt.settings import api_settings
+
 from . import models
 
 
@@ -12,4 +14,5 @@ class JWTBlackListTokenAdmin(admin.ModelAdmin):
         return obj.is_expired()
     is_expired.boolean = True
 
-admin.site.register(models.JWTBlackListToken, JWTBlackListTokenAdmin)
+if api_settings.JWT_ENABLE_BLACKLIST:
+    admin.site.register(models.JWTBlackListToken, JWTBlackListTokenAdmin)
