@@ -14,4 +14,4 @@ class JWTBlackListToken(models.Model):
 
     def is_expired(self):
         now = datetime.datetime.now()
-        return expires_at < now
+        return self.expires_at < now
