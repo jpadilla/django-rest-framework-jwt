@@ -114,7 +114,7 @@ def jwt_blacklist_set_handler(payload):
     }
     try:
         data.update({
-            'exp': datetime.fromtimestamp(payload.get('exp'))
+            'expires_at': datetime.fromtimestamp(payload.get('exp'))
         })
     except TypeError:
         return None
