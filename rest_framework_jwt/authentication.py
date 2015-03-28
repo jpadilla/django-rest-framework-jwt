@@ -4,7 +4,6 @@ from django.utils.encoding import smart_text
 from django.utils.translation import ugettext as _
 
 from rest_framework import exceptions
-from rest_framework import serializers
 from rest_framework.authentication import (BaseAuthentication,
                                            get_authorization_header)
 
@@ -45,7 +44,9 @@ class BaseJSONWebTokenAuthentication(BaseAuthentication):
             blacklisted = jwt_blacklist_get_handler(payload)
 
             if blacklisted:
-                raise serializers.ValidationError(_('Token is blacklisted.'))
+                raise exceptions.AuthenticationFailed(
+                    _('Token is blacklisted.')
+                )
 
         user = self.authenticate_credentials(payload)
 

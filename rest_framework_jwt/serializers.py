@@ -5,12 +5,13 @@ from datetime import datetime, timedelta
 
 from django.contrib.auth import authenticate
 from django.utils.translation import ugettext as _
-from rest_framework import serializers
-from .compat import Serializer
 
+from rest_framework import exceptions
+from rest_framework import serializers
 from rest_framework_jwt import utils
 from rest_framework_jwt.settings import api_settings
 
+from .compat import Serializer
 
 jwt_payload_handler = api_settings.JWT_PAYLOAD_HANDLER
 jwt_encode_handler = api_settings.JWT_ENCODE_HANDLER
@@ -110,7 +111,9 @@ class VerificationBaseSerializer(Serializer):
             blacklisted = jwt_blacklist_get_handler(payload)
 
             if blacklisted:
-                raise serializers.ValidationError(_('Token is blacklisted.'))
+                raise exceptions.AuthenticationFailed(
+                    _('Token is blacklisted.')
+                )
 
         return payload
 
