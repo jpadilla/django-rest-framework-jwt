@@ -46,9 +46,8 @@ class BaseJSONWebTokenAuthentication(BaseAuthentication):
             blacklisted = jwt_blacklist_get_handler(payload)
 
             if blacklisted:
-                raise exceptions.AuthenticationFailed(
-                    _('Token is blacklisted.')
-                )
+                msg = _('Token is blacklisted.')
+                raise exceptions.AuthenticationFailed(msg)
 
         user = self.authenticate_credentials(payload)
 
