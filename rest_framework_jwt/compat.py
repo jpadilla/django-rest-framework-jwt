@@ -5,11 +5,13 @@ from django.db import models
 from distutils.version import StrictVersion
 from functools import partial
 
+from rest_framework import serializers
+
 
 if StrictVersion(rest_framework.VERSION) < StrictVersion('3.0.0'):
     from rest_framework.serializers import Serializer
 else:
-    class Serializer(rest_framework.serializers.Serializer):
+    class Serializer(serializers.Serializer):
         @property
         def object(self):
             return self.validated_data
@@ -26,7 +28,8 @@ def get_uuid_field():
     else:
         try:
             from uuidfield import UUIDField
-            return partial(UUIDField, auto=False, unique=True)
+            return partial(UUIDField, editable=False,
+                           auto=False, unique=True)
         except ImportError:
             return partial(models.CharField, max_length=64,
                            editable=False, unique=True)
