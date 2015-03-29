@@ -212,6 +212,10 @@ class BlacklistJSONWebTokenSerializer(VerificationBaseSerializer):
         # Handle blacklisting a token.
         token = jwt_blacklist_set_handler(payload)
 
+        if not token:
+            msg = _('Could not blacklist token.')
+            raise serializers.ValidationError(msg)
+
         user = self._check_user(payload=payload)
 
         return {
