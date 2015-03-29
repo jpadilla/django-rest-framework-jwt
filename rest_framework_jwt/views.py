@@ -9,6 +9,7 @@ from rest_framework_jwt.settings import api_settings
 from . import serializers
 
 jwt_response_payload_handler = api_settings.JWT_RESPONSE_PAYLOAD_HANDLER
+jwt_blacklist_response_handler = api_settings.JWT_BLACKLIST_RESPONSE_HANDLER
 
 
 class JSONWebTokenAPIView(APIView):
@@ -20,6 +21,7 @@ class JSONWebTokenAPIView(APIView):
     authentication_classes = ()
     parser_classes = (parsers.FormParser, parsers.JSONParser,)
     renderer_classes = (renderers.JSONRenderer,)
+    response_payload_handler = staticmethod(jwt_response_payload_handler)
 
     def post(self, request):
         serializer = self.serializer_class(data=request.DATA)
@@ -27,7 +29,7 @@ class JSONWebTokenAPIView(APIView):
         if serializer.is_valid():
             user = serializer.object.get('user') or request.user
             token = serializer.object.get('token')
-            response_data = jwt_response_payload_handler(token, user, request)
+            response_data = self.response_payload_handler(token, user, request)
 
             return Response(response_data)
 
@@ -67,6 +69,7 @@ class BlacklistJSONWebToken(JSONWebTokenAPIView):
     API View that blacklists a token
     """
     serializer_class = serializers.BlacklistJSONWebTokenSerializer
+    response_payload_handler = staticmethod(jwt_blacklist_response_handler)
 
 
 obtain_jwt_token = ObtainJSONWebToken.as_view()

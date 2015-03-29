@@ -2,6 +2,8 @@ import jwt
 import pytz
 import uuid
 
+from django.utils.translation import ugettext_lazy as _
+
 from datetime import datetime
 
 from rest_framework_jwt.settings import api_settings
@@ -118,3 +120,16 @@ def jwt_blacklist_set_handler(payload):
         return None
     else:
         return models.JWTBlackListToken.objects.create(**data)
+
+
+def jwt_blacklist_response_handler(token, user=None, request=None):
+    """
+    Default blacklist token response data. Override to provide a
+    custom response.
+    """
+    from . import serializers
+
+    return {
+        'token': serializers.JWTBlackListTokenSerializer(token).data,
+        'message': _('Token successfully blacklisted.')
+    }

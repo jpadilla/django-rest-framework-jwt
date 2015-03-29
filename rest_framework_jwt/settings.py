@@ -28,6 +28,9 @@ DEFAULTS = {
     'JWT_BLACKLIST_SET_HANDLER':
     'rest_framework_jwt.utils.jwt_blacklist_set_handler',
 
+    'JWT_BLACKLIST_RESPONSE_HANDLER':
+    'rest_framework_jwt.utils.jwt_blacklist_response_handler',
+
     'JWT_SECRET_KEY': settings.SECRET_KEY,
     'JWT_ALGORITHM': 'HS256',
     'JWT_VERIFY': True,
@@ -51,6 +54,7 @@ IMPORT_STRINGS = (
     'JWT_RESPONSE_PAYLOAD_HANDLER',
     'JWT_BLACKLIST_GET_HANDLER',
     'JWT_BLACKLIST_SET_HANDLER',
+    'JWT_BLACKLIST_RESPONSE_HANDLER',
 )
 
 api_settings = APISettings(USER_SETTINGS, DEFAULTS, IMPORT_STRINGS)
