@@ -1,7 +1,5 @@
-import pytz
-import datetime
-
 from django.db import models
+from django.utils.timezone import now
 from django.utils.translation import ugettext_lazy as _
 
 from .compat import get_uuid_field
@@ -19,5 +17,4 @@ class JWTBlackListToken(models.Model):
         verbose_name_plural = _('JWT Blacklist Tokens')
 
     def is_expired(self):
-        now = datetime.datetime.now(pytz.utc)
-        return self.expires < now
+        return self.expires < now()
