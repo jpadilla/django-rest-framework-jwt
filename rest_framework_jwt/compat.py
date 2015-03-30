@@ -20,16 +20,10 @@ else:
 def get_uuid_field():
     """
     Returns a partial object that when called instantiates a UUIDField
-    either from Django 1.8's native implementation, from django-uuidfield,
-    or as a CharField as the final fallback.
+    either from Django 1.8's native implementation, or as a CharField.
     """
     if hasattr(models, 'UUIDField'):
         return partial(models.UUIDField, editable=False, unique=True)
     else:
-        try:
-            from uuidfield import UUIDField
-            return partial(UUIDField, editable=False,
-                           auto=False, unique=True)
-        except ImportError:
-            return partial(models.CharField, max_length=64,
-                           editable=False, unique=True)
+        return partial(models.CharField, max_length=64,
+                       editable=False, unique=True)

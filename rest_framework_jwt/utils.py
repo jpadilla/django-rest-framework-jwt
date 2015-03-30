@@ -1,7 +1,7 @@
 import jwt
-import pytz
 import uuid
 
+from django.utils.timezone import now
 from django.utils.translation import ugettext_lazy as _
 
 from datetime import datetime
@@ -110,7 +110,7 @@ def jwt_blacklist_set_handler(payload):
     """
     data = {
         'jti': payload.get('jti'),
-        'created': datetime.now(pytz.utc)
+        'created': now()
     }
     try:
         data.update({
