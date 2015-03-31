@@ -35,6 +35,7 @@ def pytest_configure():
             'django.contrib.staticfiles',
 
             'tests',
+            'rest_framework_jwt',
         ),
         PASSWORD_HASHERS=(
             'django.contrib.auth.hashers.MD5PasswordHasher',
