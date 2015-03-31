@@ -55,7 +55,9 @@ urlpatterns = patterns(
             OAuth2Authentication, JSONWebTokenAuthentication])),
 )
 
-class BlacklistTokenAuthenticationTest(TestCase):
+
+class JSONWebTokenAuthenticationTests(TestCase):
+    """JSON Web Token Authentication"""
     urls = 'tests.test_authentication'
 
     def setUp(self):
@@ -63,19 +65,36 @@ class BlacklistTokenAuthenticationTest(TestCase):
         self.username = 'jpueblo'
         self.email = 'jpueblo@example.com'
         self.user = User.objects.create_user(self.username, self.email)
-        
+
+    def test_post_json_passing_jwt_auth_blacklist_enabled(self):
+        """
+        Ensure POSTing JSON over JWT auth with correct credentials
+        passes and does not require CSRF
+        """
         api_settings.JWT_ENABLE_BLACKLIST = True
+        payload = utils.jwt_payload_handler(self.user)
+        token = utils.jwt_encode_handler(payload)
+
+        auth = 'JWT {0}'.format(token)
+        response = self.csrf_client.post(
+            '/jwt/', {'example': 'example'},
+            HTTP_AUTHORIZATION=auth, format='json')
+
+        self.assertEqual(response.status_code, status.HTTP_200_OK)
+
+        api_settings.JWT_ENABLE_BLACKLIST = False
 
     def test_post_blacklisted_token_failing_jwt_auth(self):
         """
         Ensure POSTing over JWT auth with blacklisted token fails
         """
+        api_settings.JWT_ENABLE_BLACKLIST = True
         payload = utils.jwt_payload_handler(self.user)
         token = utils.jwt_encode_handler(payload)
 
         # Create blacklist token which effectively blacklists the token.
         JWTBlackListToken.objects.create(jti=payload.get('jti'),
-                                         created=now(), expires=now()) 
+                                         created=now(), expires=now())
 
         auth = 'JWT {0}'.format(token)
         response = self.csrf_client.post(
@@ -88,19 +107,7 @@ class BlacklistTokenAuthenticationTest(TestCase):
         self.assertEqual(response.status_code, status.HTTP_401_UNAUTHORIZED)
         self.assertEqual(response['WWW-Authenticate'], 'JWT realm="api"')
 
-    def tearDown(self):
         api_settings.JWT_ENABLE_BLACKLIST = False
-
-
-class JSONWebTokenAuthenticationTests(TestCase):
-    """JSON Web Token Authentication"""
-    urls = 'tests.test_authentication'
-
-    def setUp(self):
-        self.csrf_client = APIClient(enforce_csrf_checks=True)
-        self.username = 'jpueblo'
-        self.email = 'jpueblo@example.com'
-        self.user = User.objects.create_user(self.username, self.email)
 
     def test_post_form_passing_jwt_auth(self):
         """
