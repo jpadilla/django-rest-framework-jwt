@@ -224,11 +224,11 @@ class BlacklistJSONWebTokenSerializer(VerificationBaseSerializer):
         }
 
 
-class JWTBlackListTokenSerializer(serializers.ModelSerializer):
+class JWTBlacklistTokenSerializer(serializers.ModelSerializer):
     jti = serializers.SerializerMethodField('get_jti_value')
 
     class Meta:
-        model = models.JWTBlackListToken
+        model = models.JWTBlacklistToken
 
     def get_jti_value(self, obj):
         """Returns obj.jti manually due to py3 bug in django-uuidfield"""

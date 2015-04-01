@@ -101,6 +101,7 @@ Refresh with tokens can be repeated (token1 -> token2 -> token3), but this chain
 
 A typical use case might be a web app where you'd like to keep the user "logged in" the site without having to re-enter their password, or get kicked out by surprise before their token expired. Imagine they had a 1-hour token and are just at the last minute while they're still doing something. With mobile you could perhaps store the username/password to get a new token, but this is not a great idea in a browser. Each time the user loads the page, you can check if there is an existing non-expired token and if it's close to being expired, refresh it to extend their session. In other words, if a user is actively using your site, they can keep their "session" alive.
 
+
 ## Verify Token
 
 In some microservice architectures, authentication is handled by a single service. Other services delegate the responsibility of confirming that a user is logged in to this authentication service. This usually means that a service will pass a JWT received from the user to the authentication service, and wait for a confirmation that the JWT is valid before returning protected resources to the user.
@@ -115,6 +116,28 @@ Passing a token to the verification endpoint will return a 200 response and the 
 ```bash
 $ curl -X POST -H "Content-Type: application/json" -d '{"token":"<EXISTING_TOKEN>"}' http://localhost:8000/api-token-verify/
 ```
+
+## Blacklist Token
+If `JWT_ENABLE_BLACKLIST` is True, tokens can be made invalid (prior to expiration) by blacklisting them. More information on the concept of JTI (JWT ID) and blacklisting tokens can be read [here](http://self-issued.info/docs/draft-ietf-oauth-json-web-token.html#jtiDef) and [here](https://auth0.com/blog/2015/03/10/blacklist-json-web-token-api-keys/).
+
+This package comes with a default implementation that stores the blacklisted tokens in the configured django database and includes an admin integration.
+
+To use this feature, add a URL like so:
+
+```python
+    url(r'^api-token-blacklist/', 'rest_framework_jwt.views.blacklist_jwt_token'),
+```
+
+Now to blacklist a token, send a POST request with a non-expired token to the blacklist endpoint:
+
+```bash
+$ curl -X POST -H "Content-Type: application/json" -d '{"token":"<EXISTING_TOKEN>"}' http://localhost:8000/api-token-blacklist/
+```
+
+If the blacklisting was successful, the response will contain the default implementation response data which is the token and a success message.
+
+The typical use case for this feature is forcefully logging a user out due to inactivity. Many applications, especially ones with sensitive information, may implement an activity-based countdown timer and wish to instantly inactivate the user's auth token. The default implementation stores a record in the database with the unique JTI (JWT ID). However there are configurable handlers for getting and setting the blacklisted token which leaves it up to the user to decide how or where they are stored. The only requirement are that both `JWT_BLACKLIST_GET_HANDLER` and `JWT_BLACKLIST_SET_HANDLER` return a valid blacklisted token or None.
+
 
 ## Additional Settings
 There are some additional settings that you can override similar to how you'd do it with Django REST framework itself. Here are all the available defaults.
@@ -136,6 +159,15 @@ JWT_AUTH = {
     'JWT_RESPONSE_PAYLOAD_HANDLER':
     'rest_framework_jwt.utils.jwt_response_payload_handler',
 
+    'JWT_BLACKLIST_GET_HANDLER':
+    'rest_framework_jwt.utils.jwt_blacklist_get_handler',
+
+    'JWT_BLACKLIST_SET_HANDLER':
+    'rest_framework_jwt.utils.jwt_blacklist_set_handler',
+
+    'JWT_BLACKLIST_RESPONSE_HANDLER':
+    'rest_framework_jwt.utils.jwt_blacklist_response_handler',
+
     'JWT_SECRET_KEY': settings.SECRET_KEY,
     'JWT_ALGORITHM': 'HS256',
     'JWT_VERIFY': True,
@@ -149,6 +181,8 @@ JWT_AUTH = {
     'JWT_REFRESH_EXPIRATION_DELTA': datetime.timedelta(days=7),
 
     'JWT_AUTH_HEADER_PREFIX': 'JWT',
+    
+    'JWT_ENABLE_BLACKLIST': False,
 }
 ```
 This packages uses the JSON Web Token Python implementation, [PyJWT](https://github.com/jpadilla/pyjwt) and allows to modify some of it's available options.
@@ -226,6 +260,53 @@ def jwt_response_payload_handler(token, user=None, request=None):
 ```
 
 Default is `{'token': token}`
+
+### JWT_BLACKLIST_GET_HANDLER
+Responsible for fetching a blacklisted JWT token. This function should return either a valid blacklisted token or None.
+
+The default included implementation is as follows:
+```
+def jwt_blacklist_get_handler(payload):
+    jti = payload.get('jti')
+
+    try:
+        token = models.JWTBlackListToken.objects.get(jti=jti)
+    except models.JWTBlackListToken.DoesNotExist:
+        return None
+    else:
+        return token
+```
+
+### JWT_BLACKLIST_SET_HANDLER
+Responsible for setting a blacklisted JWT token. This function should return either a valid blacklisted token or None.
+
+The default included implementation is as follows:
+```
+def jwt_blacklist_set_handler(payload):
+    try:
+        data = {
+            'jti': payload.get('jti'),
+            'created': now(),
+            'expires': datetime.fromtimestamp(payload.get('exp'))
+        }
+        return models.JWTBlackListToken.objects.create(\**data)
+    except (TypeError, IntegrityError, Exception):
+        return None
+```
+
+### JWT_BLACKLIST_RESPONSE_HANDLER
+Controls what the response data for a request to the JWT blacklist endpoint returns.
+
+The default implementation is as follows:
+```
+def jwt_blacklist_response_handler(token, user=None, request=None):
+    from . import serializers
+
+    return {
+        'token': serializers.JWTBlackListTokenSerializer(token).data,
+        'message': _('Token successfully blacklisted.')
+    }
+```
 
 ### JWT_AUTH_HEADER_PREFIX
 You can modify the Authorization header value prefix that is required to be sent together with the token. The default value is `JWT`. This decision was introduced in PR [#4](https://github.com/GetBlimp/django-rest-framework-jwt/pull/4) to allow using both this package and OAuth2 in DRF.

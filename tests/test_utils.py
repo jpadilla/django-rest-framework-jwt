@@ -8,7 +8,7 @@ from django.utils.timezone import now
 from django.test import TestCase
 
 from rest_framework_jwt import utils
-from rest_framework_jwt.models import JWTBlackListToken
+from rest_framework_jwt.models import JWTBlacklistToken
 from rest_framework_jwt.settings import api_settings, DEFAULTS
 
 User = get_user_model()
@@ -67,7 +67,7 @@ class UtilsTests(TestCase):
         payload = utils.jwt_payload_handler(self.user)
 
         # Create blacklisted token.
-        token_created = JWTBlackListToken.objects.create(
+        token_created = JWTBlacklistToken.objects.create(
             jti=payload.get('jti'),
             expires=now(),
             created=now()

@@ -7,7 +7,7 @@ from .compat import get_uuid_field
 UUIDField = get_uuid_field()
 
 
-class JWTBlackListToken(models.Model):
+class JWTBlacklistToken(models.Model):
     jti = UUIDField()
     expires = models.DateTimeField()
     created = models.DateTimeField(auto_now_add=True)

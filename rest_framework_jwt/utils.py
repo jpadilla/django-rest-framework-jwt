@@ -100,8 +100,8 @@ def jwt_blacklist_get_handler(payload):
     jti = payload.get('jti')
 
     try:
-        token = models.JWTBlackListToken.objects.get(jti=jti)
-    except models.JWTBlackListToken.DoesNotExist:
+        token = models.JWTBlacklistToken.objects.get(jti=jti)
+    except models.JWTBlacklistToken.DoesNotExist:
         return None
     else:
         return token
@@ -119,7 +119,7 @@ def jwt_blacklist_set_handler(payload):
             'created': now(),
             'expires': datetime.fromtimestamp(payload.get('exp'))
         }
-        return models.JWTBlackListToken.objects.create(**data)
+        return models.JWTBlacklistToken.objects.create(**data)
     except (TypeError, IntegrityError, Exception):
         return None
 
@@ -132,6 +132,6 @@ def jwt_blacklist_response_handler(token, user=None, request=None):
     from . import serializers
 
     return {
-        'token': serializers.JWTBlackListTokenSerializer(token).data,
+        'token': serializers.JWTBlacklistTokenSerializer(token).data,
         'message': _('Token successfully blacklisted.')
     }
