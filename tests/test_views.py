@@ -28,7 +28,7 @@ urlpatterns = patterns(
     (r'^auth-token-refresh/$', 'rest_framework_jwt.views.refresh_jwt_token'),
     (r'^auth-token-verify/$', 'rest_framework_jwt.views.verify_jwt_token'),
     (r'^auth-token-blacklist/$',
-        'rest_framework_jwt.views.blacklist_jwt_token'),
+     'rest_framework_jwt.views.blacklist_jwt_token'),
 )
 
 orig_datetime = datetime
@@ -304,7 +304,29 @@ class VerifyJSONWebTokenTests(TokenTestCase):
         """
         Test that a blacklisted token will fail.
         """
-        pass
+        api_settings.JWT_ENABLE_BLACKLIST = True
+
+        client = APIClient(enforce_csrf_checks=True)
+
+        user = User.objects.create_user(
+            email='jsmith@example.com', username='jsmith', password='password')
+
+        token = self.create_token(user)
+
+        # Handle blacklisting the token.
+        response = client.post('/auth-token-blacklist/', {'token': token},
+                               format='json')
+
+        msg = 'Token successfully blacklisted.'
+
+        self.assertEqual(response.data['message'], msg)
+
+        response = client.post('/auth-token-verify/', {'token': token},
+                               format='json')
+
+        msg = 'Token is blacklisted.'
+
+        self.assertEqual(response.data['detail'], msg)
 
 
 class RefreshJSONWebTokenTests(TokenTestCase):
@@ -369,3 +391,42 @@ class RefreshJSONWebTokenTests(TokenTestCase):
     def tearDown(self):
         # Restore original settings
         api_settings.JWT_ALLOW_REFRESH = DEFAULTS['JWT_ALLOW_REFRESH']
+
+
+class BlacklistJSONWebTokenTests(TokenTestCase):
+
+    def test_blacklist_jwt_successful_blacklist_enabled(self):
+        api_settings.JWT_ENABLE_BLACKLIST = True
+
+        client = APIClient(enforce_csrf_checks=True)
+
+        user = User.objects.create_user(
+            email='jsmith@example.com', username='jsmith', password='password')
+
+        token = self.create_token(user)
+
+        # Handle blacklisting the token.
+        response = client.post('/auth-token-blacklist/', {'token': token},
+                               format='json')
+
+        msg = 'Token successfully blacklisted.'
+
+        self.assertEqual(response.data['message'], msg)
+
+    def test_blacklist_jwt_fails_blacklist_disabled(self):
+        api_settings.JWT_ENABLE_BLACKLIST = False
+
+        client = APIClient(enforce_csrf_checks=True)
+
+        user = User.objects.create_user(
+            email='jsmith@example.com', username='jsmith', password='password')
+
+        token = self.create_token(user)
+
+        # Handle blacklisting the token.
+        response = client.post('/auth-token-blacklist/', {'token': token},
+                               format='json')
+
+        msg = 'JWT_ENABLE_BLACKLIST is set to False.'
+
+        self.assertEqual(response.data['non_field_errors'][0], msg)

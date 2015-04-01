@@ -114,6 +114,7 @@ class JSONWebTokenAuthenticationTests(TestCase):
         Ensure POSTing over JWT auth with blacklisted token fails
         """
         api_settings.JWT_ENABLE_BLACKLIST = True
+
         payload = utils.jwt_payload_handler(self.user)
         token = utils.jwt_encode_handler(payload)
 
