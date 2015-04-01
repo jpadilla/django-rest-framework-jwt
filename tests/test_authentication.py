@@ -10,7 +10,7 @@ from rest_framework.test import APIRequestFactory, APIClient
 from rest_framework.views import APIView
 
 from rest_framework_jwt import utils
-from rest_framework_jwt.models import JWTBlackListToken
+from rest_framework_jwt.models import JWTBlacklistToken
 from rest_framework_jwt.settings import api_settings, DEFAULTS
 from rest_framework_jwt.authentication import JSONWebTokenAuthentication
 
@@ -94,7 +94,7 @@ class JSONWebTokenAuthenticationTests(TestCase):
         token = utils.jwt_encode_handler(payload)
 
         # Create blacklist token which effectively blacklists the token.
-        JWTBlackListToken.objects.create(jti=payload.get('jti'),
+        JWTBlacklistToken.objects.create(jti=payload.get('jti'),
                                          created=now(), expires=now())
 
         auth = 'JWT {0}'.format(token)

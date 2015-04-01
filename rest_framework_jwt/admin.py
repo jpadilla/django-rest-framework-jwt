@@ -5,7 +5,7 @@ from rest_framework_jwt.settings import api_settings
 from . import models
 
 
-class JWTBlackListTokenAdmin(admin.ModelAdmin):
+class JWTBlacklistTokenAdmin(admin.ModelAdmin):
     list_display = ('jti', 'expires', 'created', 'is_expired')
     fields = ('jti', 'expires', 'created', 'is_expired')
     readonly_fields = ('jti', 'expires', 'created', 'is_expired')
@@ -15,4 +15,4 @@ class JWTBlackListTokenAdmin(admin.ModelAdmin):
     is_expired.boolean = True
 
 if api_settings.JWT_ENABLE_BLACKLIST:
-    admin.site.register(models.JWTBlackListToken, JWTBlackListTokenAdmin)
+    admin.site.register(models.JWTBlacklistToken, JWTBlacklistTokenAdmin)
