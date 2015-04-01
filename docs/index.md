@@ -134,9 +134,9 @@ Now to blacklist a token, send a POST request with a non-expired token to the bl
 $ curl -X POST -H "Content-Type: application/json" -d '{"token":"<EXISTING_TOKEN>"}' http://localhost:8000/api-token-blacklist/
 ```
 
-If the blacklisting was successful, the response will contain the default implementation response data which is the token and a success message.
+If the blacklisting was successful, the response will contain the default implementation response data which is the token and a success message. Any future requests using that token will be denied.
 
-The typical use case for this feature is forcefully logging a user out due to inactivity. Many applications, especially ones with sensitive information, may implement an activity-based countdown timer and wish to instantly inactivate the user's auth token. The default implementation stores a record in the database with the unique JTI (JWT ID). However there are configurable handlers for getting and setting the blacklisted token which leaves it up to the user to decide how or where they are stored. The only requirement are that both `JWT_BLACKLIST_GET_HANDLER` and `JWT_BLACKLIST_SET_HANDLER` return a valid blacklisted token or None.
+The typical use case for this feature is forcefully logging a user out due to inactivity. Many applications, especially ones with sensitive information, may implement an activity-based countdown timer and wish to instantly inactivate the user's auth token. The default implementation stores a record in the database with the unique JTI (JWT ID). However there are configurable handlers for getting and setting the blacklisted token which leaves it up to the user to decide how or where they are stored. The only requirements are that both `JWT_BLACKLIST_GET_HANDLER` and `JWT_BLACKLIST_SET_HANDLER` return a valid blacklisted token or None.
 
 
 ## Additional Settings
@@ -241,6 +241,9 @@ Default is `datetime.timedelta(days=7)` (7 days).
 
 ### JWT_PAYLOAD_HANDLER
 Specify a custom function to generate the token payload
+
+**Note**
+If you have `JWT_ENABLE_BLACKLIST` set to True, *AND* you are using the default blacklist implementation, any custom token payload must include both a `jti` attribute which is a unique UUID hex, and a `exp` attribute which is a timestamp from a POSIX time (e.g. seconds since epoch).
 
 ### JWT_PAYLOAD_GET_USER_ID_HANDLER
 If you store `user_id` differently than the default payload handler does, implement this function to fetch `user_id` from the payload.
