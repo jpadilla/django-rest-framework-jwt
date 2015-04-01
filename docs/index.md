@@ -308,6 +308,11 @@ def jwt_blacklist_response_handler(token, user=None, request=None):
     }
 ```
 
+### JWT_ENABLE_BLACKLIST
+Designates whether JWT token blacklisting is turned on or off.
+
+Defaults to False.
+
 ### JWT_AUTH_HEADER_PREFIX
 You can modify the Authorization header value prefix that is required to be sent together with the token. The default value is `JWT`. This decision was introduced in PR [#4](https://github.com/GetBlimp/django-rest-framework-jwt/pull/4) to allow using both this package and OAuth2 in DRF.
 
