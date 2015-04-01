@@ -16,5 +16,5 @@ class JWTBlacklistToken(models.Model):
         verbose_name = _('JWT Blacklist Token')
         verbose_name_plural = _('JWT Blacklist Tokens')
 
-    def is_expired(self):
-        return self.expires < now()
+    def is_active(self):
+        return self.expires > now()

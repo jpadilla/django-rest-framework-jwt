@@ -6,13 +6,13 @@ from . import models
 
 
 class JWTBlacklistTokenAdmin(admin.ModelAdmin):
-    list_display = ('jti', 'expires', 'created', 'is_expired')
-    fields = ('jti', 'expires', 'created', 'is_expired')
-    readonly_fields = ('jti', 'expires', 'created', 'is_expired')
+    list_display = ('jti', 'expires', 'created', 'is_active')
+    fields = ('jti', 'expires', 'created', 'is_active')
+    readonly_fields = ('jti', 'expires', 'created', 'is_active')
 
-    def is_expired(self, obj):
-        return obj.is_expired()
-    is_expired.boolean = True
+    def is_active(self, obj):
+        return obj.is_active()
+    is_active.boolean = True
 
 if api_settings.JWT_ENABLE_BLACKLIST:
     admin.site.register(models.JWTBlacklistToken, JWTBlacklistTokenAdmin)
