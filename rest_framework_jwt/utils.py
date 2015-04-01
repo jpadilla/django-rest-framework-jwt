@@ -1,6 +1,7 @@
 import jwt
 import uuid
 
+from django.db import IntegrityError
 from django.utils.timezone import now
 from django.utils.translation import ugettext_lazy as _
 
@@ -108,18 +109,15 @@ def jwt_blacklist_set_handler(payload):
 
     Should return a black listed token or None.
     """
-    data = {
-        'jti': payload.get('jti'),
-        'created': now()
-    }
     try:
-        data.update({
+        data = {
+            'jti': payload.get('jti'),
+            'created': now(),
             'expires': datetime.fromtimestamp(payload.get('exp'))
-        })
-    except TypeError:
-        return None
-    else:
+        }
         return models.JWTBlackListToken.objects.create(**data)
+    except (TypeError, IntegrityError, Exception):
+        return None
 
 
 def jwt_blacklist_response_handler(token, user=None, request=None):
