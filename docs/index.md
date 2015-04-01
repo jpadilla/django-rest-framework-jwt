@@ -271,7 +271,6 @@ The default included implementation is as follows:
 ```
 def jwt_blacklist_get_handler(payload):
     jti = payload.get('jti')
-
     try:
         token = models.JWTBlackListToken.objects.get(jti=jti)
     except models.JWTBlackListToken.DoesNotExist:
@@ -292,7 +291,7 @@ def jwt_blacklist_set_handler(payload):
             'created': now(),
             'expires': datetime.fromtimestamp(payload.get('exp'))
         }
-        return models.JWTBlackListToken.objects.create(\**data)
+        return models.JWTBlackListToken.objects.create(**data)
     except (TypeError, IntegrityError, Exception):
         return None
 ```
@@ -303,11 +302,9 @@ Controls what the response data for a request to the JWT blacklist endpoint retu
 The default implementation is as follows:
 ```
 def jwt_blacklist_response_handler(token, user=None, request=None):
-    from . import serializers
-
     return {
-        'token': serializers.JWTBlackListTokenSerializer(token).data,
-        'message': _('Token successfully blacklisted.')
+        'token': JWTBlackListTokenSerializer(token).data,
+        'message': 'Token successfully blacklisted.'
     }
 ```
 
