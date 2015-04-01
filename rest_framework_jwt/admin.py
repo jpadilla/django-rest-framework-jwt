@@ -13,6 +13,7 @@ class JWTBlacklistTokenAdmin(admin.ModelAdmin):
     def is_active(self, obj):
         return obj.is_active()
     is_active.boolean = True
+    is_active.short_description = 'Active'
 
 if api_settings.JWT_ENABLE_BLACKLIST:
     admin.site.register(models.JWTBlacklistToken, JWTBlacklistTokenAdmin)
