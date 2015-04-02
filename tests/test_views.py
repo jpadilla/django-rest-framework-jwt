@@ -389,7 +389,7 @@ class RefreshTokenTestCase(APITestCase):
             'refreshtoken-detail',
             kwargs={'key': self.token1.key}
         )
-        self.delgate_url = reverse('delgate-tokens')
+        self.delegate_url = reverse('delegate-tokens')
 
     def test_requires_auth(self):
         response = self.client.get(self.list_url)
@@ -481,7 +481,7 @@ class RefreshTokenTestCase(APITestCase):
 
     def test_delegate_jwt(self):
         headers = {'HTTP_AUTHORIZATION': 'RefreshToken {}'.format(self.token1.key)}
-        response = self.client.post(self.delgate_url, format='json', **headers)
+        response = self.client.post(self.delegate_url, format='json', **headers)
         self.assertEqual(
             response.status_code,
             status.HTTP_201_CREATED,

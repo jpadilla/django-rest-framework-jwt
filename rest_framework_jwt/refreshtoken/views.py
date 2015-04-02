@@ -5,8 +5,6 @@ from rest_framework import mixins
 from rest_framework import viewsets
 from rest_framework.response import Response
 from rest_framework import status
-from rest_framework import parsers
-from rest_framework import renderers
 
 from rest_framework_jwt.settings import api_settings
 from rest_framework_jwt.views import JSONWebTokenAPIView
@@ -20,7 +18,7 @@ jwt_payload_handler = api_settings.JWT_PAYLOAD_HANDLER
 jwt_encode_handler = api_settings.JWT_ENCODE_HANDLER
 
 
-class DelagateJSONWebToken(JSONWebTokenAPIView):
+class DelegateJSONWebToken(JSONWebTokenAPIView):
     """
     API View that checks the veracity of a refresh token, returning a JWT if it
     is valid.
@@ -48,10 +46,6 @@ class RefreshTokenViewSet(mixins.RetrieveModelMixin,
 
     https://auth0.com/docs/refresh-token
     """
-    throttle_classes = ()
-    authentication_classes = ()
-    parser_classes = (parsers.FormParser, parsers.JSONParser,)
-    renderer_classes = (renderers.JSONRenderer,)
     permission_classes = (IsOwnerOrAdmin, )
     serializer_class = RefreshTokenSerializer
     queryset = RefreshToken.objects.all()
