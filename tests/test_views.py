@@ -3,6 +3,7 @@ from datetime import datetime, timedelta
 
 from django import get_version
 from django.test import TestCase
+from django.core.urlresolvers import reverse
 from django.test.utils import override_settings
 from django.utils import unittest
 from django.conf.urls import patterns
@@ -11,10 +12,11 @@ from django.contrib.auth import get_user_model
 from freezegun import freeze_time
 
 from rest_framework import status
-from rest_framework.test import APIClient
+from rest_framework.test import APIClient, APITestCase
 
 from rest_framework_jwt import utils
 from rest_framework_jwt.settings import api_settings, DEFAULTS
+from rest_framework_jwt.refreshtoken.models import RefreshToken
 
 from . import utils as test_utils
 
@@ -50,10 +52,9 @@ class BaseTestCase(TestCase):
 
 
 class TestCustomResponsePayload(BaseTestCase):
-
     def setUp(self):
-        api_settings.JWT_RESPONSE_PAYLOAD_HANDLER = test_utils\
-            .jwt_response_payload_handler
+        api_settings.JWT_RESPONSE_PAYLOAD_HANDLER = test_utils.\
+            jwt_response_payload_handler
         return super(TestCustomResponsePayload, self).setUp()
 
     def test_jwt_login_custom_response_json(self):
@@ -361,3 +362,129 @@ class RefreshJSONWebTokenTests(TokenTestCase):
     def tearDown(self):
         # Restore original settings
         api_settings.JWT_ALLOW_REFRESH = DEFAULTS['JWT_ALLOW_REFRESH']
+
+
+class RefreshTokenTestCase(APITestCase):
+    urls = 'rest_framework_jwt.refreshtoken.routers'
+
+    def setUp(self):
+        self.email = 'jpueblo@example.com'
+        self.username = 'jpueblo'
+        self.password = 'password'
+        self.user = User.objects.create_user(
+            self.username, self.email, self.password)
+        self.token = RefreshToken.objects.create(user=self.user, app='test-app')
+        email1 = 'jonny@example.com'
+        username1 = 'jonnytestpants'
+        password1 = 'password'
+        self.user1 = User.objects.create_user(username1, email1, password1)
+        self.token1 = RefreshToken.objects.create(user=self.user1, app='another-app')
+
+        self.list_url = reverse('refreshtoken-list')
+        self.detail_url = reverse(
+            'refreshtoken-detail',
+            kwargs={'key': self.token.key}
+        )
+        self.detail_url1 = reverse(
+            'refreshtoken-detail',
+            kwargs={'key': self.token1.key}
+        )
+        self.delgate_url = reverse('delgate-tokens')
+
+    def test_requires_auth(self):
+        response = self.client.get(self.list_url)
+        self.assertEqual(
+            response.status_code,
+            status.HTTP_403_FORBIDDEN,
+            (response.status_code, response.content)
+        )
+
+        response = self.client.get(self.detail_url)
+        self.assertEqual(
+            response.status_code,
+            status.HTTP_403_FORBIDDEN,
+            (response.status_code, response.content)
+        )
+
+        response = self.client.delete(self.detail_url)
+        self.assertEqual(
+            response.status_code,
+            status.HTTP_403_FORBIDDEN,
+            (response.status_code, response.content)
+        )
+
+        response = self.client.post(self.list_url)
+        self.assertEqual(
+            response.status_code,
+            status.HTTP_403_FORBIDDEN,
+            (response.status_code, response.content)
+        )
+
+    def test_get_refresh_token_list(self):
+        self.client.force_authenticate(self.user)
+        response = self.client.get(self.list_url)
+        self.assertEqual(len(response.data), 1)
+        resp0 = response.data[0]
+        self.assertEqual(self.token.key, resp0['key'])
+
+        self.client.force_authenticate(self.user1)
+        response = self.client.get(self.list_url)
+        self.assertEqual(len(response.data), 1)
+        resp0 = response.data[0]
+        self.assertEqual(self.token1.key, resp0['key'])
+
+        self.assertEqual(RefreshToken.objects.count(), 2)
+
+    def test_get_refresth_token_detail(self):
+        self.client.force_authenticate(self.user)
+        response = self.client.get(self.detail_url)
+        self.assertEqual(
+            response.status_code,
+            status.HTTP_200_OK,
+            (response.status_code, response.content)
+        )
+        response = self.client.get(self.detail_url1)
+        self.assertEqual(
+            response.status_code,
+            status.HTTP_404_NOT_FOUND,
+            (response.status_code, response.content)
+        )
+
+    def test_delete_refresth_token(self):
+        self.client.force_authenticate(self.user)
+        response = self.client.delete(self.detail_url)
+        self.assertEqual(
+            response.status_code,
+            status.HTTP_204_NO_CONTENT,
+            (response.status_code, response.content)
+        )
+        response = self.client.delete(self.detail_url1)
+        self.assertEqual(
+            response.status_code,
+            status.HTTP_404_NOT_FOUND,
+            (response.status_code, response.content)
+        )
+
+    def test_create_refresth_token(self):
+        self.client.force_authenticate(self.user)
+        data = {
+            'app': 'gandolf'
+        }
+        response = self.client.post(self.list_url, data, format='json')
+        self.assertEqual(
+            response.status_code,
+            status.HTTP_201_CREATED,
+            (response.status_code, response.content)
+        )
+        self.assertEqual(response.data['user'], self.user.pk)
+        self.assertEqual(response.data['app'], data['app'])
+
+    def test_delegate_jwt(self):
+        headers = {'HTTP_AUTHORIZATION': 'RefreshToken {}'.format(self.token1.key)}
+        response = self.client.post(self.delgate_url, format='json', **headers)
+        self.assertEqual(
+            response.status_code,
+            status.HTTP_201_CREATED,
+            (response.status_code, response.content)
+        )
+        self.assertIn('token', response.data)
