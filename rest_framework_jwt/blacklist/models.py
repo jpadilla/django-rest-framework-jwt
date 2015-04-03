@@ -2,7 +2,7 @@ from django.db import models
 from django.utils.timezone import now
 from django.utils.translation import ugettext_lazy as _
 
-from .compat import get_uuid_field
+from rest_framework_jwt.compat import get_uuid_field
 
 UUIDField = get_uuid_field()
 

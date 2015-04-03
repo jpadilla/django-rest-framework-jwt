@@ -8,8 +8,8 @@ from django.utils.timezone import now
 from django.test import TestCase
 
 from rest_framework_jwt import utils
-from rest_framework_jwt.models import JWTBlacklistToken
 from rest_framework_jwt.settings import api_settings, DEFAULTS
+from rest_framework_jwt.blacklist.models import JWTBlacklistToken
 
 User = get_user_model()
 
