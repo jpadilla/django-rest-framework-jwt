@@ -13,8 +13,6 @@ from rest_framework_jwt.settings import api_settings
 
 from .compat import Serializer
 
-from . import models
-
 jwt_payload_handler = api_settings.JWT_PAYLOAD_HANDLER
 jwt_encode_handler = api_settings.JWT_ENCODE_HANDLER
 jwt_decode_handler = api_settings.JWT_DECODE_HANDLER
@@ -224,14 +222,3 @@ class BlacklistJSONWebTokenSerializer(VerificationBaseSerializer):
             'token': token,
             'user': user
         }
-
-
-class JWTBlacklistTokenSerializer(serializers.ModelSerializer):
-    jti = serializers.SerializerMethodField('get_jti_value')
-
-    class Meta:
-        model = models.JWTBlacklistToken
-
-    def get_jti_value(self, obj):
-        """Returns obj.jti manually due to py3 bug in django-uuidfield"""
-        return obj.jti

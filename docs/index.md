@@ -118,7 +118,7 @@ $ curl -X POST -H "Content-Type: application/json" -d '{"token":"<EXISTING_TOKEN
 ```
 
 ## Blacklist Token
-If `JWT_ENABLE_BLACKLIST` is True, tokens can be made invalid (prior to expiration) by blacklisting them. More information on the concept of JTI (JWT ID) and blacklisting tokens can be read [here](http://self-issued.info/docs/draft-ietf-oauth-json-web-token.html#jtiDef) and [here](https://auth0.com/blog/2015/03/10/blacklist-json-web-token-api-keys/).
+If `JWT_ENABLE_BLACKLIST` is True, and `rest_framework_jwt.blacklist` has been added to `INSTALLED_APPS`, tokens can be made invalid (prior to expiration) by blacklisting them. More information on the concept of JTI (JWT ID) and blacklisting tokens can be read [here](http://self-issued.info/docs/draft-ietf-oauth-json-web-token.html#jtiDef) and [here](https://auth0.com/blog/2015/03/10/blacklist-json-web-token-api-keys/).
 
 This package comes with a default implementation that stores the blacklisted tokens in the configured django database and includes an admin integration.
 
@@ -138,6 +138,8 @@ If the blacklisting was successful, the response will contain the default implem
 
 The typical use case for this feature is forcefully logging a user out due to inactivity. Many applications, especially ones with sensitive information, may implement an activity-based countdown timer and wish to instantly inactivate the user's auth token. The default implementation stores a record in the database with the unique JTI (JWT ID). However there are configurable handlers for getting and setting the blacklisted token which leaves it up to the user to decide how or where they are stored. The only requirements are that both `JWT_BLACKLIST_GET_HANDLER` and `JWT_BLACKLIST_SET_HANDLER` return a valid blacklisted token or None.
 
+**Note**
+Applications that are built with a Serivce-Oriented-Architecture (SOA) may not be able to use the blacklist token feature.
 
 ## Additional Settings
 There are some additional settings that you can override similar to how you'd do it with Django REST framework itself. Here are all the available defaults.

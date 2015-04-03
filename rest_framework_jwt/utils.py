@@ -8,8 +8,8 @@ from django.utils.translation import ugettext_lazy as _
 from datetime import datetime
 
 from rest_framework_jwt.settings import api_settings
-
-from . import models
+from rest_framework_jwt.blacklist import models
+from rest_framework_jwt.blacklist import serializers
 
 
 def get_user_model():
@@ -125,8 +125,6 @@ def jwt_blacklist_response_handler(token, user=None, request=None):
     Default blacklist token response data. Override to provide a
     custom response.
     """
-    from . import serializers
-
     return {
         'token': serializers.JWTBlacklistTokenSerializer(token).data,
         'message': _('Token successfully blacklisted.')
