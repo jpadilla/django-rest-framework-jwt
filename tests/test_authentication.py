@@ -5,8 +5,30 @@ from django.conf.urls import patterns
 from django.contrib.auth import get_user_model
 
 from rest_framework import permissions, status
-from rest_framework.authentication import OAuth2Authentication
-from rest_framework.compat import oauth2_provider
+try:
+    from rest_framework_oauth.authentication import OAuth2Authentication
+except ImportError:
+    try:
+        from rest_framework.authentication import OAuth2Authentication
+    except ImportError:
+        OAuth2Authentication = None
+try:
+    try:
+        from rest_framework_oauth.compat import oauth2_provider
+        from rest_framework_oauth.compat.oauth2_provider import oauth2
+    except ImportError:
+        # if oauth2 module can not be imported, skip the tests,
+        # because models have not been initialized.
+        oauth2_provider = None
+except ImportError:
+    try:
+        from rest_framework.compat import oauth2_provider
+        from rest_framework.compat.oauth2_provider import oauth2  # NOQA
+    except ImportError:
+        # if oauth2 module can not be imported, skip the tests,
+        # because models have not been initialized.
+        oauth2_provider = None
+
 from rest_framework.test import APIRequestFactory, APIClient
 from rest_framework.views import APIView
 
