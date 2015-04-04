@@ -1,3 +1,4 @@
+from django.conf import settings
 from django.utils.translation import ugettext as _
 
 from rest_framework import serializers
@@ -19,8 +20,8 @@ class BlacklistJSONWebTokenSerializer(VerificationBaseSerializer):
 
         token = attrs['token']
 
-        if not api_settings.JWT_ENABLE_BLACKLIST:
-            msg = _('JWT_ENABLE_BLACKLIST is set to False.')
+        if 'rest_framework_jwt.blacklist' in settings.INSTALLED_APPS:
+            msg = _('The blacklist app is not installed.')
             raise serializers.ValidationError(msg)
 
         payload = self._check_payload(token=token)

@@ -63,8 +63,6 @@ class UtilsTests(TestCase):
         self.assertEqual(response_data, dict(token=token))
 
     def test_jwt_blacklist_get_success(self):
-        api_settings.JWT_ENABLE_BLACKLIST = True
-
         payload = utils.jwt_payload_handler(self.user)
 
         # Create blacklisted token.
@@ -79,8 +77,6 @@ class UtilsTests(TestCase):
         self.assertEqual(token_created.jti, token_fetched.jti)
 
     def test_jwt_blacklist_get_fail(self):
-        api_settings.JWT_ENABLE_BLACKLIST = True
-
         payload = utils.jwt_payload_handler(self.user)
 
         # Test that incoming empty jti fails.
@@ -91,8 +87,6 @@ class UtilsTests(TestCase):
         self.assertIsNone(token_fetched)
 
     def test_jwt_blacklist_set_success(self):
-        api_settings.JWT_ENABLE_BLACKLIST = True
-
         payload = utils.jwt_payload_handler(self.user)
 
         # exp field comes in as seconds since epoch
@@ -104,8 +98,6 @@ class UtilsTests(TestCase):
         self.assertEqual(token.jti, payload.get('jti'))
 
     def test_jwt_blacklist_set_fail(self):
-        api_settings.JWT_ENABLE_BLACKLIST = True
-
         payload = utils.jwt_payload_handler(self.user)
 
         # Create blacklisted token.

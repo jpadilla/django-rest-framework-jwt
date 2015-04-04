@@ -71,7 +71,6 @@ class JSONWebTokenAuthenticationTests(TestCase):
         Ensure POSTing JSON over JWT auth with correct credentials
         passes and does not require CSRF
         """
-        api_settings.JWT_ENABLE_BLACKLIST = True
         payload = utils.jwt_payload_handler(self.user)
         token = utils.jwt_encode_handler(payload)
 
@@ -82,14 +81,10 @@ class JSONWebTokenAuthenticationTests(TestCase):
 
         self.assertEqual(response.status_code, status.HTTP_200_OK)
 
-        api_settings.JWT_ENABLE_BLACKLIST = False
-
     def test_post_blacklisted_token_failing_jwt_auth(self):
         """
         Ensure POSTing over JWT auth with blacklisted token fails
         """
-        api_settings.JWT_ENABLE_BLACKLIST = True
-
         payload = utils.jwt_payload_handler(self.user)
         token = utils.jwt_encode_handler(payload)
 
@@ -107,8 +102,6 @@ class JSONWebTokenAuthenticationTests(TestCase):
         self.assertEqual(response.data['detail'], msg)
         self.assertEqual(response.status_code, status.HTTP_401_UNAUTHORIZED)
         self.assertEqual(response['WWW-Authenticate'], 'JWT realm="api"')
-
-        api_settings.JWT_ENABLE_BLACKLIST = False
 
     def test_post_form_passing_jwt_auth(self):
         """
