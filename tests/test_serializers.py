@@ -7,7 +7,7 @@ from django.contrib.auth import get_user_model
 
 from rest_framework_jwt.settings import api_settings
 from rest_framework_jwt.serializers import JSONWebTokenSerializer
-from rest_framework_jwt.serializers import BlacklistJSONWebTokenSerializer
+from rest_framework_jwt.blacklist.serializers import BlacklistJSONWebTokenSerializer
 from rest_framework_jwt import utils
 
 User = get_user_model()

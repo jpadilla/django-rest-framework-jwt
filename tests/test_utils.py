@@ -9,6 +9,7 @@ from django.test import TestCase
 
 from rest_framework_jwt import utils
 from rest_framework_jwt.settings import api_settings, DEFAULTS
+from rest_framework_jwt.blacklist import utils as blacklist_utils
 from rest_framework_jwt.blacklist.models import JWTBlacklistToken
 
 User = get_user_model()
@@ -73,7 +74,7 @@ class UtilsTests(TestCase):
             created=now()
         )
 
-        token_fetched = utils.jwt_blacklist_get_handler(payload)
+        token_fetched = blacklist_utils.jwt_blacklist_get_handler(payload)
 
         self.assertEqual(token_created.jti, token_fetched.jti)
 
@@ -85,7 +86,7 @@ class UtilsTests(TestCase):
         # Test that incoming empty jti fails.
         payload['jti'] = None
 
-        token_fetched = utils.jwt_blacklist_get_handler(payload)
+        token_fetched = blacklist_utils.jwt_blacklist_get_handler(payload)
 
         self.assertIsNone(token_fetched)
 
@@ -98,7 +99,7 @@ class UtilsTests(TestCase):
         payload['exp'] = int(time.time())
 
         # Create blacklisted token.
-        token = utils.jwt_blacklist_set_handler(payload)
+        token = blacklist_utils.jwt_blacklist_set_handler(payload)
 
         self.assertEqual(token.jti, payload.get('jti'))
 
@@ -108,7 +109,7 @@ class UtilsTests(TestCase):
         payload = utils.jwt_payload_handler(self.user)
 
         # Create blacklisted token.
-        token = utils.jwt_blacklist_set_handler(payload)
+        token = blacklist_utils.jwt_blacklist_set_handler(payload)
 
         self.assertIsNone(token)
 

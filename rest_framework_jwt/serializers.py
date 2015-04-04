@@ -18,7 +18,6 @@ jwt_encode_handler = api_settings.JWT_ENCODE_HANDLER
 jwt_decode_handler = api_settings.JWT_DECODE_HANDLER
 jwt_get_user_id_from_payload = api_settings.JWT_PAYLOAD_GET_USER_ID_HANDLER
 jwt_blacklist_get_handler = api_settings.JWT_BLACKLIST_GET_HANDLER
-jwt_blacklist_set_handler = api_settings.JWT_BLACKLIST_SET_HANDLER
 
 
 class JSONWebTokenSerializer(Serializer):
@@ -188,35 +187,5 @@ class RefreshJSONWebTokenSerializer(VerificationBaseSerializer):
 
         return {
             'token': jwt_encode_handler(new_payload),
-            'user': user
-        }
-
-
-class BlacklistJSONWebTokenSerializer(VerificationBaseSerializer):
-    """
-    Blacklist an access token.
-    """
-
-    def validate(self, attrs):
-
-        token = attrs['token']
-
-        if not api_settings.JWT_ENABLE_BLACKLIST:
-            msg = _('JWT_ENABLE_BLACKLIST is set to False.')
-            raise serializers.ValidationError(msg)
-
-        payload = self._check_payload(token=token)
-
-        # Handle blacklisting a token.
-        token = jwt_blacklist_set_handler(payload)
-
-        if not token:
-            msg = _('Could not blacklist token.')
-            raise serializers.ValidationError(msg)
-
-        user = self._check_user(payload=payload)
-
-        return {
-            'token': token,
             'user': user
         }
