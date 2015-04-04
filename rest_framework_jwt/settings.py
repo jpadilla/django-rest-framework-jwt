@@ -23,13 +23,13 @@ DEFAULTS = {
     'rest_framework_jwt.utils.jwt_response_payload_handler',
 
     'JWT_BLACKLIST_GET_HANDLER':
-    'rest_framework_jwt.utils.jwt_blacklist_get_handler',
+    'rest_framework_jwt.blacklist.utils.jwt_blacklist_get_handler',
 
     'JWT_BLACKLIST_SET_HANDLER':
-    'rest_framework_jwt.utils.jwt_blacklist_set_handler',
+    'rest_framework_jwt.blacklist.utils.jwt_blacklist_set_handler',
 
     'JWT_BLACKLIST_RESPONSE_HANDLER':
-    'rest_framework_jwt.utils.jwt_blacklist_response_handler',
+    'rest_framework_jwt.blacklist.utils.jwt_blacklist_response_handler',
 
     'JWT_SECRET_KEY': settings.SECRET_KEY,
     'JWT_ALGORITHM': 'HS256',

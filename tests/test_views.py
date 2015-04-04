@@ -28,7 +28,7 @@ urlpatterns = patterns(
     (r'^auth-token-refresh/$', 'rest_framework_jwt.views.refresh_jwt_token'),
     (r'^auth-token-verify/$', 'rest_framework_jwt.views.verify_jwt_token'),
     (r'^auth-token-blacklist/$',
-     'rest_framework_jwt.views.blacklist_jwt_token'),
+     'rest_framework_jwt.blacklist.views.blacklist_jwt_token'),
 )
 
 orig_datetime = datetime

@@ -9,7 +9,6 @@ from rest_framework_jwt.settings import api_settings
 from . import serializers
 
 jwt_response_payload_handler = api_settings.JWT_RESPONSE_PAYLOAD_HANDLER
-jwt_blacklist_response_handler = api_settings.JWT_BLACKLIST_RESPONSE_HANDLER
 
 
 class JSONWebTokenAPIView(APIView):
@@ -64,15 +63,6 @@ class RefreshJSONWebToken(JSONWebTokenAPIView):
     serializer_class = serializers.RefreshJSONWebTokenSerializer
 
 
-class BlacklistJSONWebToken(JSONWebTokenAPIView):
-    """
-    API View that blacklists a token
-    """
-    serializer_class = serializers.BlacklistJSONWebTokenSerializer
-    response_payload_handler = staticmethod(jwt_blacklist_response_handler)
-
-
 obtain_jwt_token = ObtainJSONWebToken.as_view()
 refresh_jwt_token = RefreshJSONWebToken.as_view()
 verify_jwt_token = VerifyJSONWebToken.as_view()
-blacklist_jwt_token = BlacklistJSONWebToken.as_view()
