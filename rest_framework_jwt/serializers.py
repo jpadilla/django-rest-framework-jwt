@@ -3,6 +3,7 @@ import jwt
 from calendar import timegm
 from datetime import datetime, timedelta
 
+from django.conf import settings
 from django.contrib.auth import authenticate
 from django.utils.translation import ugettext as _
 
@@ -106,7 +107,7 @@ class VerificationBaseSerializer(Serializer):
             raise serializers.ValidationError(msg)
 
         # Check if the token has been blacklisted.
-        if api_settings.JWT_ENABLE_BLACKLIST:
+        if 'rest_framework_jwt.blacklist' in settings.INSTALLED_APPS:
             blacklisted = jwt_blacklist_get_handler(payload)
 
             if blacklisted:

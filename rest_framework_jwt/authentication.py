@@ -1,5 +1,6 @@
 import jwt
 
+from django.conf import settings
 from django.utils.encoding import smart_text
 from django.utils.translation import ugettext as _
 
@@ -42,7 +43,7 @@ class BaseJSONWebTokenAuthentication(BaseAuthentication):
             raise exceptions.AuthenticationFailed()
 
         # Check if the token has been blacklisted.
-        if api_settings.JWT_ENABLE_BLACKLIST:
+        if 'rest_framework_jwt.blacklist' in settings.INSTALLED_APPS:
             blacklisted = jwt_blacklist_get_handler(payload)
 
             if blacklisted:

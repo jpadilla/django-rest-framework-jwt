@@ -112,8 +112,6 @@ class BlacklistJSONWebTokenSerializerTests(TestCase):
         }
 
     def test_token_blacklisted(self):
-        api_settings.JWT_ENABLE_BLACKLIST = True
-
         serializer = BlacklistJSONWebTokenSerializer(data=self.data)
         is_valid = serializer.is_valid()
 
@@ -123,8 +121,6 @@ class BlacklistJSONWebTokenSerializerTests(TestCase):
         self.assertEqual(self.payload.get('jti'), token.jti)
 
     def test_token_blacklist_fail_missing_jti(self):
-        api_settings.JWT_ENABLE_BLACKLIST = True
-
         self.payload['jti'] = None
         self.data = {
             'token': utils.jwt_encode_handler(self.payload)

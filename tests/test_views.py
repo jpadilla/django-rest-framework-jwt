@@ -2,6 +2,7 @@ from calendar import timegm
 from datetime import datetime, timedelta
 
 from django import get_version
+from django.conf import settings
 from django.test import TestCase
 from django.test.utils import override_settings
 from django.utils import unittest
@@ -304,8 +305,6 @@ class VerifyJSONWebTokenTests(TokenTestCase):
         """
         Test that a blacklisted token will fail.
         """
-        api_settings.JWT_ENABLE_BLACKLIST = True
-
         client = APIClient(enforce_csrf_checks=True)
 
         user = User.objects.create_user(
@@ -396,8 +395,6 @@ class RefreshJSONWebTokenTests(TokenTestCase):
 class BlacklistJSONWebTokenTests(TokenTestCase):
 
     def test_blacklist_jwt_successful_blacklist_enabled(self):
-        api_settings.JWT_ENABLE_BLACKLIST = True
-
         client = APIClient(enforce_csrf_checks=True)
 
         user = User.objects.create_user(
@@ -427,6 +424,6 @@ class BlacklistJSONWebTokenTests(TokenTestCase):
         response = client.post('/auth-token-blacklist/', {'token': token},
                                format='json')
 
-        msg = 'JWT_ENABLE_BLACKLIST is set to False.'
+        msg = 'The blacklist app is not installed.'
 
         self.assertEqual(response.data['non_field_errors'][0], msg)
