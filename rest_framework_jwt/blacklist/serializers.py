@@ -15,12 +15,11 @@ class BlacklistJSONWebTokenSerializer(VerificationBaseSerializer):
     """
     Blacklist an access token.
     """
-
     def validate(self, attrs):
 
         token = attrs['token']
 
-        if 'rest_framework_jwt.blacklist' in settings.INSTALLED_APPS:
+        if 'rest_framework_jwt.blacklist' not in settings.INSTALLED_APPS:
             msg = _('The blacklist app is not installed.')
             raise serializers.ValidationError(msg)
 
