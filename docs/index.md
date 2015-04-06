@@ -243,7 +243,7 @@ Default is `datetime.timedelta(days=7)` (7 days).
 Specify a custom function to generate the token payload
 
 **Note**
-If you have `JWT_ENABLE_BLACKLIST` set to True, *AND* you are using the default blacklist implementation, any custom token payload must include both a `jti` attribute which is a unique UUID hex, and a `exp` attribute which is a timestamp from a POSIX time (e.g. seconds since epoch).
+If you have `rest_framework_jwt.blacklist` added to `INSTALLED_APPS` *AND* you are using the default blacklist implementation, any custom token payload must include both a `jti` attribute which is a unique UUID hex, and a `exp` attribute which is a timestamp from a POSIX time (e.g. seconds since epoch).
 
 ### JWT_PAYLOAD_GET_USER_ID_HANDLER
 If you store `user_id` differently than the default payload handler does, implement this function to fetch `user_id` from the payload.
