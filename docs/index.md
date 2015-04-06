@@ -118,14 +118,14 @@ $ curl -X POST -H "Content-Type: application/json" -d '{"token":"<EXISTING_TOKEN
 ```
 
 ## Blacklist Token
-If `JWT_ENABLE_BLACKLIST` is True, and `rest_framework_jwt.blacklist` has been added to `INSTALLED_APPS`, tokens can be made invalid (prior to expiration) by blacklisting them. More information on the concept of JTI (JWT ID) and blacklisting tokens can be read [here](http://self-issued.info/docs/draft-ietf-oauth-json-web-token.html#jtiDef) and [here](https://auth0.com/blog/2015/03/10/blacklist-json-web-token-api-keys/).
+If `rest_framework_jwt.blacklist` is added to `settings.INSTALLED_APPS`, tokens can be made invalid (prior to expiration) by blacklisting them. More information on the concept of JTI (JWT ID) and blacklisting tokens can be read [here](http://self-issued.info/docs/draft-ietf-oauth-json-web-token.html#jtiDef) and [here](https://auth0.com/blog/2015/03/10/blacklist-json-web-token-api-keys/).
 
 This package comes with a default implementation that stores the blacklisted tokens in the configured django database and includes an admin integration.
 
 To use this feature, add a URL like so:
 
 ```python
-    url(r'^api-token-blacklist/', 'rest_framework_jwt.views.blacklist_jwt_token'),
+    url(r'^api-token-blacklist/', 'rest_framework_jwt.blacklist.views.blacklist_jwt_token'),
 ```
 
 Now to blacklist a token, send a POST request with a non-expired token to the blacklist endpoint:
@@ -183,8 +183,6 @@ JWT_AUTH = {
     'JWT_REFRESH_EXPIRATION_DELTA': datetime.timedelta(days=7),
 
     'JWT_AUTH_HEADER_PREFIX': 'JWT',
-    
-    'JWT_ENABLE_BLACKLIST': False,
 }
 ```
 This packages uses the JSON Web Token Python implementation, [PyJWT](https://github.com/jpadilla/pyjwt) and allows to modify some of it's available options.
@@ -309,11 +307,6 @@ def jwt_blacklist_response_handler(token, user=None, request=None):
         'message': 'Token successfully blacklisted.'
     }
 ```
-
-### JWT_ENABLE_BLACKLIST
-Designates whether JWT token blacklisting is turned on or off.
-
-Defaults to False.
 
 ### JWT_AUTH_HEADER_PREFIX
 You can modify the Authorization header value prefix that is required to be sent together with the token. The default value is `JWT`. This decision was introduced in PR [#4](https://github.com/GetBlimp/django-rest-framework-jwt/pull/4) to allow using both this package and OAuth2 in DRF.

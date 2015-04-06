@@ -3,6 +3,7 @@ import time
 import base64
 import jwt.exceptions
 
+from django.db import models
 from django.contrib.auth import get_user_model
 from django.utils.timezone import now
 from django.test import TestCase
@@ -74,7 +75,10 @@ class UtilsTests(TestCase):
 
         token_fetched = blacklist_utils.jwt_blacklist_get_handler(payload)
 
-        self.assertEqual(token_created.jti, token_fetched.jti)
+        if hasattr(models, 'UUIDField'):
+            self.assertEqual(token_created.jti, token_fetched.jti.hex)
+        else:
+            self.assertEqual(token_created.jti, token_fetched.jti)
 
     def test_jwt_blacklist_get_fail(self):
         payload = utils.jwt_payload_handler(self.user)
