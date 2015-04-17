@@ -34,6 +34,13 @@ class UtilsTests(TestCase):
         self.assertEqual(payload['username'], self.username)
         self.assertTrue('exp' in payload)
 
+    def test_jwt_payload_handler_no_email(self):
+        del self.user.email
+        payload = utils.jwt_payload_handler(self.user)
+
+        self.assertTrue(isinstance(payload, dict))
+        self.assertFalse('email' in payload)
+
     def test_jwt_encode(self):
         payload = utils.jwt_payload_handler(self.user)
         token = utils.jwt_encode_handler(payload)

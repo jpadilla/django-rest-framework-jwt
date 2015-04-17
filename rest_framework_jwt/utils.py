@@ -22,12 +22,15 @@ def jwt_payload_handler(user):
     except AttributeError:
         username = user.username
 
-    return {
+    payload = {
         'user_id': user.pk,
-        'email': user.email,
         'username': username,
         'exp': datetime.utcnow() + api_settings.JWT_EXPIRATION_DELTA
     }
+    if hasattr(user, 'email'):
+        payload['email'] = user.email
+
+    return payload
 
 
 def jwt_get_user_id_from_payload_handler(payload):
