@@ -1,6 +1,5 @@
+from django.conf import settings
 from django.contrib import admin
-
-from rest_framework_jwt.settings import api_settings
 
 from . import models
 
@@ -15,5 +14,5 @@ class JWTBlacklistTokenAdmin(admin.ModelAdmin):
     is_active.boolean = True
     is_active.short_description = 'Active'
 
-if api_settings.JWT_ENABLE_BLACKLIST:
+if 'rest_framework_jwt.blacklist' in settings.INSTALLED_APPS:
     admin.site.register(models.JWTBlacklistToken, JWTBlacklistTokenAdmin)
