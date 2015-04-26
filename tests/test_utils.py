@@ -57,6 +57,16 @@ class UtilsTests(TestCase):
 
         self.assertEqual(response_data, dict(token=token))
 
+    def test_jwt_decode_verify_exp(self):
+        api_settings.JWT_VERIFY_EXPIRATION = False
+
+        payload = utils.jwt_payload_handler(self.user)
+        payload['exp'] = 1
+        token = utils.jwt_encode_handler(payload)
+        utils.jwt_decode_handler(token)
+
+        api_settings.JWT_VERIFY_EXPIRATION = True
+
 
 class TestAudience(TestCase):
     def setUp(self):

@@ -47,11 +47,15 @@ def jwt_encode_handler(payload):
 
 
 def jwt_decode_handler(token):
+    options = {
+        'verify_exp': api_settings.JWT_VERIFY_EXPIRATION,
+    }
+
     return jwt.decode(
         token,
         api_settings.JWT_SECRET_KEY,
         api_settings.JWT_VERIFY,
-        verify_expiration=api_settings.JWT_VERIFY_EXPIRATION,
+        options=options,
         leeway=api_settings.JWT_LEEWAY,
         audience=api_settings.JWT_AUDIENCE,
         issuer=api_settings.JWT_ISSUER,
