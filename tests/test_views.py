@@ -1,4 +1,3 @@
-import time
 from calendar import timegm
 from datetime import datetime, timedelta
 
@@ -8,6 +7,8 @@ from django.test.utils import override_settings
 from django.utils import unittest
 from django.conf.urls import patterns
 from django.contrib.auth import get_user_model
+
+from freezegun import freeze_time
 
 from rest_framework import status
 from rest_framework.test import APIClient
@@ -311,25 +312,25 @@ class RefreshJSONWebTokenTests(TokenTestCase):
         """
         client = APIClient(enforce_csrf_checks=True)
 
-        orig_token = self.get_token()
-        orig_token_decoded = utils.jwt_decode_handler(orig_token)
+        with freeze_time('2015-01-01 00:00:01'):
+            orig_token = self.get_token()
+            orig_token_decoded = utils.jwt_decode_handler(orig_token)
 
-        expected_orig_iat = timegm(datetime.utcnow().utctimetuple())
+            expected_orig_iat = timegm(datetime.utcnow().utctimetuple())
 
-        # Make sure 'orig_iat' exists and is the current time (give some slack)
-        orig_iat = orig_token_decoded['orig_iat']
-        self.assertLessEqual(orig_iat - expected_orig_iat, 1)
+            # Make sure 'orig_iat' exists and is the current time (give some slack)
+            orig_iat = orig_token_decoded['orig_iat']
+            self.assertLessEqual(orig_iat - expected_orig_iat, 1)
 
-        # wait a few seconds, so new token will have different exp
-        time.sleep(2)
+            with freeze_time('2015-01-01 00:00:03'):
 
-        # Now try to get a refreshed token
-        response = client.post('/auth-token-refresh/', {'token': orig_token},
-                               format='json')
-        self.assertEqual(response.status_code, status.HTTP_200_OK)
+                # Now try to get a refreshed token
+                response = client.post('/auth-token-refresh/', {'token': orig_token},
+                                       format='json')
+            self.assertEqual(response.status_code, status.HTTP_200_OK)
 
-        new_token = response.data['token']
-        new_token_decoded = utils.jwt_decode_handler(new_token)
+            new_token = response.data['token']
+            new_token_decoded = utils.jwt_decode_handler(new_token)
 
         # Make sure 'orig_iat' on the new token is same as original
         self.assertEquals(new_token_decoded['orig_iat'], orig_iat)
