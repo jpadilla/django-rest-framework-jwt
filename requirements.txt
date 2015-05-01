@@ -7,6 +7,7 @@ pytest-django==2.6
 pytest==2.5.2
 pytest-cov==1.6
 flake8==2.2.2
+freezegun==0.3.2
 
 # Optional packages
 django-oauth-plus>=2.2.1
