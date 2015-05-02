@@ -134,10 +134,8 @@ class VerifyJSONWebTokenSerializer(VerificationBaseSerializer):
         payload = self._check_payload(token=token)
         user = self._check_user(payload=payload)
 
-        new_payload = jwt_payload_handler(user)
-
         return {
-            'token': jwt_encode_handler(new_payload),
+            'token': token,
             'user': user
         }
 

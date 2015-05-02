@@ -238,11 +238,13 @@ class VerifyJSONWebTokenTests(TokenTestCase):
         """
         client = APIClient(enforce_csrf_checks=True)
 
-        orig_token = self.get_token()
+        with freeze_time('2015-01-01 00:00:01'):
+            orig_token = self.get_token()
 
-        # Now try to get a refreshed token
-        response = client.post('/auth-token-verify/', {'token': orig_token},
-                               format='json')
+            with freeze_time('2015-01-01 00:00:10'):
+                # Now try to get a refreshed token
+                response = client.post('/auth-token-verify/', {'token': orig_token},
+                                       format='json')
         self.assertEqual(response.status_code, status.HTTP_200_OK)
 
         self.assertEqual(response.data['token'], orig_token)
