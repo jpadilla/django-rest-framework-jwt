@@ -3,19 +3,22 @@ import jwt
 from calendar import timegm
 from datetime import datetime, timedelta
 
+from django.conf import settings
 from django.contrib.auth import authenticate
 from django.utils.translation import ugettext as _
-from rest_framework import serializers
-from .compat import Serializer
 
+from rest_framework import exceptions
+from rest_framework import serializers
 from rest_framework_jwt import utils
 from rest_framework_jwt.settings import api_settings
 
+from .compat import Serializer
 
 jwt_payload_handler = api_settings.JWT_PAYLOAD_HANDLER
 jwt_encode_handler = api_settings.JWT_ENCODE_HANDLER
 jwt_decode_handler = api_settings.JWT_DECODE_HANDLER
 jwt_get_user_id_from_payload = api_settings.JWT_PAYLOAD_GET_USER_ID_HANDLER
+jwt_blacklist_get_handler = api_settings.JWT_BLACKLIST_GET_HANDLER
 
 
 class JSONWebTokenSerializer(Serializer):
@@ -103,6 +106,14 @@ class VerificationBaseSerializer(Serializer):
             msg = _('Error decoding signature.')
             raise serializers.ValidationError(msg)
 
+        # Check if the token has been blacklisted.
+        if 'rest_framework_jwt.blacklist' in settings.INSTALLED_APPS:
+            blacklisted = jwt_blacklist_get_handler(payload)
+
+            if blacklisted:
+                msg = _('Token is blacklisted.')
+                raise exceptions.AuthenticationFailed(msg)
+
         return payload
 
     def _check_user(self, payload):
@@ -150,6 +161,7 @@ class RefreshJSONWebTokenSerializer(VerificationBaseSerializer):
 
         payload = self._check_payload(token=token)
         user = self._check_user(payload=payload)
+
         # Get and check 'orig_iat'
         orig_iat = payload.get('orig_iat')
 

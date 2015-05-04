@@ -1,4 +1,5 @@
 import jwt
+import uuid
 
 from datetime import datetime
 
@@ -26,7 +27,8 @@ def jwt_payload_handler(user):
         'user_id': user.pk,
         'email': user.email,
         'username': username,
-        'exp': datetime.utcnow() + api_settings.JWT_EXPIRATION_DELTA
+        'exp': datetime.utcnow() + api_settings.JWT_EXPIRATION_DELTA,
+        'jti': uuid.uuid4().hex
     }
 
 
@@ -34,8 +36,7 @@ def jwt_get_user_id_from_payload_handler(payload):
     """
     Override this function if user_id is formatted differently in payload
     """
-    user_id = payload.get('user_id')
-    return user_id
+    return payload.get('user_id')
 
 
 def jwt_encode_handler(payload):
@@ -78,6 +79,7 @@ def jwt_response_payload_handler(token, user=None, request=None):
         }
 
     """
+
     return {
         'token': token
     }
