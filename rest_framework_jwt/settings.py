@@ -19,6 +19,9 @@ DEFAULTS = {
     'JWT_PAYLOAD_GET_USER_ID_HANDLER':
     'rest_framework_jwt.utils.jwt_get_user_id_from_payload_handler',
 
+    'JWT_PAYLOAD_GET_USERNAME_HANDLER':
+    'rest_framework_jwt.utils.jwt_get_username_from_payload_handler',
+
     'JWT_RESPONSE_PAYLOAD_HANDLER':
     'rest_framework_jwt.utils.jwt_response_payload_handler',
 
@@ -43,6 +46,7 @@ IMPORT_STRINGS = (
     'JWT_DECODE_HANDLER',
     'JWT_PAYLOAD_HANDLER',
     'JWT_PAYLOAD_GET_USER_ID_HANDLER',
+    'JWT_PAYLOAD_GET_USERNAME_HANDLER',
     'JWT_RESPONSE_PAYLOAD_HANDLER',
 )
 

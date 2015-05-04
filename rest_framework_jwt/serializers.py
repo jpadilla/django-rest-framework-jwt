@@ -16,7 +16,7 @@ User = get_user_model()
 jwt_payload_handler = api_settings.JWT_PAYLOAD_HANDLER
 jwt_encode_handler = api_settings.JWT_ENCODE_HANDLER
 jwt_decode_handler = api_settings.JWT_DECODE_HANDLER
-jwt_get_user_id_from_payload = api_settings.JWT_PAYLOAD_GET_USER_ID_HANDLER
+jwt_get_username_from_payload = api_settings.JWT_PAYLOAD_GET_USERNAME_HANDLER
 
 
 class JSONWebTokenSerializer(Serializer):
@@ -103,17 +103,21 @@ class VerificationBaseSerializer(Serializer):
         return payload
 
     def _check_user(self, payload):
-        # Make sure user exists (may want to refactor this)
-        try:
-            user_id = jwt_get_user_id_from_payload(payload)
+        username = jwt_get_username_from_payload(payload)
 
-            if user_id is not None:
-                user = User.objects.get(pk=user_id, is_active=True)
-            else:
-                msg = _('Invalid payload.')
-                raise serializers.ValidationError(msg)
+        if not username:
+            msg = _('Invalid payload.')
+            raise serializers.ValidationError(msg)
+
+        # Make sure user exists
+        try:
+            user = User.objects.get_by_natural_key(username)
         except User.DoesNotExist:
             msg = _("User doesn't exist.")
+            raise serializers.ValidationError(msg)
+
+        if not user.is_active:
+            msg = _('User account is disabled.')
             raise serializers.ValidationError(msg)
 
         return user
