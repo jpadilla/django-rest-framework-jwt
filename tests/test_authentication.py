@@ -39,16 +39,6 @@ from rest_framework_jwt.settings import api_settings, DEFAULTS
 from rest_framework_jwt.authentication import JSONWebTokenAuthentication
 from rest_framework_jwt.blacklist.models import JWTBlacklistToken
 
-try:
-    from rest_framework.authentication import oauth2_provider
-except ImportError:
-    from rest_framework_oauth.authentication import oauth2_provider
-
-try:
-    from rest_framework.authentication import OAuth2Authentication
-except ImportError:
-    from rest_framework_oauth.authentication import OAuth2Authentication
-
 User = get_user_model()
 
 DJANGO_OAUTH2_PROVIDER_NOT_INSTALLED = 'django-oauth2-provider not installed'
