@@ -112,7 +112,7 @@ class JSONWebTokenAuthenticationTests(TestCase):
             '/jwt/', {'example': 'example'},
             HTTP_AUTHORIZATION=auth, format='json')
 
-        msg = 'Token is blacklisted.'
+        msg = 'Token has been blacklisted.'
 
         self.assertEqual(response.data['detail'], msg)
         self.assertEqual(response.status_code, status.HTTP_401_UNAUTHORIZED)

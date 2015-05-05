@@ -323,7 +323,7 @@ class VerifyJSONWebTokenTests(TokenTestCase):
         response = client.post('/auth-token-verify/', {'token': token},
                                format='json')
 
-        msg = 'Token is blacklisted.'
+        msg = 'Token has been blacklisted.'
 
         self.assertEqual(response.data['detail'], msg)
 
