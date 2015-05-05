@@ -22,6 +22,15 @@ DEFAULTS = {
     'JWT_RESPONSE_PAYLOAD_HANDLER':
     'rest_framework_jwt.utils.jwt_response_payload_handler',
 
+    'JWT_BLACKLIST_GET_HANDLER':
+    'rest_framework_jwt.blacklist.utils.jwt_blacklist_get_handler',
+
+    'JWT_BLACKLIST_SET_HANDLER':
+    'rest_framework_jwt.blacklist.utils.jwt_blacklist_set_handler',
+
+    'JWT_BLACKLIST_RESPONSE_HANDLER':
+    'rest_framework_jwt.blacklist.utils.jwt_blacklist_response_handler',
+
     'JWT_SECRET_KEY': settings.SECRET_KEY,
     'JWT_ALGORITHM': 'HS256',
     'JWT_VERIFY': True,
@@ -30,10 +39,8 @@ DEFAULTS = {
     'JWT_EXPIRATION_DELTA': datetime.timedelta(seconds=300),
     'JWT_AUDIENCE': None,
     'JWT_ISSUER': None,
-
     'JWT_ALLOW_REFRESH': False,
     'JWT_REFRESH_EXPIRATION_DELTA': datetime.timedelta(days=7),
-
     'JWT_AUTH_HEADER_PREFIX': 'JWT',
 }
 
@@ -44,6 +51,9 @@ IMPORT_STRINGS = (
     'JWT_PAYLOAD_HANDLER',
     'JWT_PAYLOAD_GET_USER_ID_HANDLER',
     'JWT_RESPONSE_PAYLOAD_HANDLER',
+    'JWT_BLACKLIST_GET_HANDLER',
+    'JWT_BLACKLIST_SET_HANDLER',
+    'JWT_BLACKLIST_RESPONSE_HANDLER',
 )
 
 api_settings = APISettings(USER_SETTINGS, DEFAULTS, IMPORT_STRINGS)

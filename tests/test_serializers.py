@@ -6,6 +6,7 @@ from django.utils import unittest
 from django.contrib.auth import get_user_model
 
 from rest_framework_jwt.serializers import JSONWebTokenSerializer
+from rest_framework_jwt.blacklist.serializers import BlacklistJSONWebTokenSerializer
 from rest_framework_jwt import utils
 
 User = get_user_model()
@@ -93,3 +94,42 @@ class JSONWebTokenSerializerTests(TestCase):
 
         self.assertFalse(is_valid)
         self.assertEqual(serializer.errors, expected_error)
+
+
+class BlacklistJSONWebTokenSerializerTests(TestCase):
+
+    def setUp(self):
+        self.email = 'jpueblo@example.com'
+        self.username = 'jpueblo'
+        self.password = 'password'
+        self.user = User.objects.create_user(
+            self.username, self.email, self.password)
+
+        self.payload = utils.jwt_payload_handler(self.user)
+        self.data = {
+            'token': utils.jwt_encode_handler(self.payload)
+        }
+
+    def test_token_blacklisted(self):
+        serializer = BlacklistJSONWebTokenSerializer(data=self.data)
+        is_valid = serializer.is_valid()
+
+        token = serializer.object['token']
+
+        self.assertTrue(is_valid)
+        self.assertEqual(self.payload.get('jti'), token.jti)
+
+    def test_token_blacklist_fail_missing_jti(self):
+        self.payload['jti'] = None
+        self.data = {
+            'token': utils.jwt_encode_handler(self.payload)
+        }
+
+        serializer = BlacklistJSONWebTokenSerializer(data=self.data)
+        is_valid = serializer.is_valid()
+
+        self.assertFalse(is_valid)
+
+        msg = 'Could not blacklist token.'
+
+        self.assertEqual(serializer.errors['non_field_errors'][0], msg)
