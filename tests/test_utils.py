@@ -1,11 +1,17 @@
 import json
+import time
 import base64
-
-from django.contrib.auth import get_user_model
-from django.test import TestCase
 import jwt.exceptions
+
+from django.db import models
+from django.contrib.auth import get_user_model
+from django.utils.timezone import now
+from django.test import TestCase
+
 from rest_framework_jwt import utils
 from rest_framework_jwt.settings import api_settings, DEFAULTS
+from rest_framework_jwt.blacklist import utils as blacklist_utils
+from rest_framework_jwt.blacklist.models import JWTBlacklistToken
 
 User = get_user_model()
 
@@ -56,6 +62,52 @@ class UtilsTests(TestCase):
         response_data = utils.jwt_response_payload_handler(token)
 
         self.assertEqual(response_data, dict(token=token))
+
+    def test_jwt_blacklist_get_success(self):
+        payload = utils.jwt_payload_handler(self.user)
+
+        # Create blacklisted token.
+        token_created = JWTBlacklistToken.objects.create(
+            jti=payload.get('jti'),
+            expires=now(),
+            created=now()
+        )
+
+        token_fetched = blacklist_utils.jwt_blacklist_get_handler(payload)
+
+        if hasattr(models, 'UUIDField'):
+            self.assertEqual(token_created.jti, token_fetched.jti.hex)
+        else:
+            self.assertEqual(token_created.jti, token_fetched.jti)
+
+    def test_jwt_blacklist_get_fail(self):
+        payload = utils.jwt_payload_handler(self.user)
+
+        # Test that incoming empty jti fails.
+        payload['jti'] = None
+
+        token_fetched = blacklist_utils.jwt_blacklist_get_handler(payload)
+
+        self.assertIsNone(token_fetched)
+
+    def test_jwt_blacklist_set_success(self):
+        payload = utils.jwt_payload_handler(self.user)
+
+        # exp field comes in as seconds since epoch
+        payload['exp'] = int(time.time())
+
+        # Create blacklisted token.
+        token = blacklist_utils.jwt_blacklist_set_handler(payload)
+
+        self.assertEqual(token.jti, payload.get('jti'))
+
+    def test_jwt_blacklist_set_fail(self):
+        payload = utils.jwt_payload_handler(self.user)
+
+        # Create blacklisted token.
+        token = blacklist_utils.jwt_blacklist_set_handler(payload)
+
+        self.assertIsNone(token)
 
     def test_jwt_decode_verify_exp(self):
         api_settings.JWT_VERIFY_EXPIRATION = False
