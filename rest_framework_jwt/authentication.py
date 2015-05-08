@@ -2,13 +2,12 @@ import jwt
 from django.utils.encoding import smart_text
 from django.utils.translation import ugettext as _
 from rest_framework import exceptions
-from rest_framework.authentication import (
-    BaseAuthentication, get_authorization_header, TokenAuthentication
-)
+from rest_framework.authentication import (BaseAuthentication,
+                                           get_authorization_header)
 
 from rest_framework_jwt import utils
 from rest_framework_jwt.settings import api_settings
-from rest_framework_jwt.refreshtoken.models import RefreshToken
+
 
 jwt_decode_handler = api_settings.JWT_DECODE_HANDLER
 jwt_get_user_id_from_payload = api_settings.JWT_PAYLOAD_GET_USER_ID_HANDLER
@@ -98,42 +97,3 @@ class JSONWebTokenAuthentication(BaseJSONWebTokenAuthentication):
         authentication scheme should return `403 Permission Denied` responses.
         """
         return 'JWT realm="{0}"'.format(self.www_authenticate_realm)
-
-
-class RefreshTokenAuthentication(TokenAuthentication):
-    """
-    Subclassed from rest_framework.authentication.TokenAuthentication
-
-    Auth header:
-        Authorization: RefreshToken 401f7ac837da42b97f613d789819ff93537bee6a
-    """
-    model = RefreshToken
-
-    def authenticate(self, request):
-        auth = get_authorization_header(request).split()
-
-        if not auth or auth[0].lower() != b'refreshtoken':
-            return None
-
-        if len(auth) == 1:
-            msg = _('Invalid token header. No credentials provided.')
-            raise exceptions.AuthenticationFailed(msg)
-        elif len(auth) > 2:
-            msg = _('Invalid token header. Token string should not contain spaces.')
-            raise exceptions.AuthenticationFailed(msg)
-
-        return self.authenticate_credentials(auth[1])
-
-    def authenticate_credentials(self, key):
-        try:
-            token = self.model.objects.select_related('user').get(key=key)
-        except self.model.DoesNotExist:
-            raise exceptions.AuthenticationFailed(_('Invalid token.'))
-
-        if not token.user.is_active:
-            raise exceptions.AuthenticationFailed(_('User inactive or deleted.'))
-
-        return (token.user, token)
-
-    def authenticate_header(self, request):
-        return 'RefreshToken'
