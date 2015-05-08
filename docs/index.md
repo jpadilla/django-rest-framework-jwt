@@ -101,6 +101,59 @@ Refresh with tokens can be repeated (token1 -> token2 -> token3), but this chain
 
 A typical use case might be a web app where you'd like to keep the user "logged in" the site without having to re-enter their password, or get kicked out by surprise before their token expired. Imagine they had a 1-hour token and are just at the last minute while they're still doing something. With mobile you could perhaps store the username/password to get a new token, but this is not a great idea in a browser. Each time the user loads the page, you can check if there is an existing non-expired token and if it's close to being expired, refresh it to extend their session. In other words, if a user is actively using your site, they can keep their "session" alive.
 
+## Long Running Refresh Token
+
+This allows for a client to request refresh tokens. These refresh tokens do not expire.
+They can be revoked (deleted). When a JWT has expired, it's possible to send a request
+with the refresh token in the header, and get back a new JWT.
+
+Declare the app
+```python
+INSTALLED_APPS = [
+    ...,
+    'rest_framework_jwt.refreshtoken',
+]
+
+```
+
+Run migrations
+
+```bash
+$ python manage.py migrate refreshtoken
+```
+
+Configure your urls to add new endpoint
+
+```python
+from rest_framework_jwt.refreshtoken.routers import urlpatterns as jwt_urlpatterns
+
+urlpatterns = [
+    url(...),
+] + jwt_urlpatterns
+
+```
+
+You can include this refresh token in your JWT_RESPONSE_PAYLOAD_HANDLER
+
+```python
+
+def jwt_response_payload_handler(token, user=None, request=None):
+  return {
+    'token': token,
+    'user': UserSerializer(user).data,
+    'refresh_token': user.refresh_tokens.first().key,
+    }
+
+```
+
+Then your user can ask a new JWT token as long as the refresh_token exists.
+
+```bash
+$ curl -X POST -H "Authorization: RefreshToken <REFRESH_TOKEN>" http://localhost:8000/delegate/
+'{"token": "your_jwt_token_..."}'
+
+```
+
 ## Verify Token
 
 In some microservice architectures, authentication is handled by a single service. Other services delegate the responsibility of confirming that a user is logged in to this authentication service. This usually means that a service will pass a JWT received from the user to the authentication service, and wait for a confirmation that the JWT is valid before returning protected resources to the user.

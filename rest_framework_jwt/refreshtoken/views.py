@@ -8,11 +8,16 @@ from rest_framework import status
 
 from rest_framework_jwt.settings import api_settings
 from rest_framework_jwt.views import JSONWebTokenAPIView
-from rest_framework_jwt.authentication import RefreshTokenAuthentication
+from rest_framework_jwt.refreshtoken.authentication import (
+    RefreshTokenAuthentication,
+)
 
 from .permissions import IsOwnerOrAdmin
 from .models import RefreshToken
-from .serializers import RefreshTokenSerializer
+from .serializers import (
+    DelegateJSONWebTokenSerializer,
+    RefreshTokenSerializer,
+)
 
 jwt_payload_handler = api_settings.JWT_PAYLOAD_HANDLER
 jwt_encode_handler = api_settings.JWT_ENCODE_HANDLER
@@ -24,6 +29,7 @@ class DelegateJSONWebToken(JSONWebTokenAPIView):
     is valid.
     """
     authentication_classes = (RefreshTokenAuthentication, )
+    serializer_class = DelegateJSONWebTokenSerializer
 
     def post(self, request):
         user = request.user
