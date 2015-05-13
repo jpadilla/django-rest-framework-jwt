@@ -25,7 +25,8 @@ class JSONWebTokenAPIView(APIView):
     renderer_classes = (renderers.JSONRenderer,)
 
     def post(self, request):
-        serializer = self.serializer_class(data=request.DATA)
+        serializer = self.serializer_class(data=request.DATA,
+                                           context={'request': request})
 
         if serializer.is_valid():
             user = serializer.object.get('user') or request.user
