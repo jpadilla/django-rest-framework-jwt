@@ -25,8 +25,11 @@ class RefreshToken(models.Model):
     """
     key = models.CharField(max_length=40, primary_key=True)
     user = models.ForeignKey(AUTH_USER_MODEL, related_name='refresh_tokens')
-    app = models.CharField(max_length=255, unique=True)
+    app = models.CharField(max_length=255)
     created = models.DateTimeField(auto_now_add=True)
+
+    class Meta:
+        unique_together = ('user', 'app')
 
     def save(self, *args, **kwargs):
         if not self.key:
