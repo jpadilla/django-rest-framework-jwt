@@ -149,7 +149,7 @@ def jwt_response_payload_handler(token, user=None, request=None):
 Then your user can ask a new JWT token as long as the refresh_token exists.
 
 ```bash
-$ curl -X POST -H "Authorization: RefreshToken <REFRESH_TOKEN>" http://localhost:8000/delegate/
+$ curl -X POST -d '{"client_id": "app", "grant_type": "urn:ietf:params:oauth:grant-type:jwt-bearer", "refresh_token": <REFRESH_TOKEN>, "api_type": "app"}' http://localhost:8000/delegate/
 '{"token": "your_jwt_token_..."}'
 
 ```
