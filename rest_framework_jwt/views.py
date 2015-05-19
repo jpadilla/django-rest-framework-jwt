@@ -1,7 +1,5 @@
 from rest_framework.views import APIView
 from rest_framework import status
-from rest_framework import parsers
-from rest_framework import renderers
 from rest_framework.response import Response
 
 from rest_framework_jwt.settings import api_settings
@@ -21,8 +19,6 @@ class JSONWebTokenAPIView(APIView):
     throttle_classes = ()
     permission_classes = ()
     authentication_classes = ()
-    parser_classes = (parsers.FormParser, parsers.JSONParser,)
-    renderer_classes = (renderers.JSONRenderer,)
 
     def get_serializer_context(self):
         """
