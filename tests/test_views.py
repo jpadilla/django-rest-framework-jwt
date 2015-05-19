@@ -480,8 +480,14 @@ class RefreshTokenTestCase(APITestCase):
         self.assertEqual(response.data['app'], data['app'])
 
     def test_delegate_jwt(self):
-        headers = {'HTTP_AUTHORIZATION': 'RefreshToken {}'.format(self.token1.key)}
-        response = self.client.post(self.delegate_url, format='json', **headers)
+        data = {
+            'client_id': 'gandolf',
+            'grant_type': 'urn:ietf:params:oauth:grant-type:jwt-bearer',
+            'refresh_token': self.token1.key,
+            'api_type': 'app',
+        }
+        response = self.client.post(self.delegate_url, data=data,
+                                    format='json')
         self.assertEqual(
             response.status_code,
             status.HTTP_201_CREATED,

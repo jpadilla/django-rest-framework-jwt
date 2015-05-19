@@ -1,13 +1,5 @@
-from calendar import timegm
-from datetime import datetime
-
 from rest_framework import serializers
-from rest_framework_jwt.compat import CurrentUserDefault
-from rest_framework_jwt.settings import api_settings
-from rest_framework_jwt.serializers import (
-    jwt_encode_handler,
-    jwt_payload_handler,
-)
+from rest_framework_jwt.compat import CurrentUserDefault, Serializer
 
 from .models import RefreshToken
 
@@ -38,18 +30,14 @@ class RefreshTokenSerializer(serializers.ModelSerializer):
         return attrs
 
 
-class DelegateJSONWebTokenSerializer(serializers.Serializer):
-    def validate(self, attrs):
-        user = self.context['request'].user
-        payload = jwt_payload_handler(user)
-
-        # Include original issued at time for a brand new token,
-        # to allow token refresh
-        if api_settings.JWT_ALLOW_REFRESH:
-            payload['orig_iat'] = timegm(
-                datetime.utcnow().utctimetuple()
-            )
-
-        attrs['token'] = jwt_encode_handler(payload)
-        attrs['user'] = user
-        return attrs
+class DelegateJSONWebTokenSerializer(Serializer):
+    client_id = serializers.CharField()
+    grant_type = serializers.CharField(
+        default='urn:ietf:params:oauth:grant-type:jwt-bearer',
+        required=False,
+    )
+    refresh_token = serializers.CharField()
+    api_type = serializers.CharField(
+        default='app',
+        required=False,
+    )

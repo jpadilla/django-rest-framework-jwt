@@ -1,16 +1,15 @@
 from calendar import timegm
 from datetime import datetime
 
+from django.utils.translation import ugettext as _
+from rest_framework import exceptions
+from rest_framework import generics
 from rest_framework import mixins
 from rest_framework import viewsets
 from rest_framework.response import Response
 from rest_framework import status
 
 from rest_framework_jwt.settings import api_settings
-from rest_framework_jwt.views import JSONWebTokenAPIView
-from rest_framework_jwt.refreshtoken.authentication import (
-    RefreshTokenAuthentication,
-)
 
 from .permissions import IsOwnerOrAdmin
 from .models import RefreshToken
@@ -23,16 +22,27 @@ jwt_payload_handler = api_settings.JWT_PAYLOAD_HANDLER
 jwt_encode_handler = api_settings.JWT_ENCODE_HANDLER
 
 
-class DelegateJSONWebToken(JSONWebTokenAPIView):
+class DelegateJSONWebToken(generics.CreateAPIView):
     """
     API View that checks the veracity of a refresh token, returning a JWT if it
     is valid.
     """
-    authentication_classes = (RefreshTokenAuthentication, )
     serializer_class = DelegateJSONWebTokenSerializer
 
-    def post(self, request):
-        user = request.user
+    def post(self, request, *args, **kwargs):
+        serializer = self.get_serializer(data=request.DATA)
+        serializer.is_valid(raise_exception=True)
+        refresh_token = serializer.object['refresh_token']
+        try:
+            token = RefreshToken.objects.select_related('user').get(
+                key=refresh_token)
+        except RefreshToken.DoesNotExist:
+            raise exceptions.AuthenticationFailed(_('Invalid token.'))
+        user = token.user
+        if not user.is_active:
+            raise exceptions.AuthenticationFailed(
+                _('User inactive or deleted.'))
+
         payload = jwt_payload_handler(user)
         if api_settings.JWT_ALLOW_REFRESH:
             payload['orig_iat'] = timegm(datetime.utcnow().utctimetuple())
