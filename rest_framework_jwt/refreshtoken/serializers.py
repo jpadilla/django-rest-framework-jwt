@@ -2,6 +2,7 @@ from calendar import timegm
 from datetime import datetime
 
 from rest_framework import serializers
+from rest_framework_jwt.compat import CurrentUserDefault
 from rest_framework_jwt.settings import api_settings
 from rest_framework_jwt.serializers import (
     jwt_encode_handler,
@@ -16,13 +17,24 @@ class RefreshTokenSerializer(serializers.ModelSerializer):
     Serializer for refresh tokens (Not RefreshJWTToken)
     """
 
+    user = serializers.PrimaryKeyRelatedField(
+        required=False,
+        read_only=True,
+        default=CurrentUserDefault())
+
     class Meta:
         model = RefreshToken
         fields = ('key', 'user', 'created', 'app')
-        read_only_fields = ('key', 'user', 'created')
+        read_only_fields = ('key', 'created')
 
     def validate(self, attrs):
-        attrs['user'] = self.context['request'].user
+        """
+        only for DRF < 3.0 support.
+        Otherwise CurrentUserDefault() is doing the job of obtaining user
+        from current request.
+        """
+        if 'user' not in attrs:
+            attrs['user'] = self.context['request'].user
         return attrs
 
 
