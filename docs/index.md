@@ -27,7 +27,7 @@ If you want to know more about JWT, check out the following resources:
 
 ## Requirements
 
-- Python (2.7, 3.2, 3.3, 3.4)
+- Python (2.7, 3.3, 3.4)
 - Django (1.6, 1.7)
 - Django REST Framework (2.4.3, 2.4.4, 3.0.0)
 
