@@ -53,5 +53,5 @@ You may also want to follow the `author`_ on Twitter.
 
 .. |build-status-image| image:: https://secure.travis-ci.org/GetBlimp/django-rest-framework-jwt.png?branch=master
    :target: http://travis-ci.org/GetBlimp/django-rest-framework-jwt?branch=master
-.. |pypi-version| image:: https://pypip.in/version/djangorestframework-jwt/badge.svg
+.. |pypi-version| image:: https://img.shields.io/pypi/v/djangorestframework-jwt.svg
    :target: https://pypi.python.org/pypi/djangorestframework-jwt

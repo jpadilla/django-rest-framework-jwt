@@ -3,7 +3,7 @@
         <img src="https://travis-ci.org/GetBlimp/django-rest-framework-jwt.png?branch=master">
     </a>
     <a href="https://pypi.python.org/pypi/djangorestframework-jwt">
-        <img src="https://pypip.in/version/djangorestframework-jwt/badge.svg">
+        <img src="https://img.shields.io/pypi/v/djangorestframework-jwt.svg">
     </a>
 </div>
 
