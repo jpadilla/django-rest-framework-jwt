@@ -58,13 +58,6 @@ class JSONWebTokenSerializer(Serializer):
 
                 payload = jwt_payload_handler(user)
 
-                # Include original issued at time for a brand new token,
-                # to allow token refresh
-                if api_settings.JWT_ALLOW_REFRESH:
-                    payload['orig_iat'] = timegm(
-                        datetime.utcnow().utctimetuple()
-                    )
-
                 return {
                     'token': jwt_encode_handler(payload),
                     'user': user
