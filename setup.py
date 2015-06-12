@@ -2,15 +2,23 @@
 # -*- coding: utf-8 -*-
 
 import os
+import re
 import sys
-
-import rest_framework_jwt
 
 from setuptools import setup
 
 
+def get_version(package):
+    """
+    Return package version as listed in `__version__` in `init.py`.
+    """
+    with open(os.path.join(package, '__init__.py'), 'rb') as init_py:
+        src = init_py.read().decode('utf-8')
+        return re.search("__version__ = ['\"]([^'\"]+)['\"]", src).group(1)
+
+
 name = 'djangorestframework-jwt'
-version = rest_framework_jwt.__version__
+version = get_version('rest_framework_jwt')
 package = 'rest_framework_jwt'
 description = 'JSON Web Token based authentication for Django REST framework'
 url = 'https://github.com/GetBlimp/django-rest-framework-jwt'
