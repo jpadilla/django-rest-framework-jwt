@@ -1,15 +1,9 @@
-# Minimum Django and DRF version
-Django>=1.6
-djangorestframework>=2.4.3
+# Laying these out as seperate requirements files, allows us to
+# only included the relevent sets when running tox, and ensures
+# we are only ever declaring out dependancies in one place.
 
-# Test requirements
-pytest-django==2.6
-pytest==2.5.2
-pytest-cov==1.6
-flake8==2.2.2
-freezegun==0.3.2
-
-# Optional packages
-django-oauth-plus>=2.2.1
-oauth2>=1.5.211
-django-oauth2-provider>=0.2.4
+-r requirements/optionals.txt
+-r requirements/testing.txt
+-r requirements/documentation.txt
+-r requirements/codestyle.txt
+-r requirements/packaging.txt
