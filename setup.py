@@ -64,11 +64,17 @@ def get_package_data(package):
 
 
 if sys.argv[-1] == 'publish':
-    os.system("python setup.py sdist upload")
-    os.system("python setup.py bdist_wheel upload")
-    print("You probably want to also tag the version now:")
+    if os.system('pip freeze | grep wheel'):
+        print('wheel not installed.\nUse `pip install wheel`.\nExiting.')
+        sys.exit()
+    if os.system('pip freeze | grep twine'):
+        print('twine not installed.\nUse `pip install twine`.\nExiting.')
+        sys.exit()
+    os.system('python setup.py sdist bdist_wheel')
+    os.system('twine upload dist/*')
+    print('You probably want to also tag the version now:')
     print("  git tag -a {0} -m 'version {0}'".format(version))
-    print("  git push --tags")
+    print('  git push --tags')
     sys.exit()
 
 
