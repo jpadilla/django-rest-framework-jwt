@@ -1,7 +1,6 @@
 from rest_framework.views import APIView
 from rest_framework import status
 from rest_framework.response import Response
-
 from rest_framework_jwt.settings import api_settings
 
 from .serializers import (
@@ -59,7 +58,6 @@ class JSONWebTokenAPIView(APIView):
             user = serializer.object.get('user') or request.user
             token = serializer.object.get('token')
             response_data = jwt_response_payload_handler(token, user, request)
-
             return Response(response_data)
 
         return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)

@@ -50,10 +50,9 @@ class BaseTestCase(TestCase):
 
 
 class TestCustomResponsePayload(BaseTestCase):
-
     def setUp(self):
-        api_settings.JWT_RESPONSE_PAYLOAD_HANDLER = test_utils\
-            .jwt_response_payload_handler
+        api_settings.JWT_RESPONSE_PAYLOAD_HANDLER = test_utils.\
+            jwt_response_payload_handler
         return super(TestCustomResponsePayload, self).setUp()
 
     def test_jwt_login_custom_response_json(self):

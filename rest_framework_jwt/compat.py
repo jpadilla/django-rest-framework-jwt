@@ -1,4 +1,5 @@
 import rest_framework
+import rest_framework.exceptions
 from distutils.version import StrictVersion
 
 
@@ -9,3 +10,12 @@ else:
         @property
         def object(self):
             return self.validated_data
+
+try:
+    from rest_framework.serializers import CurrentUserDefault
+except ImportError:
+    # DRF 2.4
+    class CurrentUserDefault(object):
+
+        def __call__(self):
+            pass

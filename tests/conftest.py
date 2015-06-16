@@ -10,6 +10,7 @@ def pytest_configure():
                 'NAME': ':memory:'
             }
         },
+        SOUTH_TESTS_MIGRATE=False,
         SITE_ID=1,
         SECRET_KEY='not very secret in tests',
         USE_I18N=True,
@@ -36,10 +37,12 @@ def pytest_configure():
             'django.contrib.staticfiles',
 
             'tests',
+            'rest_framework_jwt.refreshtoken',
         ),
         PASSWORD_HASHERS=(
             'django.contrib.auth.hashers.MD5PasswordHasher',
         ),
+        SOUTH_DATABASE_ADAPTERS={'default': 'south.db.sqlite3'}
     )
 
     try:
