@@ -130,9 +130,9 @@ class ObtainJSONWebTokenTests(BaseTestCase):
         """
         Ensure JWT login view works even if expired token is provided
         """
-        payload = utils.jwt_payload_handler(self.user)
+        payload, salt = utils.jwt_payload_handler(self.user)
         payload['exp'] = 1
-        token = utils.jwt_encode_handler(payload)
+        token = utils.jwt_encode_handler(payload, salt)
 
         auth = 'JWT {0}'.format(token)
         client = APIClient(enforce_csrf_checks=True)
@@ -218,14 +218,14 @@ class TokenTestCase(BaseTestCase):
         return response.data['token']
 
     def create_token(self, user, exp=None, orig_iat=None):
-        payload = utils.jwt_payload_handler(user)
+        payload, salt = utils.jwt_payload_handler(user)
         if exp:
             payload['exp'] = exp
 
         if orig_iat:
             payload['orig_iat'] = timegm(orig_iat.utctimetuple())
 
-        token = utils.jwt_encode_handler(payload)
+        token = utils.jwt_encode_handler(payload, salt)
         return token
 
 
@@ -268,6 +268,28 @@ class VerifyJSONWebTokenTests(TokenTestCase):
         self.assertRegexpMatches(response.data['non_field_errors'][0],
                                  'Signature has expired')
 
+    def test_verify_jwt_fails_with_renewed_password(self):
+        """
+        Test that a user that changed its password will fail
+        with the correct error.
+        """
+        client = APIClient(enforce_csrf_checks=True)
+
+        # Make a valid token
+        token = self.create_token(
+            self.user,
+        )
+
+        # change the password
+        self.user.set_password('')
+        self.user.save()
+
+        response = client.post('/auth-token-verify/', {'token': token},
+                               format='json')
+        self.assertEqual(response.status_code, status.HTTP_400_BAD_REQUEST)
+        self.assertRegexpMatches(response.data['non_field_errors'][0],
+                                 'Error decoding signature.')
+
     def test_verify_jwt_fails_with_bad_token(self):
         """
         Test that an invalid token will fail with the correct error.
@@ -299,7 +321,7 @@ class VerifyJSONWebTokenTests(TokenTestCase):
                                format='json')
         self.assertEqual(response.status_code, status.HTTP_400_BAD_REQUEST)
         self.assertRegexpMatches(response.data['non_field_errors'][0],
-                                 "User doesn't exist")
+                                 "Error decoding signature.")
 
 
 class RefreshJSONWebTokenTests(TokenTestCase):

@@ -23,6 +23,7 @@ DEFAULTS = {
     'rest_framework_jwt.utils.jwt_response_payload_handler',
 
     'JWT_SECRET_KEY': settings.SECRET_KEY,
+    'JWT_SALT_USER_ATTRIBUTES': ('password',),
     'JWT_ALGORITHM': 'HS256',
     'JWT_VERIFY': True,
     'JWT_VERIFY_EXPIRATION': True,

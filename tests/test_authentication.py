@@ -83,8 +83,8 @@ class JSONWebTokenAuthenticationTests(TestCase):
         Ensure POSTing form over JWT auth with correct credentials
         passes and does not require CSRF
         """
-        payload = utils.jwt_payload_handler(self.user)
-        token = utils.jwt_encode_handler(payload)
+        payload, salt = utils.jwt_payload_handler(self.user)
+        token = utils.jwt_encode_handler(payload, salt)
 
         auth = 'JWT {0}'.format(token)
         response = self.csrf_client.post(
@@ -97,8 +97,8 @@ class JSONWebTokenAuthenticationTests(TestCase):
         Ensure POSTing JSON over JWT auth with correct credentials
         passes and does not require CSRF
         """
-        payload = utils.jwt_payload_handler(self.user)
-        token = utils.jwt_encode_handler(payload)
+        payload, salt = utils.jwt_payload_handler(self.user)
+        token = utils.jwt_encode_handler(payload, salt)
 
         auth = 'JWT {0}'.format(token)
         response = self.csrf_client.post(
@@ -158,9 +158,9 @@ class JSONWebTokenAuthenticationTests(TestCase):
         """
         Ensure POSTing over JWT auth with expired token fails
         """
-        payload = utils.jwt_payload_handler(self.user)
+        payload, salt = utils.jwt_payload_handler(self.user)
         payload['exp'] = 1
-        token = utils.jwt_encode_handler(payload)
+        token = utils.jwt_encode_handler(payload, salt)
 
         auth = 'JWT {0}'.format(token)
         response = self.csrf_client.post(
@@ -255,8 +255,8 @@ class JSONWebTokenAuthenticationTests(TestCase):
         """
         api_settings.JWT_AUTH_HEADER_PREFIX = 'Bearer'
 
-        payload = utils.jwt_payload_handler(self.user)
-        token = utils.jwt_encode_handler(payload)
+        payload, salt = utils.jwt_payload_handler(self.user)
+        token = utils.jwt_encode_handler(payload, salt)
 
         auth = 'Bearer {0}'.format(token)
         response = self.csrf_client.post(
