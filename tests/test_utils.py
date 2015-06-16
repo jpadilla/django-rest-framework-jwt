@@ -67,6 +67,16 @@ class UtilsTests(TestCase):
 
         api_settings.JWT_VERIFY_EXPIRATION = True
 
+    def test_jwt_user_lookup_field(self):
+        api_settings.JWT_USER_LOOKUP_FIELD = 'email'
+        try:
+            payload = utils.jwt_payload_handler(self.user)
+            self.assertEqual(payload['user_id'], self.email)
+            token = utils.jwt_encode_handler(payload)
+            utils.jwt_decode_handler(token)
+        finally:
+            api_settings.JWT_VERIFY_EXPIRATION = 'pk'
+
 
 class TestAudience(TestCase):
     def setUp(self):

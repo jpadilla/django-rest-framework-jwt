@@ -149,6 +149,7 @@ JWT_AUTH = {
     'JWT_REFRESH_EXPIRATION_DELTA': datetime.timedelta(days=7),
 
     'JWT_AUTH_HEADER_PREFIX': 'JWT',
+    'JWT_USER_LOOKUP_FIELD': 'pk',
 }
 ```
 This packages uses the JSON Web Token Python implementation, [PyJWT](https://github.com/jpadilla/pyjwt) and allows to modify some of it's available options.
@@ -233,6 +234,9 @@ You can modify the Authorization header value prefix that is required to be sent
 Another common value used for tokens and Authorization headers is `Bearer`.
 
 Default is `JWT`.
+
+### JWT_USER_LOOKUP_FIELD
+Field on User model that should be use to perform user retrieval from database.
 
 ## Extending `JSONWebTokenAuthentication`
 
