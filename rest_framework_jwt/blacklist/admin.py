@@ -1,3 +1,4 @@
+from django.db.models import get_model
 from django.conf import settings
 from django.contrib import admin
 
@@ -15,4 +16,9 @@ class JWTBlacklistTokenAdmin(admin.ModelAdmin):
     is_active.short_description = 'Active'
 
 if 'rest_framework_jwt.blacklist' in settings.INSTALLED_APPS:
-    admin.site.register(models.JWTBlacklistToken, JWTBlacklistTokenAdmin)
+    try:
+        get_model('blacklist', 'jwtblacklisttoken')
+    except Exception:
+        pass
+    else:
+        admin.site.register(models.JWTBlacklistToken, JWTBlacklistTokenAdmin)

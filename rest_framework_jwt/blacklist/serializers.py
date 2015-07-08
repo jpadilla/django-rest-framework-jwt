@@ -43,3 +43,4 @@ class BlacklistJSONWebTokenSerializer(VerificationBaseSerializer):
 class JWTBlacklistTokenSerializer(serializers.ModelSerializer):
     class Meta:
         model = models.JWTBlacklistToken
+        exclude = ('id',)
