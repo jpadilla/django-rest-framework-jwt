@@ -27,7 +27,8 @@ urlpatterns = patterns(
     (r'^auth-token/$', 'rest_framework_jwt.views.obtain_jwt_token'),
     (r'^auth-token-refresh/$', 'rest_framework_jwt.views.refresh_jwt_token'),
     (r'^auth-token-verify/$', 'rest_framework_jwt.views.verify_jwt_token'),
-
+    (r'^auth-token-blacklist/$',
+     'rest_framework_jwt.blacklist.views.blacklist_jwt_token'),
 )
 
 orig_datetime = datetime
@@ -226,6 +227,7 @@ class TokenTestCase(BaseTestCase):
             payload['orig_iat'] = timegm(orig_iat.utctimetuple())
 
         token = utils.jwt_encode_handler(payload)
+
         return token
 
 
@@ -234,7 +236,7 @@ class VerifyJSONWebTokenTests(TokenTestCase):
     def test_verify_jwt(self):
         """
         Test that a valid, non-expired token will return a 200 response
-        and itself when passed to the validation endpoint.
+        when passed to the validation endpoint.
         """
         client = APIClient(enforce_csrf_checks=True)
 
@@ -246,8 +248,6 @@ class VerifyJSONWebTokenTests(TokenTestCase):
                 response = client.post('/auth-token-verify/', {'token': orig_token},
                                        format='json')
         self.assertEqual(response.status_code, status.HTTP_200_OK)
-
-        self.assertEqual(response.data['token'], orig_token)
 
     def test_verify_jwt_fails_with_expired_token(self):
         """
@@ -301,6 +301,32 @@ class VerifyJSONWebTokenTests(TokenTestCase):
         self.assertRegexpMatches(response.data['non_field_errors'][0],
                                  "User doesn't exist")
 
+    def test_verify_jwt_fails_with_blacklisted_token(self):
+        """
+        Test that a blacklisted token will fail.
+        """
+        client = APIClient(enforce_csrf_checks=True)
+
+        user = User.objects.create_user(
+            email='jsmith@example.com', username='jsmith', password='password')
+
+        token = self.create_token(user)
+
+        # Handle blacklisting the token.
+        response = client.post('/auth-token-blacklist/', {'token': token},
+                               format='json')
+
+        msg = 'Token successfully blacklisted.'
+
+        self.assertEqual(response.data['message'], msg)
+
+        response = client.post('/auth-token-verify/', {'token': token},
+                               format='json')
+
+        msg = 'Token has been blacklisted.'
+
+        self.assertEqual(response.data['detail'], msg)
+
 
 class RefreshJSONWebTokenTests(TokenTestCase):
 
@@ -344,8 +370,11 @@ class RefreshJSONWebTokenTests(TokenTestCase):
         """
         client = APIClient(enforce_csrf_checks=True)
 
-        orig_iat = (datetime.utcnow() - api_settings.JWT_REFRESH_EXPIRATION_DELTA -
-                    timedelta(seconds=5))
+        orig_iat = (
+            datetime.utcnow() -
+            api_settings.JWT_REFRESH_EXPIRATION_DELTA -
+            timedelta(seconds=5)
+        )
         token = self.create_token(
             self.user,
             exp=datetime.utcnow() + timedelta(hours=1),
@@ -361,3 +390,22 @@ class RefreshJSONWebTokenTests(TokenTestCase):
     def tearDown(self):
         # Restore original settings
         api_settings.JWT_ALLOW_REFRESH = DEFAULTS['JWT_ALLOW_REFRESH']
+
+
+class BlacklistJSONWebTokenTests(TokenTestCase):
+
+    def test_blacklist_jwt_successful_blacklist_enabled(self):
+        client = APIClient(enforce_csrf_checks=True)
+
+        user = User.objects.create_user(
+            email='jsmith@example.com', username='jsmith', password='password')
+
+        token = self.create_token(user)
+
+        # Handle blacklisting the token.
+        response = client.post('/auth-token-blacklist/', {'token': token},
+                               format='json')
+
+        msg = 'Token successfully blacklisted.'
+
+        self.assertEqual(response.data['message'], msg)

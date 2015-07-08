@@ -1,6 +1,9 @@
 import jwt
+
+from django.conf import settings
 from django.utils.encoding import smart_text
 from django.utils.translation import ugettext as _
+
 from rest_framework import exceptions
 from rest_framework.authentication import (BaseAuthentication,
                                            get_authorization_header)
@@ -11,6 +14,7 @@ from rest_framework_jwt.settings import api_settings
 
 jwt_decode_handler = api_settings.JWT_DECODE_HANDLER
 jwt_get_user_id_from_payload = api_settings.JWT_PAYLOAD_GET_USER_ID_HANDLER
+jwt_blacklist_get_handler = api_settings.JWT_BLACKLIST_GET_HANDLER
 
 
 class BaseJSONWebTokenAuthentication(BaseAuthentication):
@@ -37,6 +41,14 @@ class BaseJSONWebTokenAuthentication(BaseAuthentication):
             raise exceptions.AuthenticationFailed(msg)
         except jwt.InvalidTokenError:
             raise exceptions.AuthenticationFailed()
+
+        # Check if the token has been blacklisted.
+        if 'rest_framework_jwt.blacklist' in settings.INSTALLED_APPS:
+            blacklisted = jwt_blacklist_get_handler(payload)
+
+            if blacklisted:
+                msg = _('Token has been blacklisted.')
+                raise exceptions.AuthenticationFailed(msg)
 
         user = self.authenticate_credentials(payload)
 
