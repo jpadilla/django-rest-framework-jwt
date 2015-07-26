@@ -41,7 +41,7 @@ class JSONWebTokenSerializerTests(TestCase):
         serializer = JSONWebTokenSerializer()
         expected = {
             'username': '',
-            'password': '',
+            'password': ''
         }
 
         self.assertEqual(serializer.data, expected)

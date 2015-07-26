@@ -8,8 +8,10 @@ from django.utils.translation import ugettext as _
 from rest_framework import serializers
 from .compat import Serializer
 
-from rest_framework_jwt.compat import get_user_model, get_username_field
 from rest_framework_jwt.settings import api_settings
+from rest_framework_jwt.compat import (
+    get_user_model, get_username_field, PasswordField
+)
 
 
 User = get_user_model()
@@ -34,9 +36,7 @@ class JSONWebTokenSerializer(Serializer):
         super(JSONWebTokenSerializer, self).__init__(*args, **kwargs)
 
         self.fields[self.username_field] = serializers.CharField()
-        self.fields['password'] = serializers.CharField(
-            style={'input_type': 'password'}
-        )
+        self.fields['password'] = PasswordField(write_only=True)
 
     @property
     def username_field(self):
