@@ -3,8 +3,8 @@ from distutils.version import StrictVersion
 import rest_framework
 from django.test import TestCase
 from django.utils import unittest
-from django.contrib.auth import get_user_model
 
+from rest_framework_jwt.compat import get_user_model
 from rest_framework_jwt.serializers import JSONWebTokenSerializer
 from rest_framework_jwt import utils
 

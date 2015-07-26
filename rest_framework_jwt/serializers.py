@@ -8,10 +8,11 @@ from django.utils.translation import ugettext as _
 from rest_framework import serializers
 from .compat import Serializer
 
-from rest_framework_jwt import utils
+from rest_framework_jwt.compat import get_user_model, get_username_field
 from rest_framework_jwt.settings import api_settings
 
 
+User = get_user_model()
 jwt_payload_handler = api_settings.JWT_PAYLOAD_HANDLER
 jwt_encode_handler = api_settings.JWT_ENCODE_HANDLER
 jwt_decode_handler = api_settings.JWT_DECODE_HANDLER
@@ -39,12 +40,7 @@ class JSONWebTokenSerializer(Serializer):
 
     @property
     def username_field(self):
-        User = utils.get_user_model()
-
-        try:
-            return User.USERNAME_FIELD
-        except AttributeError:
-            return 'username'
+        return get_username_field()
 
     def validate(self, attrs):
         credentials = {
@@ -107,7 +103,6 @@ class VerificationBaseSerializer(Serializer):
         return payload
 
     def _check_user(self, payload):
-        User = utils.get_user_model()
         # Make sure user exists (may want to refactor this)
         try:
             user_id = jwt_get_user_id_from_payload(payload)

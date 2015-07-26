@@ -1,3 +1,6 @@
+from rest_framework_jwt.compat import get_username
+
+
 def jwt_response_payload_handler(token, user=None, request=None):
     """
     Returns the response data for both the login and refresh views.
@@ -14,6 +17,6 @@ def jwt_response_payload_handler(token, user=None, request=None):
 
     """
     return {
-        'user': user.get_username(),
+        'user': get_username(user),
         'token': token
     }

@@ -2,7 +2,6 @@ from django.http import HttpResponse
 from django.test import TestCase
 from django.utils import unittest
 from django.conf.urls import patterns
-from django.contrib.auth import get_user_model
 
 from rest_framework import permissions, status
 try:
@@ -33,6 +32,7 @@ from rest_framework.test import APIRequestFactory, APIClient
 from rest_framework.views import APIView
 
 from rest_framework_jwt import utils
+from rest_framework_jwt.compat import get_user_model
 from rest_framework_jwt.settings import api_settings, DEFAULTS
 from rest_framework_jwt.authentication import JSONWebTokenAuthentication
 

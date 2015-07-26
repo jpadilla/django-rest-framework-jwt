@@ -1,4 +1,5 @@
 import rest_framework
+
 from distutils.version import StrictVersion
 
 
@@ -9,3 +10,32 @@ else:
         @property
         def object(self):
             return self.validated_data
+
+
+def get_user_model():
+    try:
+        from django.contrib.auth import get_user_model
+    except ImportError:  # Django < 1.5
+        from django.contrib.auth.models import User
+    else:
+        User = get_user_model()
+
+    return User
+
+
+def get_username_field():
+    try:
+        username_field = get_user_model().USERNAME_FIELD
+    except:
+        username_field = 'username'
+
+    return username_field
+
+
+def get_username(user):
+    try:
+        username = user.get_username()
+    except AttributeError:
+        username = user.username
+
+    return username

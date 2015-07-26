@@ -1,10 +1,11 @@
 import json
 import base64
 
-from django.contrib.auth import get_user_model
-from django.test import TestCase
 import jwt.exceptions
+from django.test import TestCase
+
 from rest_framework_jwt import utils
+from rest_framework_jwt.compat import get_user_model
 from rest_framework_jwt.settings import api_settings, DEFAULTS
 
 User = get_user_model()

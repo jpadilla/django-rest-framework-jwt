@@ -6,14 +6,12 @@ from django.test import TestCase
 from django.test.utils import override_settings
 from django.utils import unittest
 from django.conf.urls import patterns
-from django.contrib.auth import get_user_model
-
 from freezegun import freeze_time
-
 from rest_framework import status
 from rest_framework.test import APIClient
 
 from rest_framework_jwt import utils
+from rest_framework_jwt.compat import get_user_model
 from rest_framework_jwt.settings import api_settings, DEFAULTS
 
 from . import utils as test_utils
@@ -192,7 +190,7 @@ class CustomUserObtainJSONWebTokenTests(TestCase):
 
         self.assertEqual(response.status_code, status.HTTP_200_OK)
         decoded_payload = utils.jwt_decode_handler(response.data['token'])
-        self.assertEqual(decoded_payload['username'], self.email)
+        self.assertEqual(decoded_payload['email'], self.email)
 
     def test_jwt_login_json_bad_creds(self):
         """
