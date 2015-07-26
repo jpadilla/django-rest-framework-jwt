@@ -81,7 +81,7 @@ class TestAudience(TestCase):
     def test_fail_audience_missing(self):
         payload = utils.jwt_payload_handler(self.user)
         token = utils.jwt_encode_handler(payload)
-        with self.assertRaises(jwt.exceptions.InvalidAudienceError):
+        with self.assertRaises(jwt.exceptions.MissingRequiredClaimError):
             utils.jwt_decode_handler(token)
 
     def test_fail_audience_wrong(self):
@@ -115,13 +115,13 @@ class TestIssuer(TestCase):
     def test_fail_issuer_missing(self):
         payload = utils.jwt_payload_handler(self.user)
         token = utils.jwt_encode_handler(payload)
-        with self.assertRaises(jwt.exceptions.InvalidIssuerError):
+        with self.assertRaises(jwt.exceptions.MissingRequiredClaimError):
             utils.jwt_decode_handler(token)
 
     def test_fail_issuer_wrong(self):
         payload = utils.jwt_payload_handler(self.user)
-        token = utils.jwt_encode_handler(payload)
         payload['iss'] = "example2.com"
+        token = utils.jwt_encode_handler(payload)
         with self.assertRaises(jwt.exceptions.InvalidIssuerError):
             utils.jwt_decode_handler(token)
 
