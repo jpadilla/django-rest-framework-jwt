@@ -53,7 +53,12 @@ class JSONWebTokenAPIView(APIView):
         return serializer_class(*args, **kwargs)
 
     def post(self, request):
-        serializer = self.get_serializer(data=request.DATA)
+        try:
+            data = request.DATA
+        except NotImplementedError:
+            data = request.data
+
+        serializer = self.get_serializer(data=data)
 
         if serializer.is_valid():
             user = serializer.object.get('user') or request.user
