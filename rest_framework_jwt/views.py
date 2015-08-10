@@ -16,7 +16,6 @@ class JSONWebTokenAPIView(APIView):
     """
     Base API View that various JWT interactions inherit from.
     """
-    throttle_classes = ()
     permission_classes = ()
     authentication_classes = ()
 
