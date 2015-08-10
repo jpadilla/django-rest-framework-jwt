@@ -47,3 +47,13 @@ def get_username(user):
         username = user.username
 
     return username
+
+
+def get_request_data(request):
+    try:
+        data = request.data
+    except:
+        # DRF < 3.2
+        data = request.DATA
+
+    return data
