@@ -6,7 +6,6 @@ from datetime import datetime
 from rest_framework_jwt.compat import get_username, get_username_field
 from rest_framework_jwt.settings import api_settings
 
-
 def jwt_payload_handler(user):
     username_field = get_username_field()
     username = get_username(user)
@@ -57,9 +56,14 @@ def jwt_get_username_from_payload_handler(payload):
 
 
 def jwt_encode_handler(payload):
+
+    key = api_settings.JWT_SECRET_KEY
+    if type(key) is dict:
+        key = key["PRIVATE_KEY"]
+
     return jwt.encode(
         payload,
-        api_settings.JWT_SECRET_KEY,
+        key,
         api_settings.JWT_ALGORITHM
     ).decode('utf-8')
 
@@ -69,9 +73,13 @@ def jwt_decode_handler(token):
         'verify_exp': api_settings.JWT_VERIFY_EXPIRATION,
     }
 
+    key = api_settings.JWT_SECRET_KEY
+    if type(key) is dict:
+        key = key["PUBLIC_KEY"]
+
     return jwt.decode(
         token,
-        api_settings.JWT_SECRET_KEY,
+        key,
         api_settings.JWT_VERIFY,
         options=options,
         leeway=api_settings.JWT_LEEWAY,
@@ -79,7 +87,6 @@ def jwt_decode_handler(token):
         issuer=api_settings.JWT_ISSUER,
         algorithms=[api_settings.JWT_ALGORITHM]
     )
-
 
 def jwt_response_payload_handler(token, user=None, request=None):
     """
