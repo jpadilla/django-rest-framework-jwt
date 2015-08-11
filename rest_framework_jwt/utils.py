@@ -6,6 +6,7 @@ from datetime import datetime
 from rest_framework_jwt.compat import get_username, get_username_field
 from rest_framework_jwt.settings import api_settings
 
+
 def jwt_payload_handler(user):
     username_field = get_username_field()
     username = get_username(user)
@@ -87,6 +88,7 @@ def jwt_decode_handler(token):
         issuer=api_settings.JWT_ISSUER,
         algorithms=[api_settings.JWT_ALGORITHM]
     )
+
 
 def jwt_response_payload_handler(token, user=None, request=None):
     """
