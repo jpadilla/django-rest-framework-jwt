@@ -9,7 +9,7 @@
         
         <link rel="shortcut icon" href="./img/favicon.ico">
 
-        <title>Django REST framework JWT</title>
+	<title>Django REST framework JWT</title>
 
         <link href="./css/bootstrap-custom.min.css" rel="stylesheet">
         <link href="./css/font-awesome-4.0.3.css" rel="stylesheet">
@@ -51,23 +51,24 @@
         <div class="navbar-collapse collapse">
             
 
-            
-            <!-- Search, Navigation and Repo links -->
             <ul class="nav navbar-nav navbar-right">
-                
-                
-                
                 <li>
-                    <a href="https://github.com/GetBlimp/django-rest-framework-jwt">
-                        
-                            <i class="fa fa-github"></i>
-                        
-                        GitHub
+                    <a href="#" data-toggle="modal" data-target="#mkdocs_search_modal">
+                        <i class="fa fa-search"></i> Search
                     </a>
                 </li>
                 
+                
+                    <li>
+                        <a href="https://github.com/GetBlimp/django-rest-framework-jwt">
+                            
+                                <i class="fa fa-github"></i>
+                            
+                            GitHub
+                        </a>
+                    </li>
+                
             </ul>
-            
         </div>
     </div>
 </div>
@@ -89,7 +90,11 @@
         
             <li><a href="#refresh-token">Refresh Token</a></li>
         
+            <li><a href="#verify-token">Verify Token</a></li>
+        
             <li><a href="#additional-settings">Additional Settings</a></li>
+        
+            <li><a href="#extending-jsonwebtokenauthentication">Extending JSONWebTokenAuthentication</a></li>
         
     
     </ul>
@@ -101,7 +106,7 @@
         <img src="https://travis-ci.org/GetBlimp/django-rest-framework-jwt.png?branch=master">
     </a>
     <a href="https://pypi.python.org/pypi/djangorestframework-jwt">
-        <img src="https://pypip.in/version/djangorestframework-jwt/badge.svg">
+        <img src="https://img.shields.io/pypi/v/djangorestframework-jwt.svg">
     </a>
 </div>
 
@@ -119,7 +124,7 @@
 </ul>
 <h2 id="requirements">Requirements</h2>
 <ul>
-<li>Python (2.7, 3.2, 3.3, 3.4)</li>
+<li>Python (2.7, 3.3, 3.4)</li>
 <li>Django (1.6, 1.7)</li>
 <li>Django REST Framework (2.4.3, 2.4.4, 3.0.0)</li>
 </ul>
@@ -174,6 +179,16 @@
 
 <p>Refresh with tokens can be repeated (token1 -&gt; token2 -&gt; token3), but this chain of token stores the time that the original token (obtained with username/password credentials), as <code>orig_iat</code>. You can only keep refreshing tokens up to <code>JWT_REFRESH_EXPIRATION_DELTA</code>.</p>
 <p>A typical use case might be a web app where you'd like to keep the user "logged in" the site without having to re-enter their password, or get kicked out by surprise before their token expired. Imagine they had a 1-hour token and are just at the last minute while they're still doing something. With mobile you could perhaps store the username/password to get a new token, but this is not a great idea in a browser. Each time the user loads the page, you can check if there is an existing non-expired token and if it's close to being expired, refresh it to extend their session. In other words, if a user is actively using your site, they can keep their "session" alive.</p>
+<h2 id="verify-token">Verify Token</h2>
+<p>In some microservice architectures, authentication is handled by a single service. Other services delegate the responsibility of confirming that a user is logged in to this authentication service. This usually means that a service will pass a JWT received from the user to the authentication service, and wait for a confirmation that the JWT is valid before returning protected resources to the user.</p>
+<p>This setup is supported in this package using a verification endpoint. Add the following URL pattern:</p>
+<pre><code class="python">    url(r'^api-token-verify/', 'rest_framework_jwt.views.verify_jwt_token'),
+</code></pre>
+
+<p>Passing a token to the verification endpoint will return a 200 response and the token if it is valid. Otherwise, it will return a 400 Bad Request as well as an error identifying why the token was invalid.</p>
+<pre><code class="bash">$ curl -X POST -H &quot;Content-Type: application/json&quot; -d '{&quot;token&quot;:&quot;&lt;EXISTING_TOKEN&gt;&quot;}' http://localhost:8000/api-token-verify/
+</code></pre>
+
 <h2 id="additional-settings">Additional Settings</h2>
 <p>There are some additional settings that you can override similar to how you'd do it with Django REST framework itself. Here are all the available defaults.</p>
 <pre><code class="python">JWT_AUTH = {
@@ -198,6 +213,8 @@
     'JWT_VERIFY_EXPIRATION': True,
     'JWT_LEEWAY': 0,
     'JWT_EXPIRATION_DELTA': datetime.timedelta(seconds=300),
+    'JWT_AUDIENCE': None,
+    'JWT_ISSUER': None,
 
     'JWT_ALLOW_REFRESH': False,
     'JWT_REFRESH_EXPIRATION_DELTA': datetime.timedelta(days=7),
@@ -206,28 +223,12 @@
 }
 </code></pre>
 
-<p>This packages uses the JSON Web Token Python implementation, <a href="https://github.com/progrium/pyjwt">PyJWT</a> and allows to modify some of it's available options.</p>
+<p>This packages uses the JSON Web Token Python implementation, <a href="https://github.com/jpadilla/pyjwt">PyJWT</a> and allows to modify some of it's available options.</p>
 <h3 id="jwt_secret_key">JWT_SECRET_KEY</h3>
 <p>This is the secret key used to sign the JWT. Make sure this is safe and not shared or public.</p>
 <p>Default is your project's <code>settings.SECRET_KEY</code>.</p>
 <h3 id="jwt_algorithm">JWT_ALGORITHM</h3>
-<p>Possible values:</p>
-<blockquote>
-<ul>
-<li>HS256 - HMAC using SHA-256 hash algorithm (default)</li>
-<li>HS384 - HMAC using SHA-384 hash algorithm</li>
-<li>HS512 - HMAC using SHA-512 hash algorithm</li>
-<li>RS256 - RSASSA-PKCS1-v1_5 signature algorithm using SHA-256 hash algorithm</li>
-<li>RS384 - RSASSA-PKCS1-v1_5 signature algorithm using SHA-384 hash algorithm</li>
-<li>RS512 - RSASSA-PKCS1-v1_5 signature algorithm using SHA-512 hash algorithm</li>
-</ul>
-</blockquote>
-<p>Note:</p>
-<blockquote>
-<p>For the RSASSA-PKCS1-v1_5 algorithms, the "secret" argument in jwt.encode is supposed to be a private RSA key as
-imported with Crypto.PublicKey.RSA.importKey. Likewise, the "secret" argument in jwt.decode is supposed to be the
-public RSA key imported with the same method.</p>
-</blockquote>
+<p>Possible values are any of the <a href="https://github.com/jpadilla/pyjwt#algorithms">supported algorithms</a> for cryptographic signing in PyJWT.</p>
 <p>Default is <code>"HS256"</code>.</p>
 <h3 id="jwt_verify">JWT_VERIFY</h3>
 <p>If the secret is wrong, it will raise a jwt.DecodeError telling you as such. You can still get at the payload by setting the <code>JWT_VERIFY</code> to <code>False</code>.</p>
@@ -243,6 +244,12 @@ public RSA key imported with the same method.</p>
 <h3 id="jwt_expiration_delta">JWT_EXPIRATION_DELTA</h3>
 <p>This is an instance of Python's <code>datetime.timedelta</code>. This will be added to <code>datetime.utcnow()</code> to set the expiration time.</p>
 <p>Default is <code>datetime.timedelta(seconds=300)</code>(5 minutes).</p>
+<h3 id="jwt_audience">JWT_AUDIENCE</h3>
+<p>This is a string that will be checked against the <code>aud</code> field of the token, if present.</p>
+<p>Default is <code>None</code>(fail if <code>aud</code> present on JWT).</p>
+<h3 id="jwt_issuer">JWT_ISSUER</h3>
+<p>This is a string that will be checked against the <code>iss</code> field of the token.</p>
+<p>Default is <code>None</code>(do not check <code>iss</code> on JWT).</p>
 <h3 id="jwt_allow_refresh">JWT_ALLOW_REFRESH</h3>
 <p>Enable token refresh functionality. Token issued from <code>rest_framework_jwt.views.obtain_jwt_token</code> will have an <code>orig_iat</code> field. Default is <code>False</code></p>
 <h3 id="jwt_refresh_expiration_delta">JWT_REFRESH_EXPIRATION_DELTA</h3>
@@ -251,12 +258,14 @@ public RSA key imported with the same method.</p>
 <h3 id="jwt_payload_handler">JWT_PAYLOAD_HANDLER</h3>
 <p>Specify a custom function to generate the token payload</p>
 <h3 id="jwt_payload_get_user_id_handler">JWT_PAYLOAD_GET_USER_ID_HANDLER</h3>
-<p>If you store <code>user_id</code> differently than the default payload handler does, implement this function to fetch <code>user_id</code> from the payload.</p>
+<p>If you store <code>user_id</code> differently than the default payload handler does, implement this function to fetch <code>user_id</code> from the payload. <strong>Note:</strong> Will be deprecated in favor of <code>JWT_PAYLOAD_GET_USERNAME_HANDLER</code>.</p>
+<h3 id="jwt_payload_get_username_handler">JWT_PAYLOAD_GET_USERNAME_HANDLER</h3>
+<p>If you store <code>username</code> differently than the default payload handler does, implement this function to fetch <code>username</code> from the payload.</p>
 <h3 id="jwt_response_payload_handler">JWT_RESPONSE_PAYLOAD_HANDLER</h3>
 <p>Responsible for controlling the response data returned after login or refresh. Override to return a custom response such as including the serialized representation of the User.</p>
 <p>Defaults to return the JWT token.</p>
 <p>Example:</p>
-<pre><code>def jwt_response_payload_handler(token, user=None):
+<pre><code>def jwt_response_payload_handler(token, user=None, request=None):
     return {
         'token': token,
         'user': UserSerializer(user).data
@@ -268,7 +277,15 @@ public RSA key imported with the same method.</p>
 <p>You can modify the Authorization header value prefix that is required to be sent together with the token. The default value is <code>JWT</code>. This decision was introduced in PR <a href="https://github.com/GetBlimp/django-rest-framework-jwt/pull/4">#4</a> to allow using both this package and OAuth2 in DRF.</p>
 <p>Another common value used for tokens and Authorization headers is <code>Bearer</code>.</p>
 <p>Default is <code>JWT</code>.</p>
-</div>
+<h2 id="extending-jsonwebtokenauthentication">Extending <code>JSONWebTokenAuthentication</code></h2>
+<p>Right now <code>JSONWebTokenAuthentication</code> assumes that the JWT will come in the header. The JWT spec does not require this (see: <a href="https://developer.atlassian.com/static/connect/docs/concepts/authentication.html">Making a service Call</a>). For example, the JWT may come in the querystring. The ability to send the JWT in the querystring is needed in cases where the user cannot set the header (for example the src element in HTML).</p>
+<p>To achieve this functionality, the user might write a custom <code>Authentication</code>:</p>
+<pre><code class="python">class JSONWebTokenAuthenticationQS(BaseJSONWebTokenAuthentication):
+    def get_jwt_value(self, request):
+         return request.QUERY_PARAMS.get('jwt')
+</code></pre>
+
+<p>It is recommended to use <code>BaseJSONWebTokenAuthentication</code>, a new base class with no logic around parsing the HTTP headers.</p></div>
             
         </div>
 
@@ -278,12 +295,42 @@ public RSA key imported with the same method.</p>
             <p>Documentation built with <a href="http://www.mkdocs.org/">MkDocs</a>.</p>
         </footer>
 
-        
-
-        <script src="https://code.jquery.com/jquery-1.10.2.min.js"></script>
+        <script src="./js/jquery-1.10.2.min.js"></script>
         <script src="./js/bootstrap-3.0.3.min.js"></script>
-        <script src="./js/prettify-1.0.min.js"></script>
         <script src="./js/highlight.pack.js"></script>
+        <script>var base_url = '.';</script>
+        <script data-main="./mkdocs/js/search.js" src="./mkdocs/js/require.js"></script>
         <script src="./js/base.js"></script>
+
+        <div class="modal" id="mkdocs_search_modal" tabindex="-1" role="dialog" aria-labelledby="Search Modal" aria-hidden="true">
+            <div class="modal-dialog">
+                <div class="modal-content">
+                    <div class="modal-header">
+                        <button type="button" class="close" data-dismiss="modal"><span aria-hidden="true">&times;</span><span class="sr-only">Close</span></button>
+                        <h4 class="modal-title" id="exampleModalLabel">Search</h4>
+                    </div>
+                    <div class="modal-body">
+                        <p>
+                            From here you can search these documents. Enter
+                            your search terms below.
+                        </p>
+                        <form role="form">
+                            <div class="form-group">
+                                <input type="text" class="form-control" placeholder="Search..." id="mkdocs-search-query">
+                            </div>
+                        </form>
+                        <div id="mkdocs-search-results"></div>
+                    </div>
+                    <div class="modal-footer">
+                    </div>
+                </div>
+            </div>
+        </div>
+
     </body>
 </html>
+
+<!--
+MkDocs version : 0.13.2
+Build Date UTC : 2015-08-17 13:03:35.455033
+-->
