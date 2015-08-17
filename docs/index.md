@@ -209,7 +209,10 @@ Default is `datetime.timedelta(days=7)` (7 days).
 Specify a custom function to generate the token payload
 
 ### JWT_PAYLOAD_GET_USER_ID_HANDLER
-If you store `user_id` differently than the default payload handler does, implement this function to fetch `user_id` from the payload.
+If you store `user_id` differently than the default payload handler does, implement this function to fetch `user_id` from the payload. **Note:** Will be deprecated in favor of `JWT_PAYLOAD_GET_USERNAME_HANDLER`.
+
+### JWT_PAYLOAD_GET_USERNAME_HANDLER
+If you store `username` differently than the default payload handler does, implement this function to fetch `username` from the payload.
 
 ### JWT_RESPONSE_PAYLOAD_HANDLER
 Responsible for controlling the response data returned after login or refresh. Override to return a custom response such as including the serialized representation of the User.
