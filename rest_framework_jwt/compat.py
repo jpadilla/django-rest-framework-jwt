@@ -50,10 +50,9 @@ def get_username(user):
 
 
 def get_request_data(request):
-    try:
+    if hasattr(request, 'data'):
         data = request.data
-    except:
+    else:
         # DRF < 3.2
         data = request.DATA
-
     return data
