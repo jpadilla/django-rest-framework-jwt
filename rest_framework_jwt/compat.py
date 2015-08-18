@@ -9,7 +9,9 @@ if StrictVersion(rest_framework.VERSION) < StrictVersion('3.0.0'):
     class PasswordField(CharField):
         widget = widgets.PasswordInput
 else:
+    # Mid-file import to potentially prevent issues occuring for DRF pre 3.0.0
     import rest_framework.serializers
+
     class Serializer(rest_framework.serializers.Serializer):
         @property
         def object(self):
