@@ -10,7 +10,6 @@ from rest_framework_jwt.compat import get_user_model
 from rest_framework_jwt.settings import api_settings
 
 
-User = get_user_model()
 jwt_decode_handler = api_settings.JWT_DECODE_HANDLER
 jwt_get_username_from_payload = api_settings.JWT_PAYLOAD_GET_USERNAME_HANDLER
 
@@ -48,6 +47,7 @@ class BaseJSONWebTokenAuthentication(BaseAuthentication):
         """
         Returns an active user that matches the payload's user id and email.
         """
+        User = get_user_model()
         username = jwt_get_username_from_payload(payload)
 
         if not username:
