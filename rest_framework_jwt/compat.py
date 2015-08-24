@@ -1,4 +1,5 @@
 import rest_framework
+import rest_framework.serializers
 from django.forms import widgets
 from distutils.version import StrictVersion
 
