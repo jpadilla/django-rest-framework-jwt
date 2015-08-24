@@ -1,21 +1,23 @@
-import rest_framework
-import rest_framework.serializers
-from django.forms import widgets
 from distutils.version import StrictVersion
+
+import rest_framework
+from rest_framework import serializers
+from django.forms import widgets
 
 
 if StrictVersion(rest_framework.VERSION) < StrictVersion('3.0.0'):
-    from rest_framework.serializers import Serializer, CharField
+    class Serializer(serializers.Serializer):
+        pass
 
-    class PasswordField(CharField):
+    class PasswordField(serializers.CharField):
         widget = widgets.PasswordInput
 else:
-    class Serializer(rest_framework.serializers.Serializer):
+    class Serializer(serializers.Serializer):
         @property
         def object(self):
             return self.validated_data
 
-    class PasswordField(rest_framework.serializers.CharField):
+    class PasswordField(serializers.CharField):
         style = {
             'input_type': 'password'
         }
