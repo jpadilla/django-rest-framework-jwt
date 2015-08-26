@@ -3,6 +3,7 @@
 
 import os
 import re
+import shutil
 import sys
 
 from setuptools import setup
@@ -72,6 +73,9 @@ if sys.argv[-1] == 'publish':
         sys.exit()
     os.system('python setup.py sdist bdist_wheel')
     os.system('twine upload dist/*')
+    shutil.rmtree('dist')
+    shutil.rmtree('build')
+    shutil.rmtree('djangorestframework_jwt.egg-info')
     print('You probably want to also tag the version now:')
     print("  git tag -a {0} -m 'version {0}'".format(version))
     print('  git push --tags')
