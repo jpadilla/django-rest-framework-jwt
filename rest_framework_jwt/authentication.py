@@ -8,13 +8,13 @@ from rest_framework.authentication import (
 
 from rest_framework_jwt.compat import get_user_model
 from rest_framework_jwt.settings import api_settings
+from rest_framework_jwt.utils import JWTEncodeDecodeMixin
 
 
-jwt_decode_handler = api_settings.JWT_DECODE_HANDLER
 jwt_get_username_from_payload = api_settings.JWT_PAYLOAD_GET_USERNAME_HANDLER
 
 
-class BaseJSONWebTokenAuthentication(BaseAuthentication):
+class BaseJSONWebTokenAuthentication(JWTEncodeDecodeMixin, BaseAuthentication):
     """
     Token based authentication using the JSON Web Token standard.
     """
@@ -29,7 +29,7 @@ class BaseJSONWebTokenAuthentication(BaseAuthentication):
             return None
 
         try:
-            payload = jwt_decode_handler(jwt_value)
+            payload = self.decode(jwt_value)
         except jwt.ExpiredSignature:
             msg = _('Signature has expired.')
             raise exceptions.AuthenticationFailed(msg)
