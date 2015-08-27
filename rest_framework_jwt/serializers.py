@@ -1,17 +1,13 @@
-import jwt
-
 from calendar import timegm
 from datetime import datetime, timedelta
 
 from django.contrib.auth import authenticate
 from django.utils.translation import ugettext as _
 from rest_framework import serializers
-from .compat import Serializer
-
+from rest_framework_jwt.compat import (get_user_model, get_username_field,
+                                       PasswordField, Serializer)
 from rest_framework_jwt.settings import api_settings
-from rest_framework_jwt.compat import (
-    get_user_model, get_username_field, PasswordField
-)
+import jwt
 
 
 User = get_user_model()
