@@ -32,21 +32,13 @@ class JWTEncodeDecodeMixin(object):
         return self.jwt_algorithms
 
     def get_jwt_audience(self):
-        if self.jwt_audience is None:
-            return api_settings.JWT_AUDIENCE
-        return self.jwt_audience
+        return self.jwt_audience or api_settings.JWT_AUDIENCE
 
     def get_jwt_encode_algorithm(self):
-        if self.jwt_encode_algorithm is None:
-            return api_settings.JWT_ALGORITHM
-
-        return self.jwt_encode_algorithm
+        return self.jwt_encode_algorithm or api_settings.JWT_ALGORITHM
 
     def get_jwt_issuer(self):
-        if self.jwt_issuer is None:
-            return api_settings.JWT_ISSUER
-
-        return self.jwt_issuer
+        return self.jwt_issuer or api_settings.JWT_ISSUER
 
     def get_jwt_leeway(self):
         if self.jwt_leeway is None:
@@ -60,10 +52,7 @@ class JWTEncodeDecodeMixin(object):
         return self.jwt_leeway
 
     def get_jwt_secret_key(self):
-        if self.jwt_secret_key is None:
-            return api_settings.JWT_SECRET_KEY
-
-        return self.jwt_secret_key
+        return self.jwt_secret_key or api_settings.JWT_SECRET_KEY
 
     def get_jwt_verify(self):
         if self.jwt_verify is None:
