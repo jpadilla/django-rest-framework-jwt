@@ -77,6 +77,7 @@ class JSONWebTokenAuthenticationTests(TestCase):
         self.username = 'jpueblo'
         self.email = 'jpueblo@example.com'
         self.user = User.objects.create_user(self.username, self.email)
+        self.encode_decode_mixin = utils.JWTEncodeDecodeMixin()
 
     def test_post_form_passing_jwt_auth(self):
         """
@@ -84,7 +85,7 @@ class JSONWebTokenAuthenticationTests(TestCase):
         passes and does not require CSRF
         """
         payload = utils.jwt_payload_handler(self.user)
-        token = utils.jwt_encode_handler(payload)
+        token = self.encode_decode_mixin.encode(payload)
 
         auth = 'JWT {0}'.format(token)
         response = self.csrf_client.post(
@@ -98,7 +99,7 @@ class JSONWebTokenAuthenticationTests(TestCase):
         passes and does not require CSRF
         """
         payload = utils.jwt_payload_handler(self.user)
-        token = utils.jwt_encode_handler(payload)
+        token = self.encode_decode_mixin.encode(payload)
 
         auth = 'JWT {0}'.format(token)
         response = self.csrf_client.post(
@@ -160,7 +161,7 @@ class JSONWebTokenAuthenticationTests(TestCase):
         """
         payload = utils.jwt_payload_handler(self.user)
         payload['exp'] = 1
-        token = utils.jwt_encode_handler(payload)
+        token = self.encode_decode_mixin.encode(payload)
 
         auth = 'JWT {0}'.format(token)
         response = self.csrf_client.post(
@@ -196,7 +197,7 @@ class JSONWebTokenAuthenticationTests(TestCase):
         has priority on authentication_classes
         """
         payload = utils.jwt_payload_handler(self.user)
-        token = utils.jwt_encode_handler(payload)
+        token = self.encode_decode_mixin.encode(payload)
 
         auth = 'JWT {0}'.format(token)
         response = self.csrf_client.post(
@@ -237,7 +238,7 @@ class JSONWebTokenAuthenticationTests(TestCase):
         Ensure POSTing json over JWT auth with invalid payload fails
         """
         payload = dict(email=None)
-        token = utils.jwt_encode_handler(payload)
+        token = self.encode_decode_mixin.encode(payload)
 
         auth = 'JWT {0}'.format(token)
         response = self.csrf_client.post(
@@ -256,7 +257,7 @@ class JSONWebTokenAuthenticationTests(TestCase):
         api_settings.JWT_AUTH_HEADER_PREFIX = 'Bearer'
 
         payload = utils.jwt_payload_handler(self.user)
-        token = utils.jwt_encode_handler(payload)
+        token = self.encode_decode_mixin.encode(payload)
 
         auth = 'Bearer {0}'.format(token)
         response = self.csrf_client.post(
