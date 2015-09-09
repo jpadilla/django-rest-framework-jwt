@@ -51,7 +51,7 @@ class JSONWebTokenAPIView(APIView):
         kwargs['context'] = self.get_serializer_context()
         return serializer_class(*args, **kwargs)
 
-    def post(self, request):
+    def post(self, request, *args, **kwargs):
         serializer = self.get_serializer(
             data=get_request_data(request)
         )
