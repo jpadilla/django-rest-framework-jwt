@@ -249,6 +249,20 @@ class JSONWebTokenAuthenticationQS(BaseJSONWebTokenAuthentication):
 ```
 It is recommended to use `BaseJSONWebTokenAuthentication`, a new base class with no logic around parsing the HTTP headers.
 
+## Creating a new token manually ##
+
+Sometimes you may want to manually generate a token, for example to return a token to the user immediately after account creation. You can do this as follows:
+
+`from rest_framework_jwt.settings import api_settings`
+
+```python
+jwt_payload_handler = api_settings.JWT_PAYLOAD_HANDLER
+jwt_encode_handler = api_settings.JWT_ENCODE_HANDLER
+
+payload = jwt_payload_handler(user)
+token = jwt_encode_handler(payload)
+```
+
 [jwt-auth-spec]: http://tools.ietf.org/html/draft-ietf-oauth-json-web-token
 [drf]: http://django-rest-framework.org/
 [jwt-video]: https://www.youtube.com/watch?v=825hodQ61bg
