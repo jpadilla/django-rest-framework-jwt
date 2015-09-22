@@ -253,9 +253,9 @@ It is recommended to use `BaseJSONWebTokenAuthentication`, a new base class with
 
 Sometimes you may want to manually generate a token, for example to return a token to the user immediately after account creation. You can do this as follows:
 
-`from rest_framework_jwt.settings import api_settings`
-
 ```python
+from rest_framework_jwt.settings import api_settings
+
 jwt_payload_handler = api_settings.JWT_PAYLOAD_HANDLER
 jwt_encode_handler = api_settings.JWT_ENCODE_HANDLER
 
