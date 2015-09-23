@@ -50,7 +50,7 @@ msgstr "Błędny nagłówek autoryzacji. Dane uwierzytelniające nie mogą zawie
 
 #: serializers.py:66
 msgid "Unable to login with provided credentials."
-msgstr "Nie można zalogować użytkownika na podane dane."
+msgstr "Podałeś nieprawidłową nazwę użytkownika lub hasło."
 
 #: serializers.py:69
 #, python-brace-format
