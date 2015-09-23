@@ -1,0 +1,70 @@
+# SOME DESCRIPTIVE TITLE.
+# Copyright (C) YEAR THE PACKAGE'S COPYRIGHT HOLDER
+# This file is distributed under the same license as the PACKAGE package.
+# FIRST AUTHOR <EMAIL@ADDRESS>, YEAR.
+#
+#, fuzzy
+msgid ""
+msgstr ""
+"Project-Id-Version: PACKAGE VERSION\n"
+"Report-Msgid-Bugs-To: \n"
+"POT-Creation-Date: 2015-09-23 14:31+0200\n"
+"PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
+"Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
+"Language-Team: LANGUAGE <LL@li.org>\n"
+"Language: \n"
+"MIME-Version: 1.0\n"
+"Content-Type: text/plain; charset=UTF-8\n"
+"Content-Transfer-Encoding: 8bit\n"
+"Plural-Forms: nplurals=3; plural=(n==1 ? 0 : n%10>=2 && n%10<=4 && (n%100<10 "
+"|| n%100>=20) ? 1 : 2);\n"
+
+#: authentication.py:34 serializers.py:90
+msgid "Signature has expired."
+msgstr "Sygnatura wygasła."
+
+#: authentication.py:37 serializers.py:93
+msgid "Error decoding signature."
+msgstr "Błąd podczas dekodowania sygnatury."
+
+#: authentication.py:54 serializers.py:102
+msgid "Invalid payload."
+msgstr "Błędny payload."
+
+#: authentication.py:60
+msgid "Invalid signature."
+msgstr "Błędna sygnatura."
+
+#: authentication.py:64 serializers.py:56 serializers.py:113
+msgid "User account is disabled."
+msgstr "Konto użytkownika jest nieaktywne."
+
+#: authentication.py:88
+msgid "Invalid Authorization header. No credentials provided."
+msgstr "Błędny nagłówek autoryzacji. Brak danych uwierzytelniających."
+
+#: authentication.py:91
+msgid ""
+"Invalid Authorization header. Credentials string should not contain spaces."
+msgstr "Błędny nagłówek autoryzacji. Dane uwierzytelniające nie mogą zawierać spacji."
+
+#: serializers.py:66
+msgid "Unable to login with provided credentials."
+msgstr "Nie można zalogować użytkownika na podane dane."
+
+#: serializers.py:69
+#, python-brace-format
+msgid "Must include \"{username_field}\" and \"password\"."
+msgstr "Należy przesłać \"{username_field}\" i \"hasło\"."
+
+#: serializers.py:109
+msgid "User doesn't exist."
+msgstr "Użytkownik nie istnieje."
+
+#: serializers.py:161
+msgid "Refresh has expired."
+msgstr "Czas na odświeżenie tokena minął."
+
+#: serializers.py:164
+msgid "orig_iat field is required."
+msgstr "Pole orig_iat jest wymagane."
