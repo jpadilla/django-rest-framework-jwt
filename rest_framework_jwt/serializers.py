@@ -41,6 +41,9 @@ class JSONWebTokenSerializer(Serializer):
     @property
     def username_field(self):
         return get_username_field()
+        
+    def authenticate(self, credentials):
+        return authenticate(**credentials)
 
     def validate(self, attrs):
         credentials = {
@@ -49,7 +52,7 @@ class JSONWebTokenSerializer(Serializer):
         }
 
         if all(credentials.values()):
-            user = authenticate(**credentials)
+            user = self.authenticate(credentials)
 
             if user:
                 if not user.is_active:
