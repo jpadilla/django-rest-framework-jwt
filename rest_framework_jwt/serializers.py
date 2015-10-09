@@ -41,7 +41,7 @@ class JSONWebTokenSerializer(Serializer):
     @property
     def username_field(self):
         return get_username_field()
-        
+
     def authenticate(self, credentials):
         return authenticate(**credentials)
 
