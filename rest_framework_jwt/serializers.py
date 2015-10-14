@@ -4,6 +4,7 @@ from calendar import timegm
 from datetime import datetime, timedelta
 
 from django.contrib.auth import authenticate
+from django.contrib.auth.signals import user_logged_in
 from django.utils.translation import ugettext as _
 from rest_framework import serializers
 from .compat import Serializer
@@ -57,6 +58,8 @@ class JSONWebTokenSerializer(Serializer):
                     raise serializers.ValidationError(msg)
 
                 payload = jwt_payload_handler(user)
+
+                user_logged_in.send(sender=user.__class__, request=self.context['request'], user=user)
 
                 return {
                     'token': jwt_encode_handler(payload),
