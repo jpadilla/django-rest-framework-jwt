@@ -1,10 +1,10 @@
+import unittest
 from calendar import timegm
 from datetime import datetime, timedelta
 
 from django import get_version
 from django.test import TestCase
 from django.test.utils import override_settings
-from django.utils import unittest
 from django.conf.urls import patterns
 from freezegun import freeze_time
 from rest_framework import status

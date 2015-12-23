@@ -1,6 +1,7 @@
+import unittest
+
 from django.http import HttpResponse
 from django.test import TestCase
-from django.utils import unittest
 from django.conf.urls import patterns
 
 from rest_framework import permissions, status
