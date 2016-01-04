@@ -45,10 +45,10 @@ class BaseTestCase(TestCase):
             'username': self.username,
             'password': self.password
         }
+        self.encode_decode_mixin = utils.JWTEncodeDecodeMixin()
 
 
 class TestCustomResponsePayload(BaseTestCase):
-
     def setUp(self):
         api_settings.JWT_RESPONSE_PAYLOAD_HANDLER = test_utils\
             .jwt_response_payload_handler
@@ -62,7 +62,8 @@ class TestCustomResponsePayload(BaseTestCase):
 
         response = client.post('/auth-token/', self.data, format='json')
 
-        decoded_payload = utils.jwt_decode_handler(response.data['token'])
+        decoded_payload = self.encode_decode_mixin.decode(
+            response.data['token'])
 
         self.assertEqual(response.status_code, status.HTTP_200_OK)
         self.assertEqual(decoded_payload['username'], self.username)
@@ -83,7 +84,8 @@ class ObtainJSONWebTokenTests(BaseTestCase):
 
         response = client.post('/auth-token/', self.data, format='json')
 
-        decoded_payload = utils.jwt_decode_handler(response.data['token'])
+        decoded_payload = self.encode_decode_mixin.decode(
+            response.data['token'])
 
         self.assertEqual(response.status_code, status.HTTP_200_OK)
         self.assertEqual(decoded_payload['username'], self.username)
@@ -118,8 +120,8 @@ class ObtainJSONWebTokenTests(BaseTestCase):
         client = APIClient(enforce_csrf_checks=True)
 
         response = client.post('/auth-token/', self.data)
-
-        decoded_payload = utils.jwt_decode_handler(response.data['token'])
+        decoded_payload = self.encode_decode_mixin.decode(
+            response.data['token'])
 
         self.assertEqual(response.status_code, status.HTTP_200_OK)
         self.assertEqual(decoded_payload['username'], self.username)
@@ -130,7 +132,7 @@ class ObtainJSONWebTokenTests(BaseTestCase):
         """
         payload = utils.jwt_payload_handler(self.user)
         payload['exp'] = 1
-        token = utils.jwt_encode_handler(payload)
+        token = self.encode_decode_mixin.encode(payload)
 
         auth = 'JWT {0}'.format(token)
         client = APIClient(enforce_csrf_checks=True)
@@ -138,7 +140,8 @@ class ObtainJSONWebTokenTests(BaseTestCase):
             '/auth-token/', self.data,
             HTTP_AUTHORIZATION=auth, format='json')
 
-        decoded_payload = utils.jwt_decode_handler(response.data['token'])
+        decoded_payload = self.encode_decode_mixin.decode(
+            response.data['token'])
 
         self.assertEqual(response.status_code, status.HTTP_200_OK)
         self.assertEqual(decoded_payload['username'], self.username)
@@ -179,6 +182,7 @@ class CustomUserObtainJSONWebTokenTests(TestCase):
             'email': self.email,
             'password': self.password
         }
+        self.encode_decode_mixin = utils.JWTEncodeDecodeMixin()
 
     def test_jwt_login_json(self):
         """
@@ -189,7 +193,8 @@ class CustomUserObtainJSONWebTokenTests(TestCase):
         response = client.post('/auth-token/', self.data, format='json')
 
         self.assertEqual(response.status_code, status.HTTP_200_OK)
-        decoded_payload = utils.jwt_decode_handler(response.data['token'])
+        decoded_payload = self.encode_decode_mixin.decode(
+            response.data['token'])
         self.assertEqual(decoded_payload['email'], self.email)
 
     def test_jwt_login_json_bad_creds(self):
@@ -209,7 +214,6 @@ class TokenTestCase(BaseTestCase):
     """
     Handlers for getting tokens from the API, or creating arbitrary ones.
     """
-
     def get_token(self):
         client = APIClient(enforce_csrf_checks=True)
         response = client.post('/auth-token/', self.data, format='json')
@@ -223,7 +227,7 @@ class TokenTestCase(BaseTestCase):
         if orig_iat:
             payload['orig_iat'] = timegm(orig_iat.utctimetuple())
 
-        token = utils.jwt_encode_handler(payload)
+        token = self.encode_decode_mixin.encode(payload)
         return token
 
 
@@ -241,10 +245,10 @@ class VerifyJSONWebTokenTests(TokenTestCase):
 
             with freeze_time('2015-01-01 00:00:10'):
                 # Now try to get a refreshed token
-                response = client.post('/auth-token-verify/', {'token': orig_token},
-                                       format='json')
+                response = client.post(
+                    '/auth-token-verify/', {'token': orig_token},
+                    format='json')
         self.assertEqual(response.status_code, status.HTTP_200_OK)
-
         self.assertEqual(response.data['token'], orig_token)
 
     def test_verify_jwt_fails_with_expired_token(self):
@@ -314,23 +318,25 @@ class RefreshJSONWebTokenTests(TokenTestCase):
 
         with freeze_time('2015-01-01 00:00:01'):
             orig_token = self.get_token()
-            orig_token_decoded = utils.jwt_decode_handler(orig_token)
+            orig_token_decoded = self.encode_decode_mixin.decode(orig_token)
 
             expected_orig_iat = timegm(datetime.utcnow().utctimetuple())
 
-            # Make sure 'orig_iat' exists and is the current time (give some slack)
+            # Make sure 'orig_iat' exists and is the current
+            # time (give some slack)
             orig_iat = orig_token_decoded['orig_iat']
             self.assertLessEqual(orig_iat - expected_orig_iat, 1)
 
             with freeze_time('2015-01-01 00:00:03'):
 
                 # Now try to get a refreshed token
-                response = client.post('/auth-token-refresh/', {'token': orig_token},
-                                       format='json')
+                response = client.post(
+                    '/auth-token-refresh/', {'token': orig_token},
+                    format='json')
             self.assertEqual(response.status_code, status.HTTP_200_OK)
 
             new_token = response.data['token']
-            new_token_decoded = utils.jwt_decode_handler(new_token)
+            new_token_decoded = self.encode_decode_mixin.decode(new_token)
 
         # Make sure 'orig_iat' on the new token is same as original
         self.assertEquals(new_token_decoded['orig_iat'], orig_iat)
@@ -342,8 +348,12 @@ class RefreshJSONWebTokenTests(TokenTestCase):
         """
         client = APIClient(enforce_csrf_checks=True)
 
-        orig_iat = (datetime.utcnow() - api_settings.JWT_REFRESH_EXPIRATION_DELTA -
-                    timedelta(seconds=5))
+        orig_iat = (
+            datetime.utcnow() -
+            api_settings.JWT_REFRESH_EXPIRATION_DELTA -
+            timedelta(seconds=5)
+        )
+
         token = self.create_token(
             self.user,
             exp=datetime.utcnow() + timedelta(hours=1),

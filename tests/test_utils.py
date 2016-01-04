@@ -1,5 +1,5 @@
-import json
 import base64
+import json
 import pytest
 
 import jwt.exceptions
@@ -26,6 +26,7 @@ class UtilsTests(TestCase):
         self.username = 'jpueblo'
         self.email = 'jpueblo@example.com'
         self.user = User.objects.create_user(self.username, self.email)
+        self.encode_decode_mixin = utils.JWTEncodeDecodeMixin()
 
     def test_jwt_payload_handler(self):
         payload = utils.jwt_payload_handler(self.user)
@@ -40,7 +41,7 @@ class UtilsTests(TestCase):
 
     def test_jwt_encode(self):
         payload = utils.jwt_payload_handler(self.user)
-        token = utils.jwt_encode_handler(payload)
+        token = self.encode_decode_mixin.encode(payload)
 
         payload_data = base64url_decode(token.split('.')[1].encode('utf-8'))
         payload_from_token = json.loads(payload_data.decode('utf-8'))
@@ -49,14 +50,14 @@ class UtilsTests(TestCase):
 
     def test_jwt_decode(self):
         payload = utils.jwt_payload_handler(self.user)
-        token = utils.jwt_encode_handler(payload)
-        decoded_payload = utils.jwt_decode_handler(token)
+        token = self.encode_decode_mixin.encode(payload)
+        decoded_payload = self.encode_decode_mixin.decode(token)
 
         self.assertEqual(decoded_payload, payload)
 
     def test_jwt_response_payload(self):
         payload = utils.jwt_payload_handler(self.user)
-        token = utils.jwt_encode_handler(payload)
+        token = self.encode_decode_mixin.encode(payload)
         response_data = utils.jwt_response_payload_handler(token)
 
         self.assertEqual(response_data, dict(token=token))
@@ -66,8 +67,8 @@ class UtilsTests(TestCase):
 
         payload = utils.jwt_payload_handler(self.user)
         payload['exp'] = 1
-        token = utils.jwt_encode_handler(payload)
-        utils.jwt_decode_handler(token)
+        token = self.encode_decode_mixin.encode(payload)
+        self.encode_decode_mixin.decode(token)
 
         api_settings.JWT_VERIFY_EXPIRATION = True
 
@@ -79,27 +80,29 @@ class TestAudience(TestCase):
         self.username = 'jpueblo'
         self.email = 'jpueblo@example.com'
         self.user = User.objects.create_user(self.username, self.email)
+        self.encode_decode_mixin = utils.JWTEncodeDecodeMixin()
 
         return super(TestAudience, self).setUp()
 
     def test_fail_audience_missing(self):
         payload = utils.jwt_payload_handler(self.user)
-        token = utils.jwt_encode_handler(payload)
+        token = self.encode_decode_mixin.encode(payload)
         with self.assertRaises(jwt.exceptions.MissingRequiredClaimError):
-            utils.jwt_decode_handler(token)
+            self.encode_decode_mixin.decode(token)
 
     def test_fail_audience_wrong(self):
         payload = utils.jwt_payload_handler(self.user)
         payload['aud'] = "my_aud2"
-        token = utils.jwt_encode_handler(payload)
+        token = self.encode_decode_mixin.encode(payload)
         with self.assertRaises(jwt.exceptions.InvalidAudienceError):
-            utils.jwt_decode_handler(token)
+            self.encode_decode_mixin.decode(token)
 
     def test_correct_audience(self):
         payload = utils.jwt_payload_handler(self.user)
         payload['aud'] = "my_aud"
-        token = utils.jwt_encode_handler(payload)
-        decoded_payload = utils.jwt_decode_handler(token)
+        token = self.encode_decode_mixin.encode(payload)
+        decoded_payload = self.encode_decode_mixin.decode(token)
+
         self.assertEqual(decoded_payload, payload)
 
     def tearDown(self):
@@ -113,27 +116,28 @@ class TestIssuer(TestCase):
         self.username = 'jpueblo'
         self.email = 'jpueblo@example.com'
         self.user = User.objects.create_user(self.username, self.email)
+        self.encode_decode_mixin = utils.JWTEncodeDecodeMixin()
 
         return super(TestIssuer, self).setUp()
 
     def test_fail_issuer_missing(self):
         payload = utils.jwt_payload_handler(self.user)
-        token = utils.jwt_encode_handler(payload)
+        token = self.encode_decode_mixin.encode(payload)
         with self.assertRaises(jwt.exceptions.MissingRequiredClaimError):
-            utils.jwt_decode_handler(token)
+            self.encode_decode_mixin.decode(token)
 
     def test_fail_issuer_wrong(self):
         payload = utils.jwt_payload_handler(self.user)
         payload['iss'] = "example2.com"
-        token = utils.jwt_encode_handler(payload)
+        token = self.encode_decode_mixin.encode(payload)
         with self.assertRaises(jwt.exceptions.InvalidIssuerError):
-            utils.jwt_decode_handler(token)
+            self.encode_decode_mixin.decode(token)
 
     def test_correct_issuer(self):
         payload = utils.jwt_payload_handler(self.user)
         payload['iss'] = "example.com"
-        token = utils.jwt_encode_handler(payload)
-        decoded_payload = utils.jwt_decode_handler(token)
+        token = self.encode_decode_mixin.encode(payload)
+        decoded_payload = self.encode_decode_mixin.decode(token)
         self.assertEqual(decoded_payload, payload)
 
     def tearDown(self):

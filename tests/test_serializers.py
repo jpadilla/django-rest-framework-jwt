@@ -26,6 +26,7 @@ class JSONWebTokenSerializerTests(TestCase):
             'username': self.username,
             'password': self.password
         }
+        self.encode_decode_mixin = utils.JWTEncodeDecodeMixin()
 
     @unittest.skipUnless(drf2, 'not supported in this version')
     def test_empty_drf2(self):
@@ -51,7 +52,7 @@ class JSONWebTokenSerializerTests(TestCase):
         is_valid = serializer.is_valid()
 
         token = serializer.object['token']
-        decoded_payload = utils.jwt_decode_handler(token)
+        decoded_payload = self.encode_decode_mixin.decode(token)
 
         self.assertTrue(is_valid)
         self.assertEqual(decoded_payload['username'], self.username)

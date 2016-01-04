@@ -1,27 +1,22 @@
-import jwt
-
 from calendar import timegm
 from datetime import datetime, timedelta
 
 from django.contrib.auth import authenticate
 from django.utils.translation import ugettext as _
 from rest_framework import serializers
-from .compat import Serializer
-
+from rest_framework_jwt.compat import (get_user_model, get_username_field,
+                                       PasswordField, Serializer)
 from rest_framework_jwt.settings import api_settings
-from rest_framework_jwt.compat import (
-    get_user_model, get_username_field, PasswordField
-)
+from rest_framework_jwt.utils import JWTEncodeDecodeMixin
+import jwt
 
 
 User = get_user_model()
 jwt_payload_handler = api_settings.JWT_PAYLOAD_HANDLER
-jwt_encode_handler = api_settings.JWT_ENCODE_HANDLER
-jwt_decode_handler = api_settings.JWT_DECODE_HANDLER
 jwt_get_username_from_payload = api_settings.JWT_PAYLOAD_GET_USERNAME_HANDLER
 
 
-class JSONWebTokenSerializer(Serializer):
+class JSONWebTokenSerializer(JWTEncodeDecodeMixin, Serializer):
     """
     Serializer class used to validate a username and password.
 
@@ -59,7 +54,7 @@ class JSONWebTokenSerializer(Serializer):
                 payload = jwt_payload_handler(user)
 
                 return {
-                    'token': jwt_encode_handler(payload),
+                    'token': self.encode(payload),
                     'user': user
                 }
             else:
@@ -71,7 +66,7 @@ class JSONWebTokenSerializer(Serializer):
             raise serializers.ValidationError(msg)
 
 
-class VerificationBaseSerializer(Serializer):
+class VerificationBaseSerializer(JWTEncodeDecodeMixin, Serializer):
     """
     Abstract serializer used for verifying and refreshing JWTs.
     """
@@ -85,7 +80,7 @@ class VerificationBaseSerializer(Serializer):
         # Check payload valid (based off of JSONWebTokenAuthentication,
         # may want to refactor)
         try:
-            payload = jwt_decode_handler(token)
+            payload = self.decode(token)
         except jwt.ExpiredSignature:
             msg = _('Signature has expired.')
             raise serializers.ValidationError(msg)
@@ -120,7 +115,6 @@ class VerifyJSONWebTokenSerializer(VerificationBaseSerializer):
     """
     Check the veracity of an access token.
     """
-
     def validate(self, attrs):
         token = attrs['token']
 
@@ -137,7 +131,6 @@ class RefreshJSONWebTokenSerializer(VerificationBaseSerializer):
     """
     Refresh an access token.
     """
-
     def validate(self, attrs):
         token = attrs['token']
 
@@ -168,6 +161,6 @@ class RefreshJSONWebTokenSerializer(VerificationBaseSerializer):
         new_payload['orig_iat'] = orig_iat
 
         return {
-            'token': jwt_encode_handler(new_payload),
+            'token': self.encode(new_payload),
             'user': user
         }
