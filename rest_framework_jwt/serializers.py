@@ -19,6 +19,7 @@ jwt_payload_handler = api_settings.JWT_PAYLOAD_HANDLER
 jwt_encode_handler = api_settings.JWT_ENCODE_HANDLER
 jwt_decode_handler = api_settings.JWT_DECODE_HANDLER
 jwt_get_username_from_payload = api_settings.JWT_PAYLOAD_GET_USERNAME_HANDLER
+jwt_verify_host = api_settings.JWT_VERIFY_HOST
 
 
 class JSONWebTokenSerializer(Serializer):
@@ -37,6 +38,7 @@ class JSONWebTokenSerializer(Serializer):
 
         self.fields[self.username_field] = serializers.CharField()
         self.fields['password'] = PasswordField(write_only=True)
+        self.request = kwargs['request']
 
     @property
     def username_field(self):
@@ -56,7 +58,7 @@ class JSONWebTokenSerializer(Serializer):
                     msg = _('User account is disabled.')
                     raise serializers.ValidationError(msg)
 
-                payload = jwt_payload_handler(user)
+                payload = jwt_payload_handler(user, self.request)
 
                 return {
                     'token': jwt_encode_handler(payload),
@@ -76,6 +78,13 @@ class VerificationBaseSerializer(Serializer):
     Abstract serializer used for verifying and refreshing JWTs.
     """
     token = serializers.CharField()
+
+    def __init__(self, *args, **kwargs):
+        """
+        Set self.request
+        """
+        super(VerificationBaseSerializer, self).__init__(*args, **kwargs)
+        self.request = kwargs['request']
 
     def validate(self, attrs):
         msg = 'Please define a validate method.'
@@ -115,6 +124,15 @@ class VerificationBaseSerializer(Serializer):
 
         return user
 
+    def _check_host(self, payload):
+        if not jwt_verify_host:
+            return
+
+        host = payload['host']
+        if host != self.request.get_host():
+            msg = _('Invalid Host')
+            raise serializers.ValidationError(msg)
+
 
 class VerifyJSONWebTokenSerializer(VerificationBaseSerializer):
     """
@@ -126,6 +144,7 @@ class VerifyJSONWebTokenSerializer(VerificationBaseSerializer):
 
         payload = self._check_payload(token=token)
         user = self._check_user(payload=payload)
+        self._check_host(payload=payload)
 
         return {
             'token': token,
@@ -143,6 +162,7 @@ class RefreshJSONWebTokenSerializer(VerificationBaseSerializer):
 
         payload = self._check_payload(token=token)
         user = self._check_user(payload=payload)
+        self._check_host(payload=payload)
         # Get and check 'orig_iat'
         orig_iat = payload.get('orig_iat')
 
