@@ -38,7 +38,7 @@ class JSONWebTokenSerializer(Serializer):
 
         self.fields[self.username_field] = serializers.CharField()
         self.fields['password'] = PasswordField(write_only=True)
-        self.request = kwargs['request']
+        self.request = kwargs['context']['request']
 
     @property
     def username_field(self):
@@ -84,7 +84,7 @@ class VerificationBaseSerializer(Serializer):
         Set self.request
         """
         super(VerificationBaseSerializer, self).__init__(*args, **kwargs)
-        self.request = kwargs['request']
+        self.request = kwargs['context']['request']
 
     def validate(self, attrs):
         msg = 'Please define a validate method.'
