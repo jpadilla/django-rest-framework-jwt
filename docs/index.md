@@ -59,11 +59,14 @@ REST_FRAMEWORK = {
 In your `urls.py` add the following URL route to enable obtaining a token via a POST included the user's username and password.
 
 ```python
+from rest_framework_jwt.views import obtain_jwt_token
+#...
+
 urlpatterns = patterns(
     '',
     # ...
 
-    url(r'^api-token-auth/', 'rest_framework_jwt.views.obtain_jwt_token'),
+    url(r'^api-token-auth/', obtain_jwt_token),
 )
 ```
 
