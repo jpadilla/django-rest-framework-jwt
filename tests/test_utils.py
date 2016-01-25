@@ -74,7 +74,7 @@ class UtilsTests(TestCase):
 
 class TestAudience(TestCase):
     def setUp(self):
-        api_settings.JWT_AUDIENCE = "my_aud"
+        api_settings.JWT_AUDIENCE = 'my_aud'
 
         self.username = 'jpueblo'
         self.email = 'jpueblo@example.com'
@@ -84,20 +84,20 @@ class TestAudience(TestCase):
 
     def test_fail_audience_missing(self):
         payload = utils.jwt_payload_handler(self.user)
+        del payload['aud']
         token = utils.jwt_encode_handler(payload)
         with self.assertRaises(jwt.exceptions.MissingRequiredClaimError):
             utils.jwt_decode_handler(token)
 
     def test_fail_audience_wrong(self):
         payload = utils.jwt_payload_handler(self.user)
-        payload['aud'] = "my_aud2"
+        payload['aud'] = 'my_aud2'
         token = utils.jwt_encode_handler(payload)
         with self.assertRaises(jwt.exceptions.InvalidAudienceError):
             utils.jwt_decode_handler(token)
 
     def test_correct_audience(self):
         payload = utils.jwt_payload_handler(self.user)
-        payload['aud'] = "my_aud"
         token = utils.jwt_encode_handler(payload)
         decoded_payload = utils.jwt_decode_handler(token)
         self.assertEqual(decoded_payload, payload)
@@ -108,7 +108,7 @@ class TestAudience(TestCase):
 
 class TestIssuer(TestCase):
     def setUp(self):
-        api_settings.JWT_ISSUER = "example.com"
+        api_settings.JWT_ISSUER = 'example.com'
 
         self.username = 'jpueblo'
         self.email = 'jpueblo@example.com'
@@ -118,20 +118,20 @@ class TestIssuer(TestCase):
 
     def test_fail_issuer_missing(self):
         payload = utils.jwt_payload_handler(self.user)
+        del payload['iss']
         token = utils.jwt_encode_handler(payload)
         with self.assertRaises(jwt.exceptions.MissingRequiredClaimError):
             utils.jwt_decode_handler(token)
 
     def test_fail_issuer_wrong(self):
         payload = utils.jwt_payload_handler(self.user)
-        payload['iss'] = "example2.com"
+        payload['iss'] = 'example2.com'
         token = utils.jwt_encode_handler(payload)
         with self.assertRaises(jwt.exceptions.InvalidIssuerError):
             utils.jwt_decode_handler(token)
 
     def test_correct_issuer(self):
         payload = utils.jwt_payload_handler(self.user)
-        payload['iss'] = "example.com"
         token = utils.jwt_encode_handler(payload)
         decoded_payload = utils.jwt_decode_handler(token)
         self.assertEqual(decoded_payload, payload)

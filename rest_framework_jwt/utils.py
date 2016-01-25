@@ -33,6 +33,12 @@ def jwt_payload_handler(user):
             datetime.utcnow().utctimetuple()
         )
 
+    if api_settings.JWT_AUDIENCE is not None:
+        payload['aud'] = api_settings.JWT_AUDIENCE
+
+    if api_settings.JWT_ISSUER is not None:
+        payload['iss'] = api_settings.JWT_ISSUER
+
     return payload
 
 
