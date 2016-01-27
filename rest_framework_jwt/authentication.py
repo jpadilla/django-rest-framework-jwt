@@ -79,6 +79,23 @@ class JSONWebTokenAuthentication(BaseJSONWebTokenAuthentication):
     www_authenticate_realm = 'api'
 
     def get_jwt_value(self, request):
+        auth_query_string_prefix = api_settings.JWT_AUTH_QUERY_STRING_PREFIX.lower()
+
+        if auth_query_string_prefix in request.query_params:
+            return self.get_jwt_value_from_query_string(request)
+        else:
+            return self.get_jwt_value_from_header(request)
+
+    def get_jwt_value_from_query_string(self, request):
+        auth_query_string = request.query_params.get(api_settings.JWT_AUTH_QUERY_STRING_PREFIX.lower())
+
+        if len(auth_query_string) <= 0 :
+            msg = _('Invalid Query String. No value provided.')
+            raise exceptions.AuthenticationFailed(msg)
+
+        return auth_query_string
+
+    def get_jwt_value_from_header(self, request):
         auth = get_authorization_header(request).split()
         auth_header_prefix = api_settings.JWT_AUTH_HEADER_PREFIX.lower()
 
