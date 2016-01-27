@@ -1,6 +1,5 @@
 import jwt
 
-from django.contrib.auth.signals import user_logged_in
 from django.utils.encoding import smart_text
 from django.utils.translation import ugettext as _
 from rest_framework import exceptions
@@ -42,7 +41,6 @@ class BaseJSONWebTokenAuthentication(BaseAuthentication):
             raise exceptions.AuthenticationFailed()
 
         user = self.authenticate_credentials(payload)
-        user_logged_in.send(sender=user.__class__, request=request, user=user)
 
         return (user, jwt_value)
 
