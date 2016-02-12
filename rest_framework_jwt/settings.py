@@ -6,7 +6,7 @@ from rest_framework.settings import APISettings
 # emailusernames does some monkeypatching, such that get_user_model().USERNAME_FIELD 
 # won't be updated to auth.User.email
 try:
-    import emailusernames # noqa Avoid unused import error from pyflake
+    import emailusernames  # noqa Avoid unused import error from pyflake
 except ImportError:
     IS_EMAILUSERNAMES_INSTALLED = False
 else:
