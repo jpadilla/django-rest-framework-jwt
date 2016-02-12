@@ -8,7 +8,7 @@ from django.utils.translation import ugettext as _
 from rest_framework import serializers
 from .compat import Serializer
 
-from rest_framework_jwt.settings import api_settings
+from rest_framework_jwt.settings import api_settings, IS_EMAILUSERNAMES_INSTALLED
 from rest_framework_jwt.compat import (
     get_user_model, get_username_field, PasswordField
 )
@@ -103,11 +103,18 @@ class VerificationBaseSerializer(Serializer):
             raise serializers.ValidationError(msg)
 
         # Make sure user exists
-        try:
-            user = User.objects.get_by_natural_key(username)
-        except User.DoesNotExist:
-            msg = _("User doesn't exist.")
-            raise serializers.ValidationError(msg)
+        if IS_EMAILUSERNAMES_INSTALLED:
+            try:
+                user = User.objects.get(email=username)
+            except User.DoesNotExist:
+                msg = _("User doesn't exist.")
+                raise serializers.ValidationError(msg)
+        else:
+            try:
+                user = User.objects.get_by_natural_key(username)
+            except User.DoesNotExist:
+                msg = _("User doesn't exist.")
+                raise serializers.ValidationError(msg)
 
         if not user.is_active:
             msg = _('User account is disabled.')

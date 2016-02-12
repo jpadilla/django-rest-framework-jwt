@@ -3,6 +3,15 @@ import datetime
 from django.conf import settings
 from rest_framework.settings import APISettings
 
+# emailusernames does some monkeypatching, such that get_user_model().USERNAME_FIELD 
+# won't be updated to auth.User.email
+try:
+    import emailusernames
+except ImportError:
+    IS_EMAILUSERNAMES_INSTALLED = False
+else:
+    IS_EMAILUSERNAMES_INSTALLED = True
+
 
 USER_SETTINGS = getattr(settings, 'JWT_AUTH', None)
 
