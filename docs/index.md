@@ -31,6 +31,8 @@ If you want to know more about JWT, check out the following resources:
 - Django (1.6, 1.7)
 - Django REST Framework (2.4, 3.0, 3.1, 3.2)
 
+Supports django-email-as-username package.
+
 ## Installation
 
 Install using `pip`...
