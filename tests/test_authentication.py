@@ -114,6 +114,7 @@ class JSONWebTokenAuthenticationTests(TestCase):
         """
         response = self.csrf_client.post('/jwt/', {'example': 'example'})
         self.assertEqual(response.status_code, status.HTTP_401_UNAUTHORIZED)
+        self.assertEqual(response['WWW-Authenticate'], 'JWT realm="api"')
 
     def test_post_json_failing_jwt_auth(self):
         """
@@ -265,6 +266,21 @@ class JSONWebTokenAuthenticationTests(TestCase):
             HTTP_AUTHORIZATION=auth, format='json')
 
         self.assertEqual(response.status_code, status.HTTP_200_OK)
+
+        # Restore original settings
+        api_settings.JWT_AUTH_HEADER_PREFIX = DEFAULTS['JWT_AUTH_HEADER_PREFIX']
+
+    def test_post_form_failing_jwt_auth_different_auth_header_prefix(self):
+        """
+        Ensure using a different setting for `JWT_AUTH_HEADER_PREFIX` and
+        POSTing form over JWT auth without correct credentials fails and
+        generated correct WWW-Authenticate header
+        """
+        api_settings.JWT_AUTH_HEADER_PREFIX = 'Bearer'
+
+        response = self.csrf_client.post('/jwt/', {'example': 'example'})
+        self.assertEqual(response.status_code, status.HTTP_401_UNAUTHORIZED)
+        self.assertEqual(response['WWW-Authenticate'], 'Bearer realm="api"')
 
         # Restore original settings
         api_settings.JWT_AUTH_HEADER_PREFIX = DEFAULTS['JWT_AUTH_HEADER_PREFIX']
