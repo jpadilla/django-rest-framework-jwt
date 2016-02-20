@@ -8,7 +8,7 @@ from rest_framework.authentication import (
 )
 
 from rest_framework_jwt.compat import get_user_model
-from rest_framework_jwt.settings import api_settings
+from rest_framework_jwt.settings import api_settings, IS_EMAILUSERNAMES_INSTALLED
 
 
 jwt_decode_handler = api_settings.JWT_DECODE_HANDLER
@@ -55,11 +55,18 @@ class BaseJSONWebTokenAuthentication(BaseAuthentication):
             msg = _('Invalid payload.')
             raise exceptions.AuthenticationFailed(msg)
 
-        try:
-            user = User.objects.get_by_natural_key(username)
-        except User.DoesNotExist:
-            msg = _('Invalid signature.')
-            raise exceptions.AuthenticationFailed(msg)
+        if IS_EMAILUSERNAMES_INSTALLED:
+            try:
+                user = User.objects.get(email=username)
+            except User.DoesNotExist:
+                msg = _('Invalid signature.')
+                raise exceptions.AuthenticationFailed(msg)
+        else:
+            try:
+                user = User.objects.get_by_natural_key(username)
+            except User.DoesNotExist:
+                msg = _('Invalid signature.')
+                raise exceptions.AuthenticationFailed(msg)
 
         if not user.is_active:
             msg = _('User account is disabled.')

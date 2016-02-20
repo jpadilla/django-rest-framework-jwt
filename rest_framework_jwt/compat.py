@@ -2,6 +2,7 @@ from distutils.version import StrictVersion
 
 import rest_framework
 from rest_framework import serializers
+from rest_framework_jwt.settings import IS_EMAILUSERNAMES_INSTALLED
 from django.forms import widgets
 
 
@@ -39,12 +40,15 @@ def get_user_model():
 
 
 def get_username_field():
-    try:
-        username_field = get_user_model().USERNAME_FIELD
-    except:
-        username_field = 'username'
+    if IS_EMAILUSERNAMES_INSTALLED:
+        return 'email'
+    else:
+        try:
+            username_field = get_user_model().USERNAME_FIELD
+        except:
+            username_field = 'username'
 
-    return username_field
+        return username_field
 
 
 def get_username(user):
