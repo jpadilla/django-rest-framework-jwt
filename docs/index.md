@@ -31,6 +31,16 @@ If you want to know more about JWT, check out the following resources:
 - Django (1.6, 1.7)
 - Django REST Framework (2.4, 3.0, 3.1, 3.2)
 
+## Security
+
+Unlike some more typical uses of JWTs, this module only generates
+authentication tokens that will verify the user who is requesting one of your DRF
+protected API resources. The actual
+request parameters themselves are *not* included in the JWT claims which means
+they are not signed and may be tampered with. You should only expose your API
+endpoints over SSL/TLS to protect against content tampering and certain kinds of
+replay attacks.
+
 ## Installation
 
 Install using `pip`...
@@ -175,7 +185,8 @@ Default is `True`.
 
 ### JWT_VERIFY_EXPIRATION
 
-You can turn off expiration time verification with by setting `JWT_VERIFY_EXPIRATION` to `False`.
+You can turn off expiration time verification by setting `JWT_VERIFY_EXPIRATION` to `False`.
+Without expiration verification, JWTs will last forever meaning a leaked token could be used by an attacker indefinitely.
 
 Default is `True`.
 
