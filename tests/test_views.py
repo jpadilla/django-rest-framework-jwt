@@ -299,7 +299,8 @@ class VerifyJSONWebTokenTestsSymmetric(TokenTestCase):
         response = client.post('/auth-token-verify/', {'token': token},
                                format='json')
         self.assertEqual(response.status_code, status.HTTP_400_BAD_REQUEST)
-        self.assertRegexpMatches(response.data['non_field_errors'][0],
+        self.assertRegexpMatches(response.data['detail']['non_field_errors'][0] if 'detail' in response.data else
+                                 response.data['non_field_errors'][0],
                                  'Signature has expired')
 
     def test_verify_jwt_fails_with_bad_token(self):
@@ -313,7 +314,8 @@ class VerifyJSONWebTokenTestsSymmetric(TokenTestCase):
         response = client.post('/auth-token-verify/', {'token': token},
                                format='json')
         self.assertEqual(response.status_code, status.HTTP_400_BAD_REQUEST)
-        self.assertRegexpMatches(response.data['non_field_errors'][0],
+        self.assertRegexpMatches(response.data['detail']['non_field_errors'][0] if 'detail' in response.data else
+                                 response.data['non_field_errors'][0],
                                  'Error decoding signature')
 
     def test_verify_jwt_fails_with_missing_user(self):
@@ -332,7 +334,8 @@ class VerifyJSONWebTokenTestsSymmetric(TokenTestCase):
         response = client.post('/auth-token-verify/', {'token': token},
                                format='json')
         self.assertEqual(response.status_code, status.HTTP_400_BAD_REQUEST)
-        self.assertRegexpMatches(response.data['non_field_errors'][0],
+        self.assertRegexpMatches(response.data['detail']['non_field_errors'][0] if 'detail' in response.data else
+                                 response.data['non_field_errors'][0],
                                  "User doesn't exist")
 
 
@@ -486,7 +489,8 @@ class RefreshJSONWebTokenTests(TokenTestCase):
         response = client.post('/auth-token-refresh/', {'token': token},
                                format='json')
         self.assertEqual(response.status_code, status.HTTP_400_BAD_REQUEST)
-        self.assertEqual(response.data['non_field_errors'][0],
+        self.assertEqual(response.data['detail']['non_field_errors'][0] if 'detail' in response.data else
+                         response.data['non_field_errors'][0],
                          'Refresh has expired.')
 
     def tearDown(self):

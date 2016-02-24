@@ -1,5 +1,4 @@
 from rest_framework.views import APIView
-from rest_framework import status
 from rest_framework.response import Response
 from datetime import datetime
 
@@ -54,12 +53,12 @@ class JSONWebTokenAPIView(APIView):
     def post(self, request, *args, **kwargs):
         serializer = self.get_serializer(data=request.data)
 
-        serializer.is_valid(raise_exception=True)
-        user = serializer.object.get('user') or request.user
-        token = serializer.object.get('token')
-        response_data = jwt_response_payload_handler(token, user, request)
+        if serializer.is_valid(raise_exception=True):
+            user = serializer.object.get('user') or request.user
+            token = serializer.object.get('token')
+            response_data = jwt_response_payload_handler(token, user, request)
 
-        return Response(response_data)
+            return Response(response_data)
 
 
 class ObtainJSONWebToken(JSONWebTokenAPIView):
