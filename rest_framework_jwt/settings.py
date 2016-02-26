@@ -22,6 +22,9 @@ DEFAULTS = {
     'JWT_PAYLOAD_GET_USERNAME_HANDLER':
     'rest_framework_jwt.utils.jwt_get_username_from_payload_handler',
 
+    'JWT_PAYLOAD_GET_USER_IDENTIFIER_HANDLER':
+    'rest_framework_jwt.utils.jwt_get_user_identifier_from_payload_handler',
+
     'JWT_RESPONSE_PAYLOAD_HANDLER':
     'rest_framework_jwt.utils.jwt_response_payload_handler',
 
@@ -38,6 +41,12 @@ DEFAULTS = {
     'JWT_REFRESH_EXPIRATION_DELTA': datetime.timedelta(days=7),
 
     'JWT_AUTH_HEADER_PREFIX': 'JWT',
+
+    'JWT_USERNAME_FIELD': None,
+
+    'JWT_USER_IDENTIFIER_APP': None,
+    'JWT_USER_IDENTIFIER_MODEL': None,
+    'JWT_USER_IDENTIFIER_FIELD': None,
 }
 
 # List of settings that may be in string import notation.
@@ -47,6 +56,7 @@ IMPORT_STRINGS = (
     'JWT_PAYLOAD_HANDLER',
     'JWT_PAYLOAD_GET_USER_ID_HANDLER',
     'JWT_PAYLOAD_GET_USERNAME_HANDLER',
+    'JWT_PAYLOAD_GET_USER_IDENTIFIER_HANDLER',
     'JWT_RESPONSE_PAYLOAD_HANDLER',
 )
 

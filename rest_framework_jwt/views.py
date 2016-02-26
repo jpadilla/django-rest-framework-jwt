@@ -1,13 +1,14 @@
-from rest_framework.views import APIView
 from rest_framework import status
 from rest_framework.response import Response
+from rest_framework.views import APIView
 
-from .settings import api_settings
 from .compat import get_request_data
+from .settings import api_settings
 from .serializers import (
     JSONWebTokenSerializer, RefreshJSONWebTokenSerializer,
     VerifyJSONWebTokenSerializer
 )
+
 
 jwt_response_payload_handler = api_settings.JWT_RESPONSE_PAYLOAD_HANDLER
 
