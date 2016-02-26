@@ -41,7 +41,7 @@ class BaseJSONWebTokenAuthentication(BaseAuthentication):
         try:
             user = get_user_from_payload(payload)
         except ValueError as e:
-            raise exceptions.AuthenticationFailed(e.message)
+            raise exceptions.AuthenticationFailed(str(e))
 
         return (user, jwt_value)
 

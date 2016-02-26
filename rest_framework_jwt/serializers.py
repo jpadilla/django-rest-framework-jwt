@@ -104,7 +104,7 @@ class VerifyJSONWebTokenSerializer(VerificationBaseSerializer):
         try:
             user = get_user_from_payload(payload=payload)
         except ValueError as e:
-            raise serializers.ValidationError(e.message)
+            raise serializers.ValidationError(str(e))
 
         return {
             'token': token,
@@ -124,7 +124,7 @@ class RefreshJSONWebTokenSerializer(VerificationBaseSerializer):
         try:
             user = get_user_from_payload(payload=payload)
         except ValueError as e:
-            raise serializers.ValidationError(e.message)
+            raise serializers.ValidationError(str(e))
         # Get and check 'orig_iat'
         orig_iat = payload.get('orig_iat')
 
