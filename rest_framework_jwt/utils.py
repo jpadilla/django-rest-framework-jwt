@@ -2,7 +2,6 @@ from calendar import timegm
 from datetime import datetime
 import warnings
 
-from django.db.models import get_model
 import jwt
 
 from rest_framework_jwt.compat import get_user_identifier, get_user_identifier_field

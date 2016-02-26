@@ -1,5 +1,5 @@
 from distutils.version import StrictVersion
-from django.db.models import get_model
+# from django.db.models import get_model
 from django.forms import widgets
 from django.utils.translation import ugettext as _
 from rest_framework import serializers
@@ -64,7 +64,7 @@ def get_username_field():
 def get_user_identifier_field():
     """ Return the field that should be used to identify a user in a JWT. """
     if jwt_user_identifier_app and jwt_user_identifier_model and\
-        jwt_user_identifier_field:
+            jwt_user_identifier_field:
         return jwt_user_identifier_field
 
     try:
@@ -78,6 +78,7 @@ def get_user_identifier_field():
 def get_user_from_payload(payload):
     """ Return instance of User from a payload. """
     # unfortunately need to import here to avoid circular import
+    from django.db.models import get_model
     jwt_payload_get_user_identifier_handler =\
         api_settings.JWT_PAYLOAD_GET_USER_IDENTIFIER_HANDLER
     user_identifier = jwt_payload_get_user_identifier_handler(payload)
@@ -87,10 +88,10 @@ def get_user_from_payload(payload):
         raise ValueError(msg)
 
     if jwt_user_identifier_app and jwt_user_identifier_model and\
-        jwt_user_identifier_field:
+            jwt_user_identifier_field:
         user_identifier_field = get_user_identifier_field()
-        identifier_model_class = get_model(jwt_user_identifier_app,
-            jwt_user_identifier_model)
+        identifier_model_class = get_model(
+            jwt_user_identifier_app, jwt_user_identifier_model)
         try:
             identifier_model = identifier_model_class.objects.get(
                 **{user_identifier_field: user_identifier})
@@ -131,10 +132,11 @@ def get_user_identifier(user):
 
 def get_custom_user_identifier(user):
     """ Return the custom identifier for the user or None if not configured. """
+    from django.db.models import get_model
     if jwt_user_identifier_app and jwt_user_identifier_model and\
-        jwt_user_identifier_field:
-        identifier_model_class = get_model(jwt_user_identifier_app,
-            jwt_user_identifier_model)
+            jwt_user_identifier_field:
+        identifier_model_class = get_model(
+            jwt_user_identifier_app, jwt_user_identifier_model)
         identifier_model = identifier_model_class.objects.get(user=user)
         return getattr(identifier_model, jwt_user_identifier_field)
     else:
