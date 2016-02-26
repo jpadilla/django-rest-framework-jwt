@@ -1,5 +1,4 @@
 from distutils.version import StrictVersion
-# from django.db.models import get_model
 from django.forms import widgets
 from django.utils.translation import ugettext as _
 from rest_framework import serializers
@@ -78,7 +77,12 @@ def get_user_identifier_field():
 def get_user_from_payload(payload):
     """ Return instance of User from a payload. """
     # unfortunately need to import here to avoid circular import
-    from django.db.models import get_model
+    try:
+        from django.db.models import get_model
+    except ImportError:     # django >= 1.9
+        from django.apps import apps
+        get_model = apps.get_model
+
     jwt_payload_get_user_identifier_handler =\
         api_settings.JWT_PAYLOAD_GET_USER_IDENTIFIER_HANDLER
     user_identifier = jwt_payload_get_user_identifier_handler(payload)
@@ -132,7 +136,13 @@ def get_user_identifier(user):
 
 def get_custom_user_identifier(user):
     """ Return the custom identifier for the user or None if not configured. """
-    from django.db.models import get_model
+    # unfortunately need to import here to avoid circular import
+    try:
+        from django.db.models import get_model
+    except ImportError:     # django >= 1.9
+        from django.apps import apps
+        get_model = apps.get_model
+
     if jwt_user_identifier_app and jwt_user_identifier_model and\
             jwt_user_identifier_field:
         identifier_model_class = get_model(
