@@ -19,6 +19,13 @@ class CompatTests(TestCase):
 
         assert get_request_data(request) == {'a': 'b'}
 
+    def test_get_request_data_empty(self):
+        data = ''
+        post = self.factory.post('/', data, content_type='application/json')
+        request = Request(post, parsers=[JSONParser()])
+
+        assert get_request_data(request) == {}
+
     def test_get_request_data_invalid(self):
         data = '{a:b}'
         post = self.factory.post('/', data, content_type='application/json')
