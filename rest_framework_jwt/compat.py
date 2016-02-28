@@ -5,7 +5,12 @@ from rest_framework import serializers
 from django.forms import widgets
 
 
-if StrictVersion(rest_framework.VERSION) < StrictVersion('3.0.0'):
+DRF_VERSION_INFO = StrictVersion(rest_framework.VERSION).version
+DRF2 = DRF_VERSION_INFO[0] == 2
+DRF3 = DRF_VERSION_INFO[0] == 3
+
+
+if DRF2:
     class Serializer(serializers.Serializer):
         pass
 
@@ -57,10 +62,8 @@ def get_username(user):
 
 
 def get_request_data(request):
-    if getattr(request, 'data', None):
-        data = request.data
-    else:
-        # DRF < 3.2
+    if DRF2:
         data = request.DATA
-
+    else:
+        data = request.data
     return data
