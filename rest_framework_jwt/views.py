@@ -53,12 +53,12 @@ class JSONWebTokenAPIView(APIView):
     def post(self, request, *args, **kwargs):
         serializer = self.get_serializer(data=request.data)
 
-        if serializer.is_valid(raise_exception=True):
-            user = serializer.object.get('user') or request.user
-            token = serializer.object.get('token')
-            response_data = jwt_response_payload_handler(token, user, request)
+        serializer.is_valid(raise_exception=True)
+        user = serializer.object.get('user') or request.user
+        token = serializer.object.get('token')
+        response_data = jwt_response_payload_handler(token, user, request)
 
-            return Response(response_data)
+        return Response(response_data)
 
 
 class ObtainJSONWebToken(JSONWebTokenAPIView):
