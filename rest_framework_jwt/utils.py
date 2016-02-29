@@ -8,11 +8,6 @@ from rest_framework_jwt.compat import get_user_identifier, get_user_identifier_f
 from rest_framework_jwt.settings import api_settings
 
 
-jwt_user_identifier_app = api_settings.JWT_USER_IDENTIFIER_APP
-jwt_user_identifier_model = api_settings.JWT_USER_IDENTIFIER_MODEL
-jwt_user_identifier_field = api_settings.JWT_USER_IDENTIFIER_FIELD
-
-
 def jwt_payload_handler(user):
     user_identifier_field = get_user_identifier_field()
     user_identifier = get_user_identifier(user)
