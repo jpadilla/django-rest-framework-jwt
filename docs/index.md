@@ -163,6 +163,8 @@ JWT_AUTH = {
     'rest_framework_jwt.utils.jwt_response_payload_handler',
 
     'JWT_SECRET_KEY': settings.SECRET_KEY,
+    'JWT_PUBLIC_KEY': None,
+    'JWT_PRIVATE_KEY': None,
     'JWT_ALGORITHM': 'HS256',
     'JWT_VERIFY': True,
     'JWT_VERIFY_EXPIRATION': True,
@@ -183,6 +185,16 @@ This packages uses the JSON Web Token Python implementation, [PyJWT](https://git
 This is the secret key used to sign the JWT. Make sure this is safe and not shared or public.
 
 Default is your project's `settings.SECRET_KEY`.
+
+### JWT_PUBLIC_KEY
+This is an object of type `cryptography.hazmat.primitives.asymmetric.rsa.RSAPublicKey`. It will be used to verify the signature of the incoming JWT. Will override `JWT_SECRET_KEY` when set. Read the [documentation](https://cryptography.io/en/latest/hazmat/primitives/asymmetric/rsa/#cryptography.hazmat.primitives.asymmetric.rsa.RSAPublicKey) for more details. Please note that `JWT_ALGORITHM` must be set to one of `RS256`, `RS384`, or `RS512`.
+
+Default is `None`.
+
+### JWT_PRIVATE_KEY
+This is an object of type `cryptography.hazmat.primitives.asymmetric.rsa.RSAPrivateKey`. It will be used to sign the signature component of the JWT. Will override `JWT_SECRET_KEY` when set. Read the [documentation](https://cryptography.io/en/latest/hazmat/primitives/asymmetric/rsa/#cryptography.hazmat.primitives.asymmetric.rsa.RSAPrivateKey) for more details. Please note that `JWT_ALGORITHM` must be set to one of `RS256`, `RS384`, or `RS512`.
+
+Default is `None`.
 
 ### JWT_ALGORITHM
 

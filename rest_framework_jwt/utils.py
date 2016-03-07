@@ -68,7 +68,7 @@ def jwt_get_username_from_payload_handler(payload):
 def jwt_encode_handler(payload):
     return jwt.encode(
         payload,
-        api_settings.JWT_SECRET_KEY,
+        api_settings.JWT_PRIVATE_KEY or api_settings.JWT_SECRET_KEY,
         api_settings.JWT_ALGORITHM
     ).decode('utf-8')
 
@@ -80,7 +80,7 @@ def jwt_decode_handler(token):
 
     return jwt.decode(
         token,
-        api_settings.JWT_SECRET_KEY,
+        api_settings.JWT_PUBLIC_KEY or api_settings.JWT_SECRET_KEY,
         api_settings.JWT_VERIFY,
         options=options,
         leeway=api_settings.JWT_LEEWAY,
