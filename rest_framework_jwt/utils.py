@@ -70,9 +70,9 @@ def jwt_encode_handler(payload):
     ).decode('utf-8')
 
 
-def jwt_decode_handler(token):
+def jwt_decode_handler(token, force_ignore_verify=False):
     options = {
-        'verify_exp': api_settings.JWT_VERIFY_EXPIRATION,
+        'verify_exp': api_settings.JWT_VERIFY_EXPIRATION if not force_ignore_verify else False,
     }
 
     return jwt.decode(
