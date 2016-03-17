@@ -358,7 +358,7 @@ class RefreshJSONWebTokenTests(TokenTestCase):
 
     def test_refresh_jwt_after_jwt_expiration(self):
         """
-        Test that token can be refreshed after token expiratoin but before token refresh limit
+        Test that token can be refreshed after token expiration but before token refresh limit
         """
         client = APIClient(enforce_csrf_checks=True)
 
