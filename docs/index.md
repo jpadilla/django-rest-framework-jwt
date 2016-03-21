@@ -101,7 +101,13 @@ $ curl -H "Authorization: JWT <your_token>" http://localhost:8000/protected-url/
 ## Refresh Token
 If `JWT_ALLOW_REFRESH` is True, issued tokens can be "refreshed" to obtain a new brand token with renewed expiration time. Add a URL pattern like this:
 ```python
-    url(r'^api-token-refresh/', 'rest_framework_jwt.views.refresh_jwt_token'),
+    from rest_framework_jwt.views import refresh_jwt_token
+    #  ...
+
+    urlpatterns = [
+        #  ...
+        url(r'^api-token-refresh/', refresh_jwt_token),
+    ]
 ```
 
 Pass in an existing token to the refresh endpoint as follows: `{"token": EXISTING_TOKEN}`. Note that only non-expired tokens will work. The JSON response looks the same as the normal obtain token endpoint `{"token": NEW_TOKEN}`.
@@ -120,7 +126,14 @@ In some microservice architectures, authentication is handled by a single servic
 
 This setup is supported in this package using a verification endpoint. Add the following URL pattern:
 ```python
-    url(r'^api-token-verify/', 'rest_framework_jwt.views.verify_jwt_token'),
+    from rest_framework_jwt.views import verify_jwt_token
+
+    #...
+
+    urlpatterns = [
+        #  ...
+        url(r'^api-token-verify/', verify_jwt_token),
+    ]
 ```
 
 Passing a token to the verification endpoint will return a 200 response and the token if it is valid. Otherwise, it will return a 400 Bad Request as well as an error identifying why the token was invalid.
