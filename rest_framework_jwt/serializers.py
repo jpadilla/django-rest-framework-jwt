@@ -1,24 +1,20 @@
-import jwt
-
 from calendar import timegm
 from datetime import datetime, timedelta
 
 from django.contrib.auth import authenticate
 from django.utils.translation import ugettext as _
-from rest_framework import serializers
-from .compat import Serializer
+import jwt
 
-from rest_framework_jwt.settings import api_settings
 from rest_framework_jwt.compat import (
-    get_user_model, get_username_field, PasswordField
+    get_user_from_payload, get_username_field, PasswordField, Serializer
 )
+from rest_framework_jwt.settings import api_settings
+from rest_framework import serializers
 
 
-User = get_user_model()
 jwt_payload_handler = api_settings.JWT_PAYLOAD_HANDLER
 jwt_encode_handler = api_settings.JWT_ENCODE_HANDLER
 jwt_decode_handler = api_settings.JWT_DECODE_HANDLER
-jwt_get_username_from_payload = api_settings.JWT_PAYLOAD_GET_USERNAME_HANDLER
 
 
 class JSONWebTokenSerializer(Serializer):
@@ -95,26 +91,6 @@ class VerificationBaseSerializer(Serializer):
 
         return payload
 
-    def _check_user(self, payload):
-        username = jwt_get_username_from_payload(payload)
-
-        if not username:
-            msg = _('Invalid payload.')
-            raise serializers.ValidationError(msg)
-
-        # Make sure user exists
-        try:
-            user = User.objects.get_by_natural_key(username)
-        except User.DoesNotExist:
-            msg = _("User doesn't exist.")
-            raise serializers.ValidationError(msg)
-
-        if not user.is_active:
-            msg = _('User account is disabled.')
-            raise serializers.ValidationError(msg)
-
-        return user
-
 
 class VerifyJSONWebTokenSerializer(VerificationBaseSerializer):
     """
@@ -125,7 +101,10 @@ class VerifyJSONWebTokenSerializer(VerificationBaseSerializer):
         token = attrs['token']
 
         payload = self._check_payload(token=token)
-        user = self._check_user(payload=payload)
+        try:
+            user = get_user_from_payload(payload=payload)
+        except ValueError as e:
+            raise serializers.ValidationError(str(e))
 
         return {
             'token': token,
@@ -142,7 +121,10 @@ class RefreshJSONWebTokenSerializer(VerificationBaseSerializer):
         token = attrs['token']
 
         payload = self._check_payload(token=token)
-        user = self._check_user(payload=payload)
+        try:
+            user = get_user_from_payload(payload=payload)
+        except ValueError as e:
+            raise serializers.ValidationError(str(e))
         # Get and check 'orig_iat'
         orig_iat = payload.get('orig_iat')
 

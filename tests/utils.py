@@ -1,4 +1,4 @@
-from rest_framework_jwt.compat import get_username
+from rest_framework_jwt.compat import get_user_identifier
 
 
 def jwt_response_payload_handler(token, user=None, request=None):
@@ -17,6 +17,6 @@ def jwt_response_payload_handler(token, user=None, request=None):
 
     """
     return {
-        'user': get_username(user),
+        'user': get_user_identifier(user),
         'token': token
     }

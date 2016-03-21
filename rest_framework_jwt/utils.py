@@ -1,30 +1,21 @@
-import jwt
-import warnings
 from calendar import timegm
 from datetime import datetime
+import warnings
 
-from rest_framework_jwt.compat import get_username, get_username_field
+import jwt
+
+from rest_framework_jwt.compat import get_user_identifier, get_user_identifier_field
 from rest_framework_jwt.settings import api_settings
 
 
 def jwt_payload_handler(user):
-    username_field = get_username_field()
-    username = get_username(user)
-
-    warnings.warn(
-        'The following fields will be removed in the future: '
-        '`email` and `user_id`. ',
-        DeprecationWarning
-    )
+    user_identifier_field = get_user_identifier_field()
+    user_identifier = get_user_identifier(user)
 
     payload = {
-        'user_id': user.pk,
-        'email': user.email,
-        'username': username,
+        user_identifier_field: user_identifier,
         'exp': datetime.utcnow() + api_settings.JWT_EXPIRATION_DELTA
     }
-
-    payload[username_field] = username
 
     # Include original issued at time for a brand new token,
     # to allow token refresh
@@ -48,7 +39,7 @@ def jwt_get_user_id_from_payload_handler(payload):
     """
     warnings.warn(
         'The following will be removed in the future. '
-        'Use `JWT_PAYLOAD_GET_USERNAME_HANDLER` instead.',
+        'Use `JWT_PAYLOAD_GET_USER_IDENTIFER_HANDLER` instead.',
         DeprecationWarning
     )
 
@@ -59,7 +50,21 @@ def jwt_get_username_from_payload_handler(payload):
     """
     Override this function if username is formatted differently in payload
     """
-    return payload.get('username')
+    warnings.warn(
+        'The following will be removed in the future. '
+        'Use `JWT_PAYLOAD_GET_USER_IDENTIFIER_HANDLER` instead.',
+        DeprecationWarning
+    )
+
+    return jwt_get_user_identifier_from_payload_handler(payload)
+
+
+def jwt_get_user_identifier_from_payload_handler(payload):
+    """
+    Override this function if user identifier is formatted differently in payload
+    """
+    user_identifier_field = get_user_identifier_field()
+    return payload.get(user_identifier_field)
 
 
 def jwt_encode_handler(payload):
