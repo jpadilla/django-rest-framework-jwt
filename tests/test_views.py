@@ -205,6 +205,51 @@ class CustomUserObtainJSONWebTokenTests(TestCase):
         self.assertEqual(response.status_code, 400)
 
 
+@override_settings(AUTH_USER_MODEL='tests.CustomUserUUID')
+class CustomUserUUIDObtainJSONWebTokenTests(TestCase):
+    """JSON Web Token Authentication"""
+    urls = 'tests.test_views'
+
+    def setUp(self):
+        from .models import CustomUserUUID
+
+        self.email = 'jpueblo@example.com'
+        self.password = 'password'
+        user = CustomUserUUID.objects.create(email=self.email)
+        user.set_password(self.password)
+        user.save()
+        self.user = user
+
+        self.data = {
+            'email': self.email,
+            'password': self.password
+        }
+
+    def test_jwt_login_json(self):
+        """
+        Ensure JWT login view using JSON POST works.
+        """
+        client = APIClient(enforce_csrf_checks=True)
+
+        response = client.post('/auth-token/', self.data, format='json')
+
+        self.assertEqual(response.status_code, status.HTTP_200_OK)
+        decoded_payload = utils.jwt_decode_handler(response.data['token'])
+        self.assertEqual(decoded_payload['user_id'], str(self.user.id))
+
+    def test_jwt_login_json_bad_creds(self):
+        """
+        Ensure JWT login view using JSON POST fails
+        if bad credentials are used.
+        """
+        client = APIClient(enforce_csrf_checks=True)
+
+        self.data['password'] = 'wrong'
+        response = client.post('/auth-token/', self.data, format='json')
+
+        self.assertEqual(response.status_code, 400)
+
+
 class TokenTestCase(BaseTestCase):
     """
     Handlers for getting tokens from the API, or creating arbitrary ones.
