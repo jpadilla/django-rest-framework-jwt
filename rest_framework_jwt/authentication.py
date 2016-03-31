@@ -1,5 +1,6 @@
 import jwt
 
+from django.contrib.auth import get_user_model
 from django.utils.encoding import smart_text
 from django.utils.translation import ugettext as _
 from rest_framework import exceptions
@@ -7,7 +8,6 @@ from rest_framework.authentication import (
     BaseAuthentication, get_authorization_header
 )
 
-from rest_framework_jwt.compat import get_user_model
 from rest_framework_jwt.settings import api_settings
 
 
