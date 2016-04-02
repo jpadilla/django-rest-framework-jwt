@@ -5,3 +5,7 @@ pytest-cov==1.6
 
 # Mocking the datetime module.
 freezegun==0.3.2
+
+# Supporting utilities.
+djangorestframework==3.3.3
+PyJWT==1.4.0
