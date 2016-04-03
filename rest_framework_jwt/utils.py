@@ -1,4 +1,5 @@
 import jwt
+import uuid
 import warnings
 from calendar import timegm
 from datetime import datetime
@@ -23,6 +24,8 @@ def jwt_payload_handler(user):
         'username': username,
         'exp': datetime.utcnow() + api_settings.JWT_EXPIRATION_DELTA
     }
+    if isinstance(user.pk, uuid.UUID):
+        payload['user_id'] = str(user.pk)
 
     payload[username_field] = username
 
