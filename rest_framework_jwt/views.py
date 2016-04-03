@@ -3,7 +3,6 @@ from rest_framework import status
 from rest_framework.response import Response
 
 from .settings import api_settings
-from .compat import get_request_data
 from .serializers import (
     JSONWebTokenSerializer, RefreshJSONWebTokenSerializer,
     VerifyJSONWebTokenSerializer
@@ -52,9 +51,7 @@ class JSONWebTokenAPIView(APIView):
         return serializer_class(*args, **kwargs)
 
     def post(self, request, *args, **kwargs):
-        serializer = self.get_serializer(
-            data=get_request_data(request)
-        )
+        serializer = self.get_serializer(data=request.data)
 
         if serializer.is_valid():
             user = serializer.object.get('user') or request.user
