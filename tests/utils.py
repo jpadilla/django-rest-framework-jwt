@@ -17,6 +17,6 @@ def jwt_response_payload_handler(token, user=None, request=None):
 
     """
     return {
-        'user': get_username(user),
-        'token': token
+        'token': token,
+        'user': UserSerializer(user,context={'request': request},).data
     }
