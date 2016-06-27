@@ -99,7 +99,7 @@ def get_user_from_payload(payload):
         try:
             identifier_model = identifier_model_class.objects.get(
                 **{user_identifier_field: user_identifier})
-        except identifier_model.DoesNotExist:
+        except identifier_model_class.DoesNotExist:
             msg = _('Invalid payload.')
             raise ValueError(msg)
         user = identifier_model.user
