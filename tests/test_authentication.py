@@ -62,27 +62,29 @@ class MockView(APIView):
 
 if django110:
     urlpatterns = [
-        url(r'^jwt/$', MockView.as_view(
-         authentication_classes=[JSONWebTokenAuthentication])),
-        url(r'^jwt-oauth2/$', MockView.as_view(
-            authentication_classes=[
-                JSONWebTokenAuthentication, OAuth2Authentication])),
-        url(r'^oauth2-jwt/$', MockView.as_view(
-            authentication_classes=[
-                OAuth2Authentication, JSONWebTokenAuthentication])),
+        url(r'^jwt/$',
+            MockView.as_view(
+                authentication_classes=[JSONWebTokenAuthentication])),
+        url(r'^jwt-oauth2/$',
+            MockView.as_view(authentication_classes=[
+                JSONWebTokenAuthentication, OAuth2Authentication
+            ])),
+        url(r'^oauth2-jwt/$',
+            MockView.as_view(authentication_classes=[
+                OAuth2Authentication, JSONWebTokenAuthentication
+            ])),
     ]
 else:
     urlpatterns = patterns(
         '',
         (r'^jwt/$', MockView.as_view(
-         authentication_classes=[JSONWebTokenAuthentication])),
-        (r'^jwt-oauth2/$', MockView.as_view(
-            authentication_classes=[
-                JSONWebTokenAuthentication, OAuth2Authentication])),
-        (r'^oauth2-jwt/$', MockView.as_view(
-            authentication_classes=[
-                OAuth2Authentication, JSONWebTokenAuthentication])),
-    )
+            authentication_classes=[JSONWebTokenAuthentication])),
+        (r'^jwt-oauth2/$', MockView.as_view(authentication_classes=[
+            JSONWebTokenAuthentication, OAuth2Authentication
+        ])),
+        (r'^oauth2-jwt/$', MockView.as_view(authentication_classes=[
+            OAuth2Authentication, JSONWebTokenAuthentication
+        ])), )
 
 
 class JSONWebTokenAuthenticationTests(TestCase):

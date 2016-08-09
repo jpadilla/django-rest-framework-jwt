@@ -1,17 +1,22 @@
 import unittest
 from distutils.version import StrictVersion
 
+import django
 import rest_framework
 from django.test import TestCase
-
+from rest_framework_jwt import utils
 from rest_framework_jwt.compat import get_user_model
 from rest_framework_jwt.serializers import JSONWebTokenSerializer
-from rest_framework_jwt import utils
 
 User = get_user_model()
 
 drf2 = rest_framework.VERSION < StrictVersion('3.0.0')
 drf3 = rest_framework.VERSION >= StrictVersion('3.0.0')
+django110 = django.get_version() >= StrictVersion('1.10.0')
+django_110_skip = """django.contrib.auth.backends.ModelBackend.authenticate
+                     method is different in Django 1.10 if user is not valid
+                     then authenticate will return None
+                     """
 
 
 class JSONWebTokenSerializerTests(TestCase):
@@ -68,6 +73,7 @@ class JSONWebTokenSerializerTests(TestCase):
         self.assertFalse(is_valid)
         self.assertEqual(serializer.errors, expected_error)
 
+    @unittest.skipIf(django110, django_110_skip)
     def test_disabled_user(self):
         self.user.is_active = False
         self.user.save()
