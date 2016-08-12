@@ -2,7 +2,6 @@ import unittest
 
 from django.http import HttpResponse
 from django.test import TestCase
-from django.conf.urls import patterns
 
 from rest_framework import permissions, status
 try:
@@ -37,6 +36,14 @@ from rest_framework_jwt.compat import get_user_model
 from rest_framework_jwt.settings import api_settings, DEFAULTS
 from rest_framework_jwt.authentication import JSONWebTokenAuthentication
 
+django110 = False
+try:
+    from django.conf.urls import patterns
+except ImportError:
+    # this got deprecated in Django 1.10
+    django110 = True
+    from django.conf.urls import url
+
 User = get_user_model()
 
 DJANGO_OAUTH2_PROVIDER_NOT_INSTALLED = 'django-oauth2-provider not installed'
@@ -53,20 +60,31 @@ class MockView(APIView):
     def post(self, request):
         return HttpResponse({'a': 1, 'b': 2, 'c': 3})
 
-
-urlpatterns = patterns(
-    '',
-    (r'^jwt/$', MockView.as_view(
-     authentication_classes=[JSONWebTokenAuthentication])),
-
-    (r'^jwt-oauth2/$', MockView.as_view(
-        authentication_classes=[
-            JSONWebTokenAuthentication, OAuth2Authentication])),
-
-    (r'^oauth2-jwt/$', MockView.as_view(
-        authentication_classes=[
-            OAuth2Authentication, JSONWebTokenAuthentication])),
-)
+if django110:
+    urlpatterns = [
+        url(r'^jwt/$',
+            MockView.as_view(
+                authentication_classes=[JSONWebTokenAuthentication])),
+        url(r'^jwt-oauth2/$',
+            MockView.as_view(authentication_classes=[
+                JSONWebTokenAuthentication, OAuth2Authentication
+            ])),
+        url(r'^oauth2-jwt/$',
+            MockView.as_view(authentication_classes=[
+                OAuth2Authentication, JSONWebTokenAuthentication
+            ])),
+    ]
+else:
+    urlpatterns = patterns(
+        '',
+        (r'^jwt/$', MockView.as_view(
+            authentication_classes=[JSONWebTokenAuthentication])),
+        (r'^jwt-oauth2/$', MockView.as_view(authentication_classes=[
+            JSONWebTokenAuthentication, OAuth2Authentication
+        ])),
+        (r'^oauth2-jwt/$', MockView.as_view(authentication_classes=[
+            OAuth2Authentication, JSONWebTokenAuthentication
+        ])), )
 
 
 class JSONWebTokenAuthenticationTests(TestCase):
