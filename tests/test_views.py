@@ -3,19 +3,17 @@ from calendar import timegm
 from datetime import datetime, timedelta
 import time
 
+from cryptography.hazmat.backends import default_backend
+from cryptography.hazmat.primitives.asymmetric import rsa
 from django import get_version
 from django.test import TestCase
 from django.test.utils import override_settings
-from django.conf.urls import url
 from rest_framework import status
 from rest_framework.test import APIClient
 
-from rest_framework_jwt import utils, views
+from rest_framework_jwt import utils
 from rest_framework_jwt.compat import get_user_model
 from rest_framework_jwt.settings import api_settings, DEFAULTS
-
-from cryptography.hazmat.backends import default_backend
-from cryptography.hazmat.primitives.asymmetric import rsa
 
 from . import utils as test_utils
 
@@ -23,17 +21,10 @@ User = get_user_model()
 
 NO_CUSTOM_USER_MODEL = 'Custom User Model only supported after Django 1.5'
 
-urlpatterns = [
-    url(r'^auth-token/$', views.obtain_jwt_token),
-    url(r'^auth-token-refresh/$', views.refresh_jwt_token),
-    url(r'^auth-token-verify/$', views.verify_jwt_token),
-]
-
 orig_datetime = datetime
 
 
 class BaseTestCase(TestCase):
-    urls = 'tests.test_views'
 
     def setUp(self):
         self.email = 'jpueblo@example.com'
@@ -67,7 +58,6 @@ class TestCustomResponsePayload(BaseTestCase):
 
         self.assertEqual(response.status_code, status.HTTP_200_OK)
         self.assertEqual(decoded_payload['username'], self.username)
-        self.assertEqual(response.data['user'], self.username)
 
     def tearDown(self):
         api_settings.JWT_RESPONSE_PAYLOAD_HANDLER =\
@@ -164,7 +154,6 @@ class ObtainJSONWebTokenTests(BaseTestCase):
 @override_settings(AUTH_USER_MODEL='tests.CustomUser')
 class CustomUserObtainJSONWebTokenTests(TestCase):
     """JSON Web Token Authentication"""
-    urls = 'tests.test_views'
 
     def setUp(self):
         from .models import CustomUser
@@ -209,7 +198,6 @@ class CustomUserObtainJSONWebTokenTests(TestCase):
 @override_settings(AUTH_USER_MODEL='tests.CustomUserUUID')
 class CustomUserUUIDObtainJSONWebTokenTests(TestCase):
     """JSON Web Token Authentication"""
-    urls = 'tests.test_views'
 
     def setUp(self):
         from .models import CustomUserUUID

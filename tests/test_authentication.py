@@ -1,17 +1,7 @@
 import unittest
 
-from django.http import HttpResponse
 from django.test import TestCase
-from django.conf.urls import url
-
-from rest_framework import permissions, status
-try:
-    from rest_framework_oauth.authentication import OAuth2Authentication
-except ImportError:
-    try:
-        from rest_framework.authentication import OAuth2Authentication
-    except ImportError:
-        OAuth2Authentication = None
+from rest_framework import status
 try:
     try:
         from rest_framework_oauth.compat import oauth2_provider
@@ -30,12 +20,10 @@ except ImportError:
         oauth2_provider = None
 
 from rest_framework.test import APIRequestFactory, APIClient
-from rest_framework.views import APIView
 
 from rest_framework_jwt import utils
 from rest_framework_jwt.compat import get_user_model
 from rest_framework_jwt.settings import api_settings, DEFAULTS
-from rest_framework_jwt.authentication import JSONWebTokenAuthentication
 
 User = get_user_model()
 
@@ -44,33 +32,8 @@ DJANGO_OAUTH2_PROVIDER_NOT_INSTALLED = 'django-oauth2-provider not installed'
 factory = APIRequestFactory()
 
 
-class MockView(APIView):
-    permission_classes = (permissions.IsAuthenticated,)
-
-    def get(self, request):
-        return HttpResponse({'a': 1, 'b': 2, 'c': 3})
-
-    def post(self, request):
-        return HttpResponse({'a': 1, 'b': 2, 'c': 3})
-
-
-urlpatterns = [
-    url(r'^jwt/$', MockView.as_view(
-     authentication_classes=[JSONWebTokenAuthentication])),
-
-    url(r'^jwt-oauth2/$', MockView.as_view(
-        authentication_classes=[
-            JSONWebTokenAuthentication, OAuth2Authentication])),
-
-    url(r'^oauth2-jwt/$', MockView.as_view(
-        authentication_classes=[
-            OAuth2Authentication, JSONWebTokenAuthentication])),
-]
-
-
 class JSONWebTokenAuthenticationTests(TestCase):
     """JSON Web Token Authentication"""
-    urls = 'tests.test_authentication'
 
     def setUp(self):
         self.csrf_client = APIClient(enforce_csrf_checks=True)
