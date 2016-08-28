@@ -2,7 +2,7 @@ import unittest
 
 from django.http import HttpResponse
 from django.test import TestCase
-from django.conf.urls import patterns
+from django.conf.urls import url
 
 from rest_framework import permissions, status
 try:
@@ -54,19 +54,18 @@ class MockView(APIView):
         return HttpResponse({'a': 1, 'b': 2, 'c': 3})
 
 
-urlpatterns = patterns(
-    '',
-    (r'^jwt/$', MockView.as_view(
+urlpatterns = [
+    url(r'^jwt/$', MockView.as_view(
      authentication_classes=[JSONWebTokenAuthentication])),
 
-    (r'^jwt-oauth2/$', MockView.as_view(
+    url(r'^jwt-oauth2/$', MockView.as_view(
         authentication_classes=[
             JSONWebTokenAuthentication, OAuth2Authentication])),
 
-    (r'^oauth2-jwt/$', MockView.as_view(
+    url(r'^oauth2-jwt/$', MockView.as_view(
         authentication_classes=[
             OAuth2Authentication, JSONWebTokenAuthentication])),
-)
+]
 
 
 class JSONWebTokenAuthenticationTests(TestCase):

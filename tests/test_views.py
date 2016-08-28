@@ -6,11 +6,11 @@ import time
 from django import get_version
 from django.test import TestCase
 from django.test.utils import override_settings
-from django.conf.urls import patterns
+from django.conf.urls import url
 from rest_framework import status
 from rest_framework.test import APIClient
 
-from rest_framework_jwt import utils
+from rest_framework_jwt import utils, views
 from rest_framework_jwt.compat import get_user_model
 from rest_framework_jwt.settings import api_settings, DEFAULTS
 
@@ -23,13 +23,11 @@ User = get_user_model()
 
 NO_CUSTOM_USER_MODEL = 'Custom User Model only supported after Django 1.5'
 
-urlpatterns = patterns(
-    '',
-    (r'^auth-token/$', 'rest_framework_jwt.views.obtain_jwt_token'),
-    (r'^auth-token-refresh/$', 'rest_framework_jwt.views.refresh_jwt_token'),
-    (r'^auth-token-verify/$', 'rest_framework_jwt.views.verify_jwt_token'),
-
-)
+urlpatterns = [
+    url(r'^auth-token/$', views.obtain_jwt_token),
+    url(r'^auth-token-refresh/$', views.refresh_jwt_token),
+    url(r'^auth-token-verify/$', views.verify_jwt_token),
+]
 
 orig_datetime = datetime
 
