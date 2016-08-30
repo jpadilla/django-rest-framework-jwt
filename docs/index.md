@@ -72,12 +72,12 @@ In your `urls.py` add the following URL route to enable obtaining a token via a 
 from rest_framework_jwt.views import obtain_jwt_token
 #...
 
-urlpatterns = patterns(
+urlpatterns = [
     '',
     # ...
 
     url(r'^api-token-auth/', obtain_jwt_token),
-)
+]
 ```
 
 You can easily test if the endpoint is working by doing the following in your terminal, if you had a user created with the username **admin** and password **password123**.
