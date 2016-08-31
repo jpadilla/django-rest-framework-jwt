@@ -11,7 +11,7 @@ from django.test.utils import override_settings
 from rest_framework import status
 from rest_framework.test import APIClient
 
-from rest_framework_jwt import utils
+from rest_framework_jwt import utils, views
 from rest_framework_jwt.compat import get_user_model
 from rest_framework_jwt.settings import api_settings, DEFAULTS
 
@@ -42,7 +42,8 @@ class BaseTestCase(TestCase):
 class TestCustomResponsePayload(BaseTestCase):
 
     def setUp(self):
-        api_settings.JWT_RESPONSE_PAYLOAD_HANDLER = test_utils\
+        self.original_handler = views.jwt_response_payload_handler
+        views.jwt_response_payload_handler = test_utils\
             .jwt_response_payload_handler
         return super(TestCustomResponsePayload, self).setUp()
 
@@ -58,10 +59,10 @@ class TestCustomResponsePayload(BaseTestCase):
 
         self.assertEqual(response.status_code, status.HTTP_200_OK)
         self.assertEqual(decoded_payload['username'], self.username)
+        self.assertEqual(response.data['user'], self.username)
 
     def tearDown(self):
-        api_settings.JWT_RESPONSE_PAYLOAD_HANDLER =\
-            DEFAULTS['JWT_RESPONSE_PAYLOAD_HANDLER']
+        views.jwt_response_payload_handler = self.original_handler
 
 
 class ObtainJSONWebTokenTests(BaseTestCase):
