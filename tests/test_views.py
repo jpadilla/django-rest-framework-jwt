@@ -3,19 +3,17 @@ from calendar import timegm
 from datetime import datetime, timedelta
 import time
 
+from cryptography.hazmat.backends import default_backend
+from cryptography.hazmat.primitives.asymmetric import rsa
 from django import get_version
 from django.test import TestCase
 from django.test.utils import override_settings
-from django.conf.urls import patterns
 from rest_framework import status
 from rest_framework.test import APIClient
 
-from rest_framework_jwt import utils
+from rest_framework_jwt import utils, views
 from rest_framework_jwt.compat import get_user_model
 from rest_framework_jwt.settings import api_settings, DEFAULTS
-
-from cryptography.hazmat.backends import default_backend
-from cryptography.hazmat.primitives.asymmetric import rsa
 
 from . import utils as test_utils
 
@@ -23,19 +21,10 @@ User = get_user_model()
 
 NO_CUSTOM_USER_MODEL = 'Custom User Model only supported after Django 1.5'
 
-urlpatterns = patterns(
-    '',
-    (r'^auth-token/$', 'rest_framework_jwt.views.obtain_jwt_token'),
-    (r'^auth-token-refresh/$', 'rest_framework_jwt.views.refresh_jwt_token'),
-    (r'^auth-token-verify/$', 'rest_framework_jwt.views.verify_jwt_token'),
-
-)
-
 orig_datetime = datetime
 
 
 class BaseTestCase(TestCase):
-    urls = 'tests.test_views'
 
     def setUp(self):
         self.email = 'jpueblo@example.com'
@@ -53,7 +42,8 @@ class BaseTestCase(TestCase):
 class TestCustomResponsePayload(BaseTestCase):
 
     def setUp(self):
-        api_settings.JWT_RESPONSE_PAYLOAD_HANDLER = test_utils\
+        self.original_handler = views.jwt_response_payload_handler
+        views.jwt_response_payload_handler = test_utils\
             .jwt_response_payload_handler
         return super(TestCustomResponsePayload, self).setUp()
 
@@ -72,8 +62,7 @@ class TestCustomResponsePayload(BaseTestCase):
         self.assertEqual(response.data['user'], self.username)
 
     def tearDown(self):
-        api_settings.JWT_RESPONSE_PAYLOAD_HANDLER =\
-            DEFAULTS['JWT_RESPONSE_PAYLOAD_HANDLER']
+        views.jwt_response_payload_handler = self.original_handler
 
 
 class ObtainJSONWebTokenTests(BaseTestCase):
@@ -166,7 +155,6 @@ class ObtainJSONWebTokenTests(BaseTestCase):
 @override_settings(AUTH_USER_MODEL='tests.CustomUser')
 class CustomUserObtainJSONWebTokenTests(TestCase):
     """JSON Web Token Authentication"""
-    urls = 'tests.test_views'
 
     def setUp(self):
         from .models import CustomUser
@@ -211,7 +199,6 @@ class CustomUserObtainJSONWebTokenTests(TestCase):
 @override_settings(AUTH_USER_MODEL='tests.CustomUserUUID')
 class CustomUserUUIDObtainJSONWebTokenTests(TestCase):
     """JSON Web Token Authentication"""
-    urls = 'tests.test_views'
 
     def setUp(self):
         from .models import CustomUserUUID
