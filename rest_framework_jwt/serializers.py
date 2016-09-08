@@ -10,9 +10,10 @@ from .compat import Serializer
 
 from rest_framework_jwt.settings import api_settings
 from rest_framework_jwt.compat import get_username_field, PasswordField
+from django.conf import settings
 
 
-User = get_user_model()
+User = settings.AUTH_USER_MODEL
 jwt_payload_handler = api_settings.JWT_PAYLOAD_HANDLER
 jwt_encode_handler = api_settings.JWT_ENCODE_HANDLER
 jwt_decode_handler = api_settings.JWT_DECODE_HANDLER
