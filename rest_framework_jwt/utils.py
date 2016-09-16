@@ -18,10 +18,22 @@ def jwt_payload_handler(user):
         DeprecationWarning
     )
 
+    if hasattr(user, 'email'):
+        user_email = user.email
+    else:
+        user_email = None
+
+    if hasattr(user, 'username'):
+        user_username = user.username
+    else:
+        user_username = None
+
+
     payload = {
+
         'user_id': user.pk,
-        'email': user.email,
-        'username': username,
+        'email': user_email,
+        'username': user_username,
         'exp': datetime.utcnow() + api_settings.JWT_EXPIRATION_DELTA
     }
     if isinstance(user.pk, uuid.UUID):
