@@ -99,7 +99,7 @@ $ curl -H "Authorization: JWT <your_token>" http://localhost:8000/protected-url/
 ```
 
 ## Refresh Token
-If `JWT_ALLOW_REFRESH` is True, issued tokens can be "refreshed" to obtain a new brand token with renewed expiration time. Add a URL pattern like this:
+If `JWT_ALLOW_REFRESH` is True, **non-expired** tokens can be "refreshed" to obtain a new brand token with renewed expiration time. Add a URL pattern like this:
 ```python
     from rest_framework_jwt.views import refresh_jwt_token
     #  ...
