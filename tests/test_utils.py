@@ -8,6 +8,7 @@ from django.test import TestCase
 from rest_framework_jwt import utils
 from rest_framework_jwt.compat import get_user_model
 from rest_framework_jwt.settings import api_settings, DEFAULTS
+from tests.models import CustomUserWithoutEmail
 
 User = get_user_model()
 
@@ -35,6 +36,16 @@ class UtilsTests(TestCase):
         self.assertTrue(isinstance(payload, dict))
         self.assertEqual(payload['user_id'], self.user.pk)
         self.assertEqual(payload['email'], self.email)
+        self.assertEqual(payload['username'], self.username)
+        self.assertTrue('exp' in payload)
+
+    def test_jwt_payload_handler_no_email_address(self):
+        user = CustomUserWithoutEmail.objects.create(username=self.username)
+
+        payload = utils.jwt_payload_handler(user)
+        self.assertTrue(isinstance(payload, dict))
+        self.assertFalse(hasattr(payload, 'email'))
+        self.assertEqual(payload['user_id'], self.user.pk)
         self.assertEqual(payload['username'], self.username)
         self.assertTrue('exp' in payload)
 
