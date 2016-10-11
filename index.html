@@ -129,8 +129,8 @@
 <h2 id="requirements">Requirements</h2>
 <ul>
 <li>Python (2.7, 3.3, 3.4)</li>
-<li>Django (1.8, 1.9)</li>
-<li>Django REST Framework (3.0, 3.1, 3.2, 3.3)</li>
+<li>Django (1.8, 1.9, 1.10)</li>
+<li>Django REST Framework (3.0, 3.1, 3.2, 3.3, 3.4)</li>
 </ul>
 <h2 id="security">Security</h2>
 <p>Unlike some more typical uses of JWTs, this module only generates
@@ -171,12 +171,12 @@ urlpatterns = patterns(
 )
 </code></pre>
 
-<p>You can easily test if the endpoint is working by doing the following in your terminal, if you had a user created with the username <strong>admin</strong> and password <strong>abc123</strong>.</p>
-<pre><code class="bash">$ curl -X POST -d &quot;username=admin&amp;password=abc123&quot; http://localhost:8000/api-token-auth/
+<p>You can easily test if the endpoint is working by doing the following in your terminal, if you had a user created with the username <strong>admin</strong> and password <strong>password123</strong>.</p>
+<pre><code class="bash">$ curl -X POST -d &quot;username=admin&amp;password=password123&quot; http://localhost:8000/api-token-auth/
 </code></pre>
 
 <p>Alternatively, you can use all the content types supported by the Django REST framework to obtain the auth token. For example:</p>
-<pre><code class="bash">$ curl -X POST -H &quot;Content-Type: application/json&quot; -d '{&quot;username&quot;:&quot;admin&quot;,&quot;password&quot;:&quot;abc123&quot;}' http://localhost:8000/api-token-auth/
+<pre><code class="bash">$ curl -X POST -H &quot;Content-Type: application/json&quot; -d '{&quot;username&quot;:&quot;admin&quot;,&quot;password&quot;:&quot;password123&quot;}' http://localhost:8000/api-token-auth/
 </code></pre>
 
 <p>Now in order to access protected api urls you must include the <code>Authorization: JWT &lt;your_token&gt;</code> header.</p>
@@ -236,6 +236,8 @@ urlpatterns = patterns(
     'rest_framework_jwt.utils.jwt_response_payload_handler',
 
     'JWT_SECRET_KEY': settings.SECRET_KEY,
+    'JWT_PUBLIC_KEY': None,
+    'JWT_PRIVATE_KEY': None,
     'JWT_ALGORITHM': 'HS256',
     'JWT_VERIFY': True,
     'JWT_VERIFY_EXPIRATION': True,
@@ -255,6 +257,12 @@ urlpatterns = patterns(
 <h3 id="jwt_secret_key">JWT_SECRET_KEY</h3>
 <p>This is the secret key used to sign the JWT. Make sure this is safe and not shared or public.</p>
 <p>Default is your project's <code>settings.SECRET_KEY</code>.</p>
+<h3 id="jwt_public_key">JWT_PUBLIC_KEY</h3>
+<p>This is an object of type <code>cryptography.hazmat.primitives.asymmetric.rsa.RSAPublicKey</code>. It will be used to verify the signature of the incoming JWT. Will override <code>JWT_SECRET_KEY</code> when set. Read the <a href="https://cryptography.io/en/latest/hazmat/primitives/asymmetric/rsa/#cryptography.hazmat.primitives.asymmetric.rsa.RSAPublicKey">documentation</a> for more details. Please note that <code>JWT_ALGORITHM</code> must be set to one of <code>RS256</code>, <code>RS384</code>, or <code>RS512</code>.</p>
+<p>Default is <code>None</code>.</p>
+<h3 id="jwt_private_key">JWT_PRIVATE_KEY</h3>
+<p>This is an object of type <code>cryptography.hazmat.primitives.asymmetric.rsa.RSAPrivateKey</code>. It will be used to sign the signature component of the JWT. Will override <code>JWT_SECRET_KEY</code> when set. Read the <a href="https://cryptography.io/en/latest/hazmat/primitives/asymmetric/rsa/#cryptography.hazmat.primitives.asymmetric.rsa.RSAPrivateKey">documentation</a> for more details. Please note that <code>JWT_ALGORITHM</code> must be set to one of <code>RS256</code>, <code>RS384</code>, or <code>RS512</code>.</p>
+<p>Default is <code>None</code>.</p>
 <h3 id="jwt_algorithm">JWT_ALGORITHM</h3>
 <p>Possible values are any of the <a href="https://github.com/jpadilla/pyjwt#algorithms">supported algorithms</a> for cryptographic signing in PyJWT.</p>
 <p>Default is <code>"HS256"</code>.</p>
@@ -297,7 +305,7 @@ Without expiration verification, JWTs will last forever meaning a leaked token c
 <pre><code>def jwt_response_payload_handler(token, user=None, request=None):
     return {
         'token': token,
-        'user': UserSerializer(user).data
+        'user': UserSerializer(user, context={'request': request}).data
     }
 </code></pre>
 
@@ -371,5 +379,5 @@ token = jwt_encode_handler(payload)
 
 <!--
 MkDocs version : 0.13.2
-Build Date UTC : 2016-04-06 21:37:45.408051
+Build Date UTC : 2016-10-11 19:49:03.198774
 -->
