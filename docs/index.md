@@ -29,7 +29,7 @@ If you want to know more about JWT, check out the following resources:
 
 - Python (2.7, 3.3, 3.4)
 - Django (1.8, 1.9, 1.10)
-- Django REST Framework (3.0, 3.1, 3.2, 3.3, 3.4)
+- Django REST Framework (3.0, 3.1, 3.2, 3.3, 3.4, 3.5)
 
 ## Security
 
