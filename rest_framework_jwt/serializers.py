@@ -192,4 +192,3 @@ class RefreshJSONWebTokenSerializer(VerificationBaseSerializer):
             raise serializers.ValidationError(msg)
 
         return payload
-

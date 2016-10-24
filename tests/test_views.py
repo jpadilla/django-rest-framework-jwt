@@ -514,7 +514,6 @@ class RefreshJSONWebTokenTests(TokenTestCase):
         self.assertEqual(response.data['non_field_errors'][0],
                          'Refresh has expired.')
 
-
     def tearDown(self):
         # Restore original settings
         api_settings.JWT_ALLOW_REFRESH = DEFAULTS['JWT_ALLOW_REFRESH']
