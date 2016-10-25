@@ -16,6 +16,7 @@ User = get_user_model()
 jwt_payload_handler = api_settings.JWT_PAYLOAD_HANDLER
 jwt_encode_handler = api_settings.JWT_ENCODE_HANDLER
 jwt_decode_handler = api_settings.JWT_DECODE_HANDLER
+jwt_refresh_decode_handler = api_settings.JWT_REFRESH_DECODE_HANDLER
 jwt_get_username_from_payload = api_settings.JWT_PAYLOAD_GET_USERNAME_HANDLER
 
 
@@ -171,22 +172,8 @@ class RefreshJSONWebTokenSerializer(VerificationBaseSerializer):
         }
 
     def _check_payload(self, token):
-        # Check payload valid, but exp
-        # TODO: a jwt_decode_handler with a verify_exp option?
-        options = {
-            'verify_exp': False
-        }
         try:
-            payload = jwt.decode(
-                token,
-                api_settings.JWT_PUBLIC_KEY or api_settings.JWT_SECRET_KEY,
-                api_settings.JWT_VERIFY,
-                options=options,
-                leeway=api_settings.JWT_LEEWAY,
-                audience=api_settings.JWT_AUDIENCE,
-                issuer=api_settings.JWT_ISSUER,
-                algorithms=[api_settings.JWT_ALGORITHM]
-            )
+            payload = jwt_refresh_decode_handler(token)
         except jwt.DecodeError:
             msg = _('Error decoding signature.')
             raise serializers.ValidationError(msg)
