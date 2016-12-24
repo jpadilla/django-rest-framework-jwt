@@ -217,7 +217,7 @@ Default is `True`.
 
 ### JWT_LEEWAY
 
-> This allows you to validate an expiration time which is in the past but no very far. For example, if you have a JWT payload with an expiration time set to 30 seconds after creation but you know that sometimes you will process it after 30 seconds, you can set a leeway of 10 seconds in order to have some margin.
+This allows you to validate an expiration time which is in the past but not very far. For example, if you have a JWT payload with an expiration time set to 30 seconds after creation but you know that sometimes you will process it after 30 seconds, you can set a leeway of 10 seconds in order to have some margin.
 
 Default is `0` seconds.
 
