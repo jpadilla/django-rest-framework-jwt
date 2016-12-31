@@ -47,7 +47,7 @@ msgid "User account is disabled."
 msgstr ""
 
 #: serializers.py:76
-msgid "Unable to login with provided credentials."
+msgid "Unable to log in with provided credentials."
 msgstr ""
 
 #: serializers.py:79
