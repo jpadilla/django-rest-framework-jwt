@@ -9,14 +9,13 @@ from rest_framework import serializers
 from .compat import Serializer
 
 from rest_framework_jwt.settings import api_settings
-from rest_framework_jwt.compat import get_username_field, PasswordField
-
 
 User = get_user_model()
 jwt_payload_handler = api_settings.JWT_PAYLOAD_HANDLER
 jwt_encode_handler = api_settings.JWT_ENCODE_HANDLER
 jwt_decode_handler = api_settings.JWT_DECODE_HANDLER
 jwt_get_username_from_payload = api_settings.JWT_PAYLOAD_GET_USERNAME_HANDLER
+jwt_credentials = api_settings.JWT_CREDENTIALS
 
 
 class JSONWebTokenSerializer(Serializer):
@@ -29,22 +28,14 @@ class JSONWebTokenSerializer(Serializer):
     """
     def __init__(self, *args, **kwargs):
         """
-        Dynamically add the USERNAME_FIELD to self.fields.
+        Dynamically add expected credential fields to self.fields.
         """
         super(JSONWebTokenSerializer, self).__init__(*args, **kwargs)
-
-        self.fields[self.username_field] = serializers.CharField()
-        self.fields['password'] = PasswordField(write_only=True)
-
-    @property
-    def username_field(self):
-        return get_username_field()
+        self.credentials = jwt_credentials()
+        self.fields.update(self.credentials.fields)
 
     def validate(self, attrs):
-        credentials = {
-            self.username_field: attrs.get(self.username_field),
-            'password': attrs.get('password')
-        }
+        credentials = dict([(key, attrs.get(key, None)) for key in attrs])
 
         if all(credentials.values()):
             user = authenticate(**credentials)
@@ -64,9 +55,8 @@ class JSONWebTokenSerializer(Serializer):
                 msg = _('Unable to log in with provided credentials.')
                 raise serializers.ValidationError(msg)
         else:
-            msg = _('Must include "{username_field}" and "password".')
-            msg = msg.format(username_field=self.username_field)
-            raise serializers.ValidationError(msg)
+            raise serializers.ValidationError(
+                self.credentials.validation_message)
 
 
 class VerificationBaseSerializer(Serializer):
