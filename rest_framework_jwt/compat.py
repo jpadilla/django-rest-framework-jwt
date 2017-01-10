@@ -4,6 +4,7 @@ from rest_framework import serializers
 
 jwt_get_user_model = api_settings.JWT_GET_USER_MODEL
 
+
 class Serializer(serializers.Serializer):
     @property
     def object(self):
@@ -11,7 +12,6 @@ class Serializer(serializers.Serializer):
 
 
 class PasswordField(serializers.CharField):
-
     def __init__(self, *args, **kwargs):
         if 'style' not in kwargs:
             kwargs['style'] = {'input_type': 'password'}
