@@ -12,12 +12,12 @@ from rest_framework import status
 from rest_framework.test import APIClient
 
 from rest_framework_jwt import utils, views
-from rest_framework_jwt.compat import get_user_model
+from rest_framework_jwt.compat import jwt_get_user_model
 from rest_framework_jwt.settings import api_settings, DEFAULTS
 
 from . import utils as test_utils
 
-User = get_user_model()
+User = jwt_get_user_model()
 
 NO_CUSTOM_USER_MODEL = 'Custom User Model only supported after Django 1.5'
 

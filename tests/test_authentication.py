@@ -22,10 +22,10 @@ except ImportError:
 from rest_framework.test import APIRequestFactory, APIClient
 
 from rest_framework_jwt import utils
-from rest_framework_jwt.compat import get_user_model
+from rest_framework_jwt.compat import jwt_get_user_model
 from rest_framework_jwt.settings import api_settings, DEFAULTS
 
-User = get_user_model()
+User = jwt_get_user_model()
 
 DJANGO_OAUTH2_PROVIDER_NOT_INSTALLED = 'django-oauth2-provider not installed'
 
