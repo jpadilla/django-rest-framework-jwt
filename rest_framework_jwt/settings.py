@@ -3,8 +3,6 @@ import datetime
 from django.conf import settings
 from rest_framework.settings import APISettings
 
-from .credentials import BasicCredentials
-
 USER_SETTINGS = getattr(settings, 'JWT_AUTH', None)
 
 DEFAULTS = {
@@ -46,7 +44,7 @@ DEFAULTS = {
 
     'JWT_AUTH_HEADER_PREFIX': 'JWT',
 
-    'JWT_CREDENTIALS': BasicCredentials,
+    'JWT_CREDENTIALS': 'rest_framework_jwt.credentials.BasicCredentials',
 }
 
 
@@ -58,6 +56,7 @@ IMPORT_STRINGS = (
     'JWT_PAYLOAD_GET_USER_ID_HANDLER',
     'JWT_PAYLOAD_GET_USERNAME_HANDLER',
     'JWT_RESPONSE_PAYLOAD_HANDLER',
+    'JWT_CREDENTIALS',
 )
 
 api_settings = APISettings(USER_SETTINGS, DEFAULTS, IMPORT_STRINGS)
