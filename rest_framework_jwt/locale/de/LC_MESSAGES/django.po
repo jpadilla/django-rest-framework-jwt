@@ -20,7 +20,7 @@ msgstr "Die Signatur ist abgelaufen."
 
 #: authentication.py:36 serializers.py:103
 msgid "Error decoding signature."
-msgstr "Fehler beim entschlüsseln der Signatur."
+msgstr "Fehler beim Entschlüsseln der Signatur."
 
 #: authentication.py:55
 msgid "Invalid signature."
@@ -35,9 +35,8 @@ msgid "Invalid Authorization header. No credentials provided."
 msgstr "Ungültiger Authorization header. Keine Anmeldeinformationen vorhanden."
 
 #: authentication.py:85
-msgid ""
-"Invalid Authorization header. Credentials string should not contain spaces."
-msgstr "Ungültiger Authorization header. Anmeldedaten sollten keine Leerzeichen enthalten."
+msgid "Invalid Authorization header. Credentials string should not contain spaces."
+msgstr "Ungültiger Authorization header. Anmeldedaten dürfen keine Leerzeichen enthalten."
 
 #: serializers.py:59
 msgid "User account is disabled."
