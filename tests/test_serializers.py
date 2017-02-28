@@ -64,7 +64,7 @@ class JSONWebTokenSerializerTests(TestCase):
         is_valid = serializer.is_valid()
 
         expected_error = {
-            'non_field_errors': ['Unable to login with provided credentials.']
+            'non_field_errors': ['Unable to log in with provided credentials.']
         }
 
         self.assertFalse(is_valid)

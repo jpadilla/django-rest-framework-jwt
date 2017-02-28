@@ -27,9 +27,9 @@ If you want to know more about JWT, check out the following resources:
 
 ## Requirements
 
-- Python (2.7, 3.3, 3.4)
+- Python (2.7, 3.3, 3.4, 3.5)
 - Django (1.8, 1.9, 1.10)
-- Django REST Framework (3.0, 3.1, 3.2, 3.3, 3.4)
+- Django REST Framework (3.0, 3.1, 3.2, 3.3, 3.4, 3.5)
 
 ## Security
 
@@ -59,9 +59,9 @@ REST_FRAMEWORK = {
         'rest_framework.permissions.IsAuthenticated',
     ),
     'DEFAULT_AUTHENTICATION_CLASSES': (
+        'rest_framework_jwt.authentication.JSONWebTokenAuthentication',
         'rest_framework.authentication.SessionAuthentication',
         'rest_framework.authentication.BasicAuthentication',
-        'rest_framework_jwt.authentication.JSONWebTokenAuthentication',
     ),
 }
 ```
@@ -72,12 +72,12 @@ In your `urls.py` add the following URL route to enable obtaining a token via a 
 from rest_framework_jwt.views import obtain_jwt_token
 #...
 
-urlpatterns = patterns(
+urlpatterns = [
     '',
     # ...
 
     url(r'^api-token-auth/', obtain_jwt_token),
-)
+]
 ```
 
 You can easily test if the endpoint is working by doing the following in your terminal, if you had a user created with the username **admin** and password **password123**.
@@ -99,7 +99,7 @@ $ curl -H "Authorization: JWT <your_token>" http://localhost:8000/protected-url/
 ```
 
 ## Refresh Token
-If `JWT_ALLOW_REFRESH` is True, issued tokens can be "refreshed" to obtain a new brand token with renewed expiration time. Add a URL pattern like this:
+If `JWT_ALLOW_REFRESH` is True, **non-expired** tokens can be "refreshed" to obtain a brand new token with renewed expiration time. Add a URL pattern like this:
 ```python
     from rest_framework_jwt.views import refresh_jwt_token
     #  ...
@@ -217,7 +217,7 @@ Default is `True`.
 
 ### JWT_LEEWAY
 
-> This allows you to validate an expiration time which is in the past but no very far. For example, if you have a JWT payload with an expiration time set to 30 seconds after creation but you know that sometimes you will process it after 30 seconds, you can set a leeway of 10 seconds in order to have some margin.
+This allows you to validate an expiration time which is in the past but not very far. For example, if you have a JWT payload with an expiration time set to 30 seconds after creation but you know that sometimes you will process it after 30 seconds, you can set a leeway of 10 seconds in order to have some margin.
 
 Default is `0` seconds.
 
