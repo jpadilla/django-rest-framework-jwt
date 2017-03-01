@@ -82,7 +82,12 @@ class JSONWebTokenAuthentication(BaseJSONWebTokenAuthentication):
         auth = get_authorization_header(request).split()
         auth_header_prefix = api_settings.JWT_AUTH_HEADER_PREFIX.lower()
 
-        if not auth or smart_text(auth[0].lower()) != auth_header_prefix:
+        if not auth:
+            if api_settings.JWT_AUTH_COOKIE:
+                return request.COOKIES.get(api_settings.JWT_AUTH_COOKIE)
+            return None
+
+        if smart_text(auth[0].lower()) != auth_header_prefix:
             return None
 
         if len(auth) == 1:
