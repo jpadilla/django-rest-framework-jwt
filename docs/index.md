@@ -179,6 +179,8 @@ JWT_AUTH = {
 
     'JWT_AUTH_HEADER_PREFIX': 'JWT',
     'JWT_AUTH_USER_MODEL': settings.AUTH_USER_MODEL,
+    'JWT_AUTH_COOKIE': None,
+
 }
 ```
 This packages uses the JSON Web Token Python implementation, [PyJWT](https://github.com/jpadilla/pyjwt) and allows to modify some of it's available options.
@@ -284,14 +286,22 @@ Another common value used for tokens and Authorization headers is `Bearer`.
 
 Default is `JWT`.
 
+
 ### JWT_AUTH_USER_MODEL
 This points the app to default user model. It is used in conjuction with 'JWT_GET_USER_SECRET_KEY'. In most cases default value should be enough.
 
 Default is `settings.AUTH_USER_MODEL`.
 
+### JWT_AUTH_COOKIE
+You can set this to a string if you want to use http cookies in addition to the Authorization header as a valid transport for the token.
+The string you set here will be used as the cookie name that will be set in the response headers when requesting a token. The token validation
+procedure will also look into this cookie, if set. The 'Authorization' header takes precedence if both the header and the cookie are present in the request.
+
+Default is `None` and no cookie is set when creating tokens nor accepted when validating them.
+
 ## Extending `JSONWebTokenAuthentication`
 
-Right now `JSONWebTokenAuthentication` assumes that the JWT will come in the header. The JWT spec does not require this (see: [Making a service Call](https://developer.atlassian.com/static/connect/docs/concepts/authentication.html)). For example, the JWT may come in the querystring. The ability to send the JWT in the querystring is needed in cases where the user cannot set the header (for example the src element in HTML).
+Right now `JSONWebTokenAuthentication` assumes that the JWT will come in the header, or a cookie if configured (see [JWT_AUTH_COOKIE](#JWT_AUTH_COOKIE)). The JWT spec does not require this (see: [Making a service Call](https://developer.atlassian.com/static/connect/docs/concepts/authentication.html)). For example, the JWT may come in the querystring. The ability to send the JWT in the querystring is needed in cases where the user cannot set the header (for example the src element in HTML).
 
 To achieve this functionality, the user might write a custom `Authentication`:
 ```python
