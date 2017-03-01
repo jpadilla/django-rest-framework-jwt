@@ -4,7 +4,11 @@ import warnings
 
 from six import string_types
 
-from django.db.models.loading import get_model
+try:
+    from django.db.models.loading import get_model
+except ImportError:
+    from django.apps import apps
+    get_model = apps.get_model
 
 from calendar import timegm
 from datetime import datetime
