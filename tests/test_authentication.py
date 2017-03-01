@@ -173,7 +173,7 @@ class JSONWebTokenAuthenticationTests(TestCase):
 
         self.assertEqual(response.status_code, status.HTTP_401_UNAUTHORIZED)
 
-        #revert api settings
+        # revert api settings
         api_settings.JWT_AUTH_USER_MODEL = DEFAULTS['JWT_AUTH_USER_MODEL']
         api_settings.JWT_GET_USER_SECRET_KEY = DEFAULTS['JWT_GET_USER_SECRET_KEY']
 
