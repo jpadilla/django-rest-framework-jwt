@@ -1,4 +1,10 @@
 import unittest
+import uuid
+
+from .models import CustomUser
+
+from .utils import get_jwt_secret
+from django.test.utils import override_settings
 
 from django.test import TestCase
 from rest_framework import status
@@ -19,11 +25,13 @@ except ImportError:
         # because models have not been initialized.
         oauth2_provider = None
 
-from rest_framework.test import APIRequestFactory, APIClient
+from rest_framework.test import APIClient
+from rest_framework.test import APIRequestFactory
 
 from rest_framework_jwt import utils
 from rest_framework_jwt.compat import get_user_model
-from rest_framework_jwt.settings import api_settings, DEFAULTS
+from rest_framework_jwt.settings import DEFAULTS
+from rest_framework_jwt.settings import api_settings
 
 User = get_user_model()
 
@@ -136,6 +144,38 @@ class JSONWebTokenAuthenticationTests(TestCase):
         self.assertEqual(response.data['detail'], msg)
         self.assertEqual(response.status_code, status.HTTP_401_UNAUTHORIZED)
         self.assertEqual(response['WWW-Authenticate'], 'JWT realm="api"')
+
+    @override_settings(AUTH_USER_MODEL='tests.CustomUser')
+    def test_post_form_failing_jwt_auth_changed_user_secret_key(self):
+        """
+        Ensure changin secret key on USER level makes tokens invalid
+        """
+        # fine tune settings
+        api_settings.JWT_AUTH_USER_MODEL = CustomUser
+        api_settings.JWT_GET_USER_SECRET_KEY = get_jwt_secret
+
+        tmp_user = CustomUser.objects.create(email='b@example.com')
+        payload = utils.jwt_payload_handler(tmp_user)
+        token = utils.jwt_encode_handler(payload)
+
+        auth = 'JWT {0}'.format(token)
+        response = self.csrf_client.post(
+            '/jwt/', {'example': 'example'}, HTTP_AUTHORIZATION=auth, format='json')
+
+        self.assertEqual(response.status_code, status.HTTP_200_OK)
+
+        # change token, verify
+        tmp_user.jwt_secret = uuid.uuid4()
+        tmp_user.save()
+
+        response = self.csrf_client.post(
+            '/jwt/', {'example': 'example'}, HTTP_AUTHORIZATION=auth)
+
+        self.assertEqual(response.status_code, status.HTTP_401_UNAUTHORIZED)
+
+        #revert api settings
+        api_settings.JWT_AUTH_USER_MODEL = DEFAULTS['JWT_AUTH_USER_MODEL']
+        api_settings.JWT_GET_USER_SECRET_KEY = DEFAULTS['JWT_GET_USER_SECRET_KEY']
 
     def test_post_invalid_token_failing_jwt_auth(self):
         """

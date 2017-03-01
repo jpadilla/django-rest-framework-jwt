@@ -1,11 +1,37 @@
 import jwt
 import uuid
 import warnings
+
+from six import string_types
+
+from django.db.models.loading import get_model
+
 from calendar import timegm
 from datetime import datetime
 
-from rest_framework_jwt.compat import get_username, get_username_field
+from rest_framework_jwt.compat import get_username
+from rest_framework_jwt.compat import get_username_field
 from rest_framework_jwt.settings import api_settings
+
+
+def jwt_get_secret_key(user_id=None):
+    """
+        For enchanced security you may use secret key on user itself.
+        This way you have an option to logout only this user if:
+            - token is compromised
+            - password is changed
+            - etc.
+    """
+    if api_settings.JWT_GET_USER_SECRET_KEY:
+        if isinstance(api_settings.JWT_AUTH_USER_MODEL, string_types):
+            parts = api_settings.JWT_AUTH_USER_MODEL.rsplit('.', 1)
+            Account = get_model(parts[0], parts[1])
+        else:
+            Account = api_settings.JWT_AUTH_USER_MODEL
+        user = Account.objects.get(pk=user_id)
+        key = str(api_settings.JWT_GET_USER_SECRET_KEY(user))
+        return key
+    return api_settings.JWT_SECRET_KEY
 
 
 def jwt_payload_handler(user):
@@ -66,9 +92,10 @@ def jwt_get_username_from_payload_handler(payload):
 
 
 def jwt_encode_handler(payload):
+    key = api_settings.JWT_PRIVATE_KEY or jwt_get_secret_key(payload.get('user_id'))
     return jwt.encode(
         payload,
-        api_settings.JWT_PRIVATE_KEY or api_settings.JWT_SECRET_KEY,
+        key,
         api_settings.JWT_ALGORITHM
     ).decode('utf-8')
 
@@ -77,10 +104,12 @@ def jwt_decode_handler(token):
     options = {
         'verify_exp': api_settings.JWT_VERIFY_EXPIRATION,
     }
-
+    # get user from token, BEFORE verification, to get user secret key
+    unverified_payload = jwt.decode(token, None, False)
+    secret_key = jwt_get_secret_key(unverified_payload.get('user_id'))
     return jwt.decode(
         token,
-        api_settings.JWT_PUBLIC_KEY or api_settings.JWT_SECRET_KEY,
+        api_settings.JWT_PUBLIC_KEY or secret_key,
         api_settings.JWT_VERIFY,
         options=options,
         leeway=api_settings.JWT_LEEWAY,
