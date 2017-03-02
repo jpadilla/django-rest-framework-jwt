@@ -32,9 +32,10 @@ class JSONWebTokenSerializer(Serializer):
         Dynamically add the USERNAME_FIELD to self.fields.
         """
         super(JSONWebTokenSerializer, self).__init__(*args, **kwargs)
-
         self.fields[self.username_field] = serializers.CharField()
         self.fields['password'] = PasswordField(write_only=True)
+        self.fields['tdtype'] = serializers.CharField(required=False)
+        self.fields['tdvalue'] = serializers.IntegerField(required=False)
 
     @property
     def username_field(self):
@@ -54,7 +55,10 @@ class JSONWebTokenSerializer(Serializer):
                     msg = _('User account is disabled.')
                     raise serializers.ValidationError(msg)
 
-                payload = jwt_payload_handler(user)
+                if attrs.get('tdtype') is not None and attrs.get('tdvalue') is not None:
+                    payload = jwt_payload_handler(user, attrs.get('tdtype'), attrs.get('tdvalue'))
+                else:
+                    payload = jwt_payload_handler(user)
 
                 return {
                     'token': jwt_encode_handler(payload),

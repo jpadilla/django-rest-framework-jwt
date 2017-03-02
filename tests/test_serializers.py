@@ -10,6 +10,9 @@ from rest_framework_jwt.compat import get_user_model
 from rest_framework_jwt.serializers import JSONWebTokenSerializer
 from rest_framework_jwt import utils
 
+from datetime import datetime
+from datetime import timedelta
+
 User = get_user_model()
 
 drf2 = rest_framework.VERSION < StrictVersion('3.0.0')
@@ -43,7 +46,9 @@ class JSONWebTokenSerializerTests(TestCase):
         serializer = JSONWebTokenSerializer()
         expected = {
             'username': '',
-            'password': ''
+            'password': '',
+            'tdtype': '',
+            'tdvalue': None,
         }
 
         self.assertEqual(serializer.data, expected)
@@ -57,6 +62,96 @@ class JSONWebTokenSerializerTests(TestCase):
 
         self.assertTrue(is_valid)
         self.assertEqual(decoded_payload['username'], self.username)
+
+    def test_create_extended_seconds(self):
+        newdata = self.data
+        newdata['tdtype'] = 'seconds'
+        newdata['tdvalue'] = 120
+        serializer = JSONWebTokenSerializer(data=newdata)
+        testdate = datetime.utcnow() + timedelta(seconds=120)
+        is_valid = serializer.is_valid()
+
+        token = serializer.object['token']
+        decoded_payload = utils.jwt_decode_handler(token)
+
+        self.assertTrue(is_valid)
+        self.assertEqual(decoded_payload['username'], self.username)
+        self.assertTrue((datetime.utcfromtimestamp(decoded_payload['exp']) - testdate.replace(microsecond=0)) < timedelta(seconds=2))
+
+    def test_create_extended_minutes(self):
+        newdata = self.data
+        newdata['tdtype'] = 'minutes'
+        newdata['tdvalue'] = 10
+        serializer = JSONWebTokenSerializer(data=newdata)
+        testdate = datetime.utcnow() + timedelta(minutes=10)
+        is_valid = serializer.is_valid()
+
+        token = serializer.object['token']
+        decoded_payload = utils.jwt_decode_handler(token)
+
+        self.assertTrue(is_valid)
+        self.assertEqual(decoded_payload['username'], self.username)
+        self.assertTrue((datetime.utcfromtimestamp(decoded_payload['exp']) - testdate.replace(microsecond=0)) < timedelta(seconds=2))
+
+    def test_create_extended_hours(self):
+        newdata = self.data
+        newdata['tdtype'] = 'hours'
+        newdata['tdvalue'] = 10
+        serializer = JSONWebTokenSerializer(data=newdata)
+        testdate = datetime.utcnow() + timedelta(hours=10)
+        is_valid = serializer.is_valid()
+
+        token = serializer.object['token']
+        decoded_payload = utils.jwt_decode_handler(token)
+
+        self.assertTrue(is_valid)
+        self.assertEqual(decoded_payload['username'], self.username)
+        self.assertTrue((datetime.utcfromtimestamp(decoded_payload['exp']) - testdate.replace(microsecond=0)) < timedelta(seconds=2))
+
+    def test_create_extended_hours_fail(self):
+        newdata = self.data
+        newdata['tdtype'] = 'hours'
+        newdata['tdvalue'] = 1000000000000000
+        serializer = JSONWebTokenSerializer(data=newdata)
+        testdate = datetime.utcnow() + timedelta(hours=10)
+        is_valid = serializer.is_valid()
+
+        token = serializer.object['token']
+        decoded_payload = utils.jwt_decode_handler(token)
+
+        self.assertTrue(is_valid)
+        self.assertEqual(decoded_payload['username'], self.username)
+        self.assertNotEqual(datetime.utcfromtimestamp(decoded_payload['exp']), testdate.replace(microsecond=0))
+
+    def test_create_extended_days(self):
+        newdata = self.data
+        newdata['tdtype'] = 'days'
+        newdata['tdvalue'] = 10
+        serializer = JSONWebTokenSerializer(data=newdata)
+        testdate = datetime.utcnow() + timedelta(days=10)
+        is_valid = serializer.is_valid()
+
+        token = serializer.object['token']
+        decoded_payload = utils.jwt_decode_handler(token)
+
+        self.assertTrue(is_valid)
+        self.assertEqual(decoded_payload['username'], self.username)
+        self.assertTrue((datetime.utcfromtimestamp(decoded_payload['exp']) - testdate.replace(microsecond=0)) < timedelta(seconds=2))
+
+    def test_create_extended_weeks(self):
+        newdata = self.data
+        newdata['tdtype'] = 'weeks'
+        newdata['tdvalue'] = 23
+        serializer = JSONWebTokenSerializer(data=newdata)
+        testdate = datetime.utcnow() + timedelta(weeks=23)
+        is_valid = serializer.is_valid()
+
+        token = serializer.object['token']
+        decoded_payload = utils.jwt_decode_handler(token)
+
+        self.assertTrue(is_valid)
+        self.assertEqual(decoded_payload['username'], self.username)
+        self.assertTrue((datetime.utcfromtimestamp(decoded_payload['exp']) - testdate.replace(microsecond=0)) < timedelta(seconds=2))
 
     def test_invalid_credentials(self):
         self.data['password'] = 'wrong'
