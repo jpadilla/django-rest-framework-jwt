@@ -6,11 +6,11 @@ from django.test import TestCase
 from django.test.utils import override_settings
 import rest_framework
 
-from rest_framework_jwt.compat import get_user_model
+from rest_framework_jwt.compat import jwt_get_user_model
 from rest_framework_jwt.serializers import JSONWebTokenSerializer
 from rest_framework_jwt import utils
 
-User = get_user_model()
+User = jwt_get_user_model()
 
 drf2 = rest_framework.VERSION < StrictVersion('3.0.0')
 drf3 = rest_framework.VERSION >= StrictVersion('3.0.0')

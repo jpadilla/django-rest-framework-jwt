@@ -24,8 +24,15 @@ def jwt_payload_handler(user):
         'username': username,
         'exp': datetime.utcnow() + api_settings.JWT_EXPIRATION_DELTA
     }
-    if isinstance(user.pk, uuid.UUID):
-        payload['user_id'] = str(user.pk)
+
+    try:
+        from bson import objectid
+    except ImportError:
+        if isinstance(user.pk, uuid.UUID):
+            payload['user_id'] = str(user.pk)
+    else:
+        if isinstance(user.pk, (uuid.UUID, objectid.ObjectId)):
+            payload['user_id'] = str(user.pk)
 
     payload[username_field] = username
 

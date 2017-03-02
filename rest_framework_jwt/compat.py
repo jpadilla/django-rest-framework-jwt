@@ -1,6 +1,8 @@
-from django.contrib.auth import get_user_model
+from rest_framework_jwt.settings import api_settings
 
 from rest_framework import serializers
+
+jwt_get_user_model = api_settings.JWT_GET_USER_MODEL
 
 
 class Serializer(serializers.Serializer):
@@ -10,7 +12,6 @@ class Serializer(serializers.Serializer):
 
 
 class PasswordField(serializers.CharField):
-
     def __init__(self, *args, **kwargs):
         if 'style' not in kwargs:
             kwargs['style'] = {'input_type': 'password'}
@@ -21,7 +22,7 @@ class PasswordField(serializers.CharField):
 
 def get_username_field():
     try:
-        username_field = get_user_model().USERNAME_FIELD
+        username_field = jwt_get_user_model().USERNAME_FIELD
     except:
         username_field = 'username'
 

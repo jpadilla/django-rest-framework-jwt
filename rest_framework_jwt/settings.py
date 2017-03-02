@@ -19,6 +19,12 @@ DEFAULTS = {
     'JWT_PAYLOAD_GET_USER_ID_HANDLER':
     'rest_framework_jwt.utils.jwt_get_user_id_from_payload_handler',
 
+    'JWT_AUTHENTICATE':
+    'django.contrib.auth.authenticate',
+
+    'JWT_GET_USER_MODEL':
+    'django.contrib.auth.get_user_model',
+
     'JWT_PRIVATE_KEY':
     None,
 
@@ -55,6 +61,8 @@ IMPORT_STRINGS = (
     'JWT_PAYLOAD_GET_USER_ID_HANDLER',
     'JWT_PAYLOAD_GET_USERNAME_HANDLER',
     'JWT_RESPONSE_PAYLOAD_HANDLER',
+    'JWT_AUTHENTICATE',
+    'JWT_GET_USER_MODEL',
 )
 
 api_settings = APISettings(USER_SETTINGS, DEFAULTS, IMPORT_STRINGS)
