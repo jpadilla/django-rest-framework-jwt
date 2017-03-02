@@ -32,15 +32,17 @@ class JSONWebTokenSerializer(Serializer):
         Dynamically add the USERNAME_FIELD to self.fields.
         """
         super(JSONWebTokenSerializer, self).__init__(*args, **kwargs)
-
         self.fields[self.username_field] = serializers.CharField()
         self.fields['password'] = PasswordField(write_only=True)
+        self.fields['tdtype'] = serializers.CharField(required=False)
+        self.fields['tdvalue'] = serializers.IntegerField(required=False)
 
     @property
     def username_field(self):
         return get_username_field()
 
     def validate(self, attrs):
+        print attrs
         credentials = {
             self.username_field: attrs.get(self.username_field),
             'password': attrs.get('password')
@@ -54,14 +56,37 @@ class JSONWebTokenSerializer(Serializer):
                     msg = _('User account is disabled.')
                     raise serializers.ValidationError(msg)
 
-                payload = jwt_payload_handler(user)
+                """
+                If tdtype and tdvalue are specified modify the api_settings.JWT_EXPIRATION_DELTA field and generate the payload.
+                Otherwise generate the payload with the default options.
+                """
+                if attrs.get('tdtype') is not None and attrs.get('tdvalue') is not None:
+                    """
+                    Dynamically change the expiration if the tdtype and tdvalue are specified.
+                    The original state of api_settings.JWT_EXPIRATION_DELTA is returned.
+                    """
+                    tmp_exp = api_settings.JWT_EXPIRATION_DELTA
+                    if attrs.get('tdtype') == 'seconds':
+                        api_settings.JWT_EXPIRATION_DELTA = timedelta(seconds=attrs.get('tdvalue'))
+                    if attrs.get('tdtype') == 'minutes':
+                        api_settings.JWT_EXPIRATION_DELTA = timedelta(minutes=attrs.get('tdvalue'))
+                    if attrs.get('tdtype') == 'hours':
+                        api_settings.JWT_EXPIRATION_DELTA = timedelta(hours=attrs.get('tdvalue'))
+                    if attrs.get('tdtype') == 'days':
+                        api_settings.JWT_EXPIRATION_DELTA = timedelta(days=attrs.get('tdvalue'))
+                    if attrs.get('tdtype') == 'weeks':
+                        api_settings.JWT_EXPIRATION_DELTA = timedelta(weeks=attrs.get('tdvalue'))
+                    payload = jwt_payload_handler(user)
+                    api_settings.JWT_EXPIRATION_DELTA = tmp_exp
+                else:
+                    payload = jwt_payload_handler(user)
 
                 return {
                     'token': jwt_encode_handler(payload),
                     'user': user
                 }
             else:
-                msg = _('Unable to log in with provided credentials.')
+                msg = _('Unable to login with provided credentials.')
                 raise serializers.ValidationError(msg)
         else:
             msg = _('Must include "{username_field}" and "password".')
