@@ -469,6 +469,31 @@ class RefreshJSONWebTokenTests(TokenTestCase):
         self.assertEquals(new_token_decoded['orig_iat'], orig_iat)
         self.assertGreater(new_token_decoded['exp'], orig_token_decoded['exp'])
 
+    def test_refresh_jwt_after_expiration(self):
+        client = APIClient(enforce_csrf_checks=True)
+
+        # Make an refreshable, expired token..
+        orig_iat = datetime.utcnow() - timedelta(hours=1)
+        exp = datetime.utcnow() - timedelta(seconds=5)
+        token = self.create_token(
+            self.user,
+            exp=exp,
+            orig_iat=orig_iat
+        )
+
+        response = client.post('/auth-token-refresh/', {'token': token},
+                               format='json')
+        self.assertEqual(response.status_code, status.HTTP_200_OK)
+
+        new_token = response.data['token']
+        new_token_decoded = utils.jwt_decode_handler(new_token)
+
+        # Make sure 'orig_iat' on the new token is same as original
+        self.assertEquals(new_token_decoded['orig_iat'],
+                          timegm(orig_iat.utctimetuple()))
+        self.assertGreater(new_token_decoded['exp'],
+                           timegm(exp.utctimetuple()))
+
     def test_refresh_jwt_after_refresh_expiration(self):
         """
         Test that token can't be refreshed after token refresh limit

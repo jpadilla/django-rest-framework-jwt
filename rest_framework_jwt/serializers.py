@@ -16,6 +16,7 @@ User = get_user_model()
 jwt_payload_handler = api_settings.JWT_PAYLOAD_HANDLER
 jwt_encode_handler = api_settings.JWT_ENCODE_HANDLER
 jwt_decode_handler = api_settings.JWT_DECODE_HANDLER
+jwt_refresh_decode_handler = api_settings.JWT_REFRESH_DECODE_HANDLER
 jwt_get_username_from_payload = api_settings.JWT_PAYLOAD_GET_USERNAME_HANDLER
 
 
@@ -169,3 +170,12 @@ class RefreshJSONWebTokenSerializer(VerificationBaseSerializer):
             'token': jwt_encode_handler(new_payload),
             'user': user
         }
+
+    def _check_payload(self, token):
+        try:
+            payload = jwt_refresh_decode_handler(token)
+        except jwt.DecodeError:
+            msg = _('Error decoding signature.')
+            raise serializers.ValidationError(msg)
+
+        return payload

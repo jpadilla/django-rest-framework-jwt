@@ -77,7 +77,17 @@ def jwt_decode_handler(token):
     options = {
         'verify_exp': api_settings.JWT_VERIFY_EXPIRATION,
     }
+    return jwt_decode(token, options)
 
+
+def jwt_refresh_decode_handler(token):
+    options = {
+        'verify_exp': False
+    }
+    return jwt_decode(token, options)
+
+
+def jwt_decode(token, options):
     return jwt.decode(
         token,
         api_settings.JWT_PUBLIC_KEY or api_settings.JWT_SECRET_KEY,

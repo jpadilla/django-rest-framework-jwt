@@ -13,6 +13,9 @@ DEFAULTS = {
     'JWT_DECODE_HANDLER':
     'rest_framework_jwt.utils.jwt_decode_handler',
 
+    'JWT_REFRESH_DECODE_HANDLER':
+    'rest_framework_jwt.utils.jwt_refresh_decode_handler',
+
     'JWT_PAYLOAD_HANDLER':
     'rest_framework_jwt.utils.jwt_payload_handler',
 
@@ -51,6 +54,7 @@ DEFAULTS = {
 IMPORT_STRINGS = (
     'JWT_ENCODE_HANDLER',
     'JWT_DECODE_HANDLER',
+    'JWT_REFRESH_DECODE_HANDLER',
     'JWT_PAYLOAD_HANDLER',
     'JWT_PAYLOAD_GET_USER_ID_HANDLER',
     'JWT_PAYLOAD_GET_USERNAME_HANDLER',
