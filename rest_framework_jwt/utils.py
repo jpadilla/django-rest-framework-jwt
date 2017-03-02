@@ -2,13 +2,13 @@ import jwt
 import uuid
 import warnings
 from calendar import timegm
-from datetime import datetime
+from datetime import datetime, timedelta
 
 from rest_framework_jwt.compat import get_username, get_username_field
 from rest_framework_jwt.settings import api_settings
 
 
-def jwt_payload_handler(user):
+def jwt_payload_handler(user, timedelta_type=None, timedelta_value=None):
     username_field = get_username_field()
     username = get_username(user)
 
@@ -18,11 +18,27 @@ def jwt_payload_handler(user):
         DeprecationWarning
     )
 
+    td = api_settings.JWT_EXPIRATION_DELTA
+    if timedelta_type is not None and timedelta_value is not None:
+        try:
+            if timedelta_type == 'seconds':
+                td = timedelta(seconds=timedelta_value)
+            if timedelta_type == 'minutes':
+                td = timedelta(minutes=timedelta_value)
+            if timedelta_type == 'hours':
+                td = timedelta(hours=timedelta_value)
+            if timedelta_type == 'days':
+                td = timedelta(days=timedelta_value)
+            if timedelta_type == 'weeks':
+                td = timedelta(weeks=timedelta_value)
+        except:
+            td = api_settings.JWT_EXPIRATION_DELTA
+
     payload = {
         'user_id': user.pk,
         'email': user.email,
         'username': username,
-        'exp': datetime.utcnow() + api_settings.JWT_EXPIRATION_DELTA
+        'exp': datetime.utcnow() + td
     }
     if isinstance(user.pk, uuid.UUID):
         payload['user_id'] = str(user.pk)

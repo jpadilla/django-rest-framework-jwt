@@ -55,28 +55,8 @@ class JSONWebTokenSerializer(Serializer):
                     msg = _('User account is disabled.')
                     raise serializers.ValidationError(msg)
 
-                """
-                If tdtype and tdvalue are specified modify the api_settings.JWT_EXPIRATION_DELTA field and generate the payload.
-                Otherwise generate the payload with the default options.
-                """
                 if attrs.get('tdtype') is not None and attrs.get('tdvalue') is not None:
-                    """
-                    Dynamically change the expiration if the tdtype and tdvalue are specified.
-                    The original state of api_settings.JWT_EXPIRATION_DELTA is returned.
-                    """
-                    tmp_exp = api_settings.JWT_EXPIRATION_DELTA
-                    if attrs.get('tdtype') == 'seconds':
-                        api_settings.JWT_EXPIRATION_DELTA = timedelta(seconds=attrs.get('tdvalue'))
-                    if attrs.get('tdtype') == 'minutes':
-                        api_settings.JWT_EXPIRATION_DELTA = timedelta(minutes=attrs.get('tdvalue'))
-                    if attrs.get('tdtype') == 'hours':
-                        api_settings.JWT_EXPIRATION_DELTA = timedelta(hours=attrs.get('tdvalue'))
-                    if attrs.get('tdtype') == 'days':
-                        api_settings.JWT_EXPIRATION_DELTA = timedelta(days=attrs.get('tdvalue'))
-                    if attrs.get('tdtype') == 'weeks':
-                        api_settings.JWT_EXPIRATION_DELTA = timedelta(weeks=attrs.get('tdvalue'))
-                    payload = jwt_payload_handler(user)
-                    api_settings.JWT_EXPIRATION_DELTA = tmp_exp
+                    payload = jwt_payload_handler(user, attrs.get('tdtype'), attrs.get('tdvalue'))
                 else:
                     payload = jwt_payload_handler(user)
 
