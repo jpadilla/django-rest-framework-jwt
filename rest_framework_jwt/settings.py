@@ -40,6 +40,8 @@ DEFAULTS = {
     'JWT_AUDIENCE': None,
     'JWT_ISSUER': None,
 
+    'JWT_VERIFY_HOST': False,
+
     'JWT_ALLOW_REFRESH': False,
     'JWT_REFRESH_EXPIRATION_DELTA': datetime.timedelta(days=7),
 

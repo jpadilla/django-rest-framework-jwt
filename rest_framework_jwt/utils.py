@@ -8,7 +8,7 @@ from rest_framework_jwt.compat import get_username, get_username_field
 from rest_framework_jwt.settings import api_settings
 
 
-def jwt_payload_handler(user):
+def jwt_payload_handler(user, request):
     username_field = get_username_field()
     username = get_username(user)
 
@@ -22,6 +22,7 @@ def jwt_payload_handler(user):
         'user_id': user.pk,
         'email': user.email,
         'username': username,
+        'host': request.get_host(),
         'exp': datetime.utcnow() + api_settings.JWT_EXPIRATION_DELTA
     }
     if isinstance(user.pk, uuid.UUID):
