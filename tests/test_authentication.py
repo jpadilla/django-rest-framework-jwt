@@ -151,7 +151,6 @@ class JSONWebTokenAuthenticationTests(TestCase):
         Ensure changin secret key on USER level makes tokens invalid
         """
         # fine tune settings
-        api_settings.JWT_AUTH_USER_MODEL = CustomUser
         api_settings.JWT_GET_USER_SECRET_KEY = get_jwt_secret
 
         tmp_user = CustomUser.objects.create(email='b@example.com')
@@ -174,7 +173,6 @@ class JSONWebTokenAuthenticationTests(TestCase):
         self.assertEqual(response.status_code, status.HTTP_401_UNAUTHORIZED)
 
         # revert api settings
-        api_settings.JWT_AUTH_USER_MODEL = DEFAULTS['JWT_AUTH_USER_MODEL']
         api_settings.JWT_GET_USER_SECRET_KEY = DEFAULTS['JWT_GET_USER_SECRET_KEY']
 
     def test_post_invalid_token_failing_jwt_auth(self):

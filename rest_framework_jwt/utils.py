@@ -2,13 +2,7 @@ import jwt
 import uuid
 import warnings
 
-from six import string_types
-
-try:
-    from django.db.models.loading import get_model
-except ImportError:
-    from django.apps import apps
-    get_model = apps.get_model
+from django.contrib.auth import get_user_model
 
 from calendar import timegm
 from datetime import datetime
@@ -20,19 +14,16 @@ from rest_framework_jwt.settings import api_settings
 
 def jwt_get_secret_key(user_id=None):
     """
-        For enchanced security you may use secret key on user itself.
-        This way you have an option to logout only this user if:
-            - token is compromised
-            - password is changed
-            - etc.
+    For enchanced security you may use secret key on user itself.
+
+    This way you have an option to logout only this user if:
+        - token is compromised
+        - password is changed
+        - etc.
     """
     if api_settings.JWT_GET_USER_SECRET_KEY:
-        if isinstance(api_settings.JWT_AUTH_USER_MODEL, string_types):
-            parts = api_settings.JWT_AUTH_USER_MODEL.rsplit('.', 1)
-            Account = get_model(parts[0], parts[1])
-        else:
-            Account = api_settings.JWT_AUTH_USER_MODEL
-        user = Account.objects.get(pk=user_id)
+        User = get_user_model()  # noqa: N806
+        user = User.objects.get(pk=user_id)
         key = str(api_settings.JWT_GET_USER_SECRET_KEY(user))
         return key
     return api_settings.JWT_SECRET_KEY

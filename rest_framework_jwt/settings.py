@@ -45,7 +45,6 @@ DEFAULTS = {
     'JWT_REFRESH_EXPIRATION_DELTA': datetime.timedelta(days=7),
 
     'JWT_AUTH_HEADER_PREFIX': 'JWT',
-    'JWT_AUTH_USER_MODEL': settings.AUTH_USER_MODEL,
     'JWT_AUTH_COOKIE': None,
 }
 
