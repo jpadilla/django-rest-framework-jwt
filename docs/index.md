@@ -178,7 +178,6 @@ JWT_AUTH = {
     'JWT_REFRESH_EXPIRATION_DELTA': datetime.timedelta(days=7),
 
     'JWT_AUTH_HEADER_PREFIX': 'JWT',
-    'JWT_AUTH_USER_MODEL': settings.AUTH_USER_MODEL,
     'JWT_AUTH_COOKIE': None,
 
 }
@@ -285,12 +284,6 @@ You can modify the Authorization header value prefix that is required to be sent
 Another common value used for tokens and Authorization headers is `Bearer`.
 
 Default is `JWT`.
-
-
-### JWT_AUTH_USER_MODEL
-This points the app to default user model. It is used in conjuction with 'JWT_GET_USER_SECRET_KEY'. In most cases default value should be enough.
-
-Default is `settings.AUTH_USER_MODEL`.
 
 ### JWT_AUTH_COOKIE
 You can set this to a string if you want to use http cookies in addition to the Authorization header as a valid transport for the token.
