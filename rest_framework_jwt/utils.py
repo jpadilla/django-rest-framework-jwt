@@ -108,3 +108,20 @@ def jwt_response_payload_handler(token, user=None, request=None):
     return {
         'token': token
     }
+
+
+def jwt_response_payload_error_handler(serializer, request=None):
+    """
+    Returns a custom response when login failed.
+
+    Example:
+
+    def jwt_response_payload_error_handler(serializer, request=None):
+        return {
+            'status': 1,
+            'message': "login failed",
+            'detail': serializer.errors
+        }
+
+    """
+    return serializer.errors
