@@ -12,7 +12,7 @@ from rest_framework_jwt.compat import get_username_field
 from rest_framework_jwt.settings import api_settings
 
 
-def jwt_get_secret_key(user_id=None):
+def jwt_get_secret_key(payload=None):
     """
     For enchanced security you may use secret key on user itself.
 
@@ -23,7 +23,7 @@ def jwt_get_secret_key(user_id=None):
     """
     if api_settings.JWT_GET_USER_SECRET_KEY:
         User = get_user_model()  # noqa: N806
-        user = User.objects.get(pk=user_id)
+        user = User.objects.get(pk=payload.get('user_id'))
         key = str(api_settings.JWT_GET_USER_SECRET_KEY(user))
         return key
     return api_settings.JWT_SECRET_KEY
@@ -87,7 +87,7 @@ def jwt_get_username_from_payload_handler(payload):
 
 
 def jwt_encode_handler(payload):
-    key = api_settings.JWT_PRIVATE_KEY or jwt_get_secret_key(payload.get('user_id'))
+    key = api_settings.JWT_PRIVATE_KEY or jwt_get_secret_key(payload)
     return jwt.encode(
         payload,
         key,
@@ -101,7 +101,7 @@ def jwt_decode_handler(token):
     }
     # get user from token, BEFORE verification, to get user secret key
     unverified_payload = jwt.decode(token, None, False)
-    secret_key = jwt_get_secret_key(unverified_payload.get('user_id'))
+    secret_key = jwt_get_secret_key(unverified_payload)
     return jwt.decode(
         token,
         api_settings.JWT_PUBLIC_KEY or secret_key,
