@@ -20,3 +20,7 @@ def jwt_response_payload_handler(token, user=None, request=None):
         'user': get_username(user),
         'token': token
     }
+
+
+def get_jwt_secret(user):
+    return user.jwt_secret

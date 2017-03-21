@@ -163,6 +163,7 @@ JWT_AUTH = {
     'rest_framework_jwt.utils.jwt_response_payload_handler',
 
     'JWT_SECRET_KEY': settings.SECRET_KEY,
+    'JWT_GET_USER_SECRET_KEY': None,
     'JWT_PUBLIC_KEY': None,
     'JWT_PRIVATE_KEY': None,
     'JWT_ALGORITHM': 'HS256',
@@ -178,6 +179,7 @@ JWT_AUTH = {
 
     'JWT_AUTH_HEADER_PREFIX': 'JWT',
     'JWT_AUTH_COOKIE': None,
+
 }
 ```
 This packages uses the JSON Web Token Python implementation, [PyJWT](https://github.com/jpadilla/pyjwt) and allows to modify some of it's available options.
@@ -186,6 +188,12 @@ This packages uses the JSON Web Token Python implementation, [PyJWT](https://git
 This is the secret key used to sign the JWT. Make sure this is safe and not shared or public.
 
 Default is your project's `settings.SECRET_KEY`.
+
+### JWT_GET_USER_SECRET_KEY
+This is more robust version of JWT_SECRET_KEY. It is defined per User, so in case token is compromised it can be
+easily changed by owner. Changing this value will make all tokens for given user unusable. Value should be a function, accepting user as only parameter and returning it's secret key.
+
+Default is `None`.
 
 ### JWT_PUBLIC_KEY
 This is an object of type `cryptography.hazmat.primitives.asymmetric.rsa.RSAPublicKey`. It will be used to verify the signature of the incoming JWT. Will override `JWT_SECRET_KEY` when set. Read the [documentation](https://cryptography.io/en/latest/hazmat/primitives/asymmetric/rsa/#cryptography.hazmat.primitives.asymmetric.rsa.RSAPublicKey) for more details. Please note that `JWT_ALGORITHM` must be set to one of `RS256`, `RS384`, or `RS512`.
@@ -281,8 +289,6 @@ Default is `JWT`.
 You can set this to a string if you want to use http cookies in addition to the Authorization header as a valid transport for the token.
 The string you set here will be used as the cookie name that will be set in the response headers when requesting a token. The token validation
 procedure will also look into this cookie, if set. The 'Authorization' header takes precedence if both the header and the cookie are present in the request.
-
-Another common value used for tokens and Authorization headers is `Bearer`.
 
 Default is `None` and no cookie is set when creating tokens nor accepted when validating them.
 

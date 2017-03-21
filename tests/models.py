@@ -1,10 +1,16 @@
 import uuid
+
+from django.contrib.auth.models import AbstractBaseUser
+from django.contrib.auth.models import BaseUserManager
 from django.db import models
-from django.contrib.auth.models import AbstractBaseUser, BaseUserManager
 
 
 class CustomUser(AbstractBaseUser):
     email = models.EmailField(max_length=255, unique=True)
+    jwt_secret = models.UUIDField(
+        'Token secret',
+        help_text='Changing this will log out user everywhere',
+        default=uuid.uuid4)
 
     objects = BaseUserManager()
 
