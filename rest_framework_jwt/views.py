@@ -63,7 +63,7 @@ class JSONWebTokenAPIView(APIView):
                 expiration = (datetime.utcnow() +
                               api_settings.JWT_EXPIRATION_DELTA)
                 response.set_cookie(api_settings.JWT_AUTH_COOKIE,
-                                    response.data['token'],
+                                    token,
                                     expires=expiration,
                                     httponly=True)
             return response
