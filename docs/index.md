@@ -318,6 +318,23 @@ payload = jwt_payload_handler(user)
 token = jwt_encode_handler(payload)
 ```
 
+# Contributing
+
+To contribute to the `django-rest-framework-jwt` library all you
+need is [tox](https://tox.readthedocs.org/en/latest/).
+
+Run all tests like this:
+
+    tox
+
+If you just need a quick run of the entire suite, run them in a
+specific environment, something like:
+
+    tox -e py34-django1.8-drf3.2
+
+See the `tox.ini` file for details.
+
+
 [jwt-auth-spec]: http://tools.ietf.org/html/draft-ietf-oauth-json-web-token
 [drf]: http://django-rest-framework.org/
 [jwt-video]: https://www.youtube.com/watch?v=825hodQ61bg
