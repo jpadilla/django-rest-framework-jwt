@@ -20,6 +20,17 @@ class CustomUser(AbstractBaseUser):
         app_label = 'tests'
 
 
+class CustomUserWithoutEmail(AbstractBaseUser):
+    username = models.CharField(max_length=255, unique=True)
+
+    objects = BaseUserManager()
+
+    USERNAME_FIELD = 'username'
+
+    class Meta:
+        app_label = 'tests'
+
+
 class CustomUserUUID(AbstractBaseUser):
     id = models.UUIDField(primary_key=True, default=uuid.uuid4, editable=False)
     email = models.EmailField(max_length=255, unique=True)
