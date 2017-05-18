@@ -79,11 +79,11 @@ class VerificationBaseSerializer(Serializer):
         msg = 'Please define a validate method.'
         raise NotImplementedError(msg)
 
-    def _check_payload(self, token):
+    def _check_payload(self, token, verify_exp=None):
         # Check payload valid (based off of JSONWebTokenAuthentication,
         # may want to refactor)
         try:
-            payload = jwt_decode_handler(token)
+            payload = jwt_decode_handler(token, verify_exp=verify_exp)
         except jwt.ExpiredSignature:
             msg = _('Signature has expired.')
             raise serializers.ValidationError(msg)
@@ -139,7 +139,7 @@ class RefreshJSONWebTokenSerializer(VerificationBaseSerializer):
     def validate(self, attrs):
         token = attrs['token']
 
-        payload = self._check_payload(token=token)
+        payload = self._check_payload(token=token, verify_exp=False)
         user = self._check_user(payload=payload)
         # Get and check 'orig_iat'
         orig_iat = payload.get('orig_iat')

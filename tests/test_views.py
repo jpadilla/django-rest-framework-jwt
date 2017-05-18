@@ -469,6 +469,36 @@ class RefreshJSONWebTokenTests(TokenTestCase):
         self.assertEquals(new_token_decoded['orig_iat'], orig_iat)
         self.assertGreater(new_token_decoded['exp'], orig_token_decoded['exp'])
 
+    def test_refresh_jwt_with_expired_token(self):
+        """
+        Test getting a refreshed token from original expired token works
+        """
+        client = APIClient(enforce_csrf_checks=True)
+
+        with freeze_time('2015-01-01 00:00:01'):
+            orig_token = self.get_token()
+            orig_token_decoded = utils.jwt_decode_handler(orig_token)
+
+            expected_orig_iat = timegm(datetime.utcnow().utctimetuple())
+
+            # Make sure 'orig_iat' exists and is the current time (give some slack)
+            orig_iat = orig_token_decoded['orig_iat']
+            self.assertLessEqual(orig_iat - expected_orig_iat, 1)
+
+            with freeze_time('2015-01-01 00:06:01'):
+
+                # Now try to get a refreshed token
+                response = client.post('/auth-token-refresh/', {'token': orig_token},
+                                       format='json')
+            self.assertEqual(response.status_code, status.HTTP_200_OK)
+
+            new_token = response.data['token']
+            new_token_decoded = utils.jwt_decode_handler(new_token)
+
+        # Make sure 'orig_iat' on the new token is same as original
+        self.assertEquals(new_token_decoded['orig_iat'], orig_iat)
+        self.assertGreater(new_token_decoded['exp'], orig_token_decoded['exp'])
+
     def test_refresh_jwt_after_refresh_expiration(self):
         """
         Test that token can't be refreshed after token refresh limit
