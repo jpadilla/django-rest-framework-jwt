@@ -296,7 +296,7 @@ Default is `None` and no cookie is set when creating tokens nor accepted when va
 ## JWT_AUTH_COOKIE_DOMAIN
 You can set this string if you want `JWT_AUTH_COOKIE` to be a cross-domain cookie. For example, `JWT_AUTH_COOKIE_DOMAIN : '.example.com'` will set a cookie that is readable by example.com and its sub-domains (blogs.example.com and calendars.lawrence.com, etc).
 
-Default is `None`, which means that `JWT_AUTH_COOKIE` will readable only to the domain that set it. If `JWT_AUTH_COOKIE` is `None`, setting `JWT_AUTH_COOKIE_DOMAIN` does nothing.
+Default is `None`, which means that `JWT_AUTH_COOKIE` will be readable only to the domain that set it. If `JWT_AUTH_COOKIE` is `None`, setting `JWT_AUTH_COOKIE_DOMAIN` does nothing.
 
 ## Extending `JSONWebTokenAuthentication`
 
