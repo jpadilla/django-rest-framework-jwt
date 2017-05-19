@@ -179,6 +179,7 @@ JWT_AUTH = {
 
     'JWT_AUTH_HEADER_PREFIX': 'JWT',
     'JWT_AUTH_COOKIE': None,
+    'JWT_AUTH_COOKIE_DOMAIN': None,
 
 }
 ```
@@ -291,6 +292,11 @@ The string you set here will be used as the cookie name that will be set in the 
 procedure will also look into this cookie, if set. The 'Authorization' header takes precedence if both the header and the cookie are present in the request.
 
 Default is `None` and no cookie is set when creating tokens nor accepted when validating them.
+
+## JWT_AUTH_COOKIE_DOMAIN
+You can set this string if you want `JWT_AUTH_COOKIE` to be a cross-domain cookie. For example, `JWT_AUTH_COOKIE_DOMAIN : '.example.com'` will set a cookie that is readable by example.com and its sub-domains (blogs.example.com and calendars.lawrence.com, etc).
+
+Default is `None`, which means that `JWT_AUTH_COOKIE` will readable only to the domain that set it. If `JWT_AUTH_COOKIE` is `None`, setting `JWT_AUTH_COOKIE_DOMAIN` does nothing.
 
 ## Extending `JSONWebTokenAuthentication`
 

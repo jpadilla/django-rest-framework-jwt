@@ -65,7 +65,8 @@ class JSONWebTokenAPIView(APIView):
                 response.set_cookie(api_settings.JWT_AUTH_COOKIE,
                                     token,
                                     expires=expiration,
-                                    httponly=True)
+                                    httponly=True,
+                                    domain=api_settings.JWT_AUTH_COOKIE_DOMAIN)
             return response
 
         return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
