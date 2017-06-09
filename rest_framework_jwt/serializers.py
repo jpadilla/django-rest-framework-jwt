@@ -6,6 +6,7 @@ from datetime import datetime, timedelta
 from django.contrib.auth import authenticate, get_user_model
 from django.utils.translation import ugettext as _
 from rest_framework import serializers
+from rest_framework import exceptions
 from .compat import Serializer
 
 from rest_framework_jwt.settings import api_settings
@@ -62,7 +63,7 @@ class JSONWebTokenSerializer(Serializer):
                 }
             else:
                 msg = _('Unable to log in with provided credentials.')
-                raise serializers.ValidationError(msg)
+                raise exceptions.AuthenticationFailed(msg)
         else:
             msg = _('Must include "{username_field}" and "password".')
             msg = msg.format(username_field=self.username_field)
