@@ -90,7 +90,7 @@ class ObtainJSONWebTokenTests(BaseTestCase):
         self.data['password'] = 'wrong'
         response = client.post('/auth-token/', self.data, format='json')
 
-        self.assertEqual(response.status_code, 400)
+        self.assertEqual(response.status_code, 403)
 
     def test_jwt_login_json_missing_fields(self):
         """
@@ -148,7 +148,7 @@ class ObtainJSONWebTokenTests(BaseTestCase):
 
         response = client.post('/auth-token/', data, format='json')
 
-        self.assertEqual(response.status_code, 400)
+        self.assertEqual(response.status_code, 403)
 
 
 @unittest.skipIf(get_version() < '1.5.0', 'No Configurable User model feature')
@@ -193,7 +193,7 @@ class CustomUserObtainJSONWebTokenTests(TestCase):
         self.data['password'] = 'wrong'
         response = client.post('/auth-token/', self.data, format='json')
 
-        self.assertEqual(response.status_code, 400)
+        self.assertEqual(response.status_code, 403)
 
 
 @override_settings(AUTH_USER_MODEL='tests.CustomUserUUID')
@@ -237,7 +237,7 @@ class CustomUserUUIDObtainJSONWebTokenTests(TestCase):
         self.data['password'] = 'wrong'
         response = client.post('/auth-token/', self.data, format='json')
 
-        self.assertEqual(response.status_code, 400)
+        self.assertEqual(response.status_code, 403)
 
 
 class TokenTestCase(BaseTestCase):
