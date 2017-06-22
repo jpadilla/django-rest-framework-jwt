@@ -14,7 +14,7 @@ from rest_framework_jwt.settings import api_settings
 
 def jwt_get_secret_key(payload=None):
     """
-    For enchanced security you may use secret key on user itself.
+    For enhanced security you may want to use a secret key based on user.
 
     This way you have an option to logout only this user if:
         - token is compromised
