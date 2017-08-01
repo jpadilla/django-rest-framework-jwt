@@ -8,11 +8,13 @@ from cryptography.hazmat.primitives.asymmetric import rsa
 from django import get_version
 from django.test import TestCase
 from django.test.utils import override_settings
+from freezegun import freeze_time
 from rest_framework import status
 from rest_framework.test import APIClient
 
 from rest_framework_jwt import utils, views
 from rest_framework_jwt.compat import get_user_model
+from rest_framework_jwt.models import Device
 from rest_framework_jwt.settings import api_settings, DEFAULTS
 
 from . import utils as test_utils
@@ -79,6 +81,7 @@ class ObtainJSONWebTokenTests(BaseTestCase):
 
         self.assertEqual(response.status_code, status.HTTP_200_OK)
         self.assertEqual(decoded_payload['username'], self.username)
+        self.assertNotIn('permanent_token', response.data)
 
     def test_jwt_login_json_bad_creds(self):
         """
@@ -149,6 +152,45 @@ class ObtainJSONWebTokenTests(BaseTestCase):
         response = client.post('/auth-token/', data, format='json')
 
         self.assertEqual(response.status_code, 400)
+
+    def test_jwt_permanent_token_auth(self):
+        api_settings.JWT_PERMANENT_TOKEN_AUTH = True
+
+        client = APIClient()
+        client.credentials(HTTP_X_DEVICE_MODEL='Nokia', HTTP_USER_AGENT='agent')
+        self.assertEqual(Device.objects.all().count(), 0)
+        response = client.post('/auth-token/', self.data, format='json')
+        self.assertEqual(response.status_code, status.HTTP_200_OK)
+        self.assertEqual(set(response.data.keys()), {'token', 'permanent_token', 'device_id'})
+        device = Device.objects.get(permanent_token=response.data['permanent_token'])
+        self.assertEqual(response.data['device_id'], device.id)
+        self.assertIsNotNone(response.data['token'])
+        self.assertEqual(device.name, 'Nokia')
+        self.assertEqual(device.details, 'agent')
+        self.assertEqual(Device.objects.all().count(), 1)
+        Device.objects.all().delete()
+
+        # test using without setting device model - for example on browser
+        client.credentials(HTTP_USER_AGENT='agent')
+        self.assertEqual(Device.objects.all().count(), 0)
+        response = client.post('/auth-token/', self.data, format='json')
+        self.assertEqual(response.status_code, status.HTTP_200_OK)
+        token = response.data['token']
+        device = Device.objects.get(permanent_token=response.data['permanent_token'])
+        self.assertEqual(response.data['device_id'], device.id)
+        self.assertEqual(device.name, 'agent')
+        self.assertEqual(device.details, '')
+        self.assertEqual(Device.objects.all().count(), 1)
+        self.assertEqual(Device.objects.get(permanent_token=response.data['permanent_token']).name, 'agent')
+
+        # check if the generated token works
+        client.credentials(HTTP_AUTHORIZATION='JWT {}'.format(token))
+        client.login(**self.data)
+        response = client.get('/devices/', format='json')
+        self.assertEqual(response.status_code, 200)
+
+    def tearDown(self):
+        api_settings.JWT_PERMANENT_TOKEN_AUTH = False
 
 
 @unittest.skipIf(get_version() < '1.5.0', 'No Configurable User model feature')
@@ -492,3 +534,192 @@ class RefreshJSONWebTokenTests(TokenTestCase):
     def tearDown(self):
         # Restore original settings
         api_settings.JWT_ALLOW_REFRESH = DEFAULTS['JWT_ALLOW_REFRESH']
+
+
+class DeviceLogoutViewTests(BaseTestCase):
+    def setUp(self):
+        super(DeviceLogoutViewTests, self).setUp()
+        self.second_user = User.objects.create_user(
+            self.username + '2', self.email + '2', self.password)
+
+        api_settings.JWT_PERMANENT_TOKEN_AUTH = True
+
+    def test_logout_view(self):
+        client = APIClient(enforce_csrf_checks=True)
+
+        # create device
+        headers = {'HTTP_X_DEVICE_MODEL': 'Android 123'}
+        client.credentials(**headers)
+        response = client.post('/auth-token/', self.data, format='json')
+        self.assertEqual(response.status_code, status.HTTP_200_OK)
+        self.assertEqual(Device.objects.all().count(), 1)
+        device_id = response.data['device_id']
+
+        headers['HTTP_AUTHORIZATION'] = 'JWT {}'.format(response.data['token'])
+        headers['device_id'] = device_id
+        client.credentials(**headers)
+        client.login(**self.data)
+        response = client.delete('/device-logout/', format='json')
+        self.assertEqual(response.status_code, status.HTTP_204_NO_CONTENT)
+        self.assertEqual(Device.objects.all().count(), 0)
+
+    def test_logout_unknown_device(self):
+        client = APIClient(enforce_csrf_checks=True)
+
+        # create a few devices
+        headers = {'HTTP_X_DEVICE_MODEL': 'Android 123'}
+        client.credentials(**headers)
+        response = client.post('/auth-token/', self.data, format='json')
+        self.assertEqual(response.status_code, status.HTTP_200_OK)
+        token = response.data['token']
+
+        headers['HTTP_X_DEVICE_MODEL'] = 'Nokia'
+        client.credentials(**headers)
+        response = client.post('/auth-token/', {'username': self.second_user.username, 'password': self.password},
+                               format='json')
+        self.assertEqual(response.status_code, status.HTTP_200_OK)
+        self.assertEqual(Device.objects.all().count(), 2)
+        device_id = response.data['device_id']
+
+        headers['HTTP_AUTHORIZATION'] = 'JWT {}'.format(token)
+        headers['device_id'] = device_id
+        client.credentials(**headers)
+        client.login(**self.data)
+        response = client.delete('/device-logout/', format='json')
+        self.assertEqual(response.status_code, status.HTTP_404_NOT_FOUND)
+        self.assertEqual(Device.objects.all().count(), 2)
+
+    def tearDown(self):
+        api_settings.JWT_PERMANENT_TOKEN_AUTH = False
+
+
+class DeviceRefreshTokenViewsTests(BaseTestCase):
+    def setUp(self):
+        super(DeviceRefreshTokenViewsTests, self).setUp()
+        api_settings.JWT_PERMANENT_TOKEN_AUTH = True
+
+    def test_refreshing(self):
+        with freeze_time('2016-01-01 00:00:00') as frozen_time:
+            client = APIClient(enforce_csrf_checks=True)
+
+            headers = {'HTTP_X_DEVICE_MODEL': 'Android 123'}
+            client.credentials(**headers)
+            response = client.post('/auth-token/', self.data, format='json')
+            self.assertEqual(response.status_code, status.HTTP_200_OK)
+            permanent_token = response.data['permanent_token']
+            old_token = response.data['token']
+
+            frozen_time.tick(delta=timedelta(days=2))
+            # test w/o passing permanent_token
+            response = client.post('/device-refresh-token/', format='json')
+            self.assertEqual(response.status_code, status.HTTP_400_BAD_REQUEST)
+
+            # test passing permanent token that does not exist in the database
+            fake_permanent_token = '23124csfdgfdhthfdfdf'
+            self.assertEqual(Device.objects.filter(permanent_token=fake_permanent_token).count(), 0)
+            headers['permanent_token'] = fake_permanent_token
+            client.credentials(**headers)
+            response = client.post('/device-refresh-token/', format='json')
+            self.assertEqual(response.status_code, status.HTTP_400_BAD_REQUEST)
+
+            headers['permanent_token'] = permanent_token
+            client.credentials(**headers)
+            response = client.post('/device-refresh-token/', format='json')
+            self.assertEqual(response.status_code, status.HTTP_200_OK)
+            self.assertEqual(set(response.data.keys()), {'token'})
+            device = Device.objects.get(permanent_token=permanent_token)
+            self.assertEqual(device.last_request_datetime, datetime.now())
+            token = response.data['token']
+            self.assertNotEqual(token, old_token)
+
+            # test auth with the new token
+            client.credentials(HTTP_AUTHORIZATION='JWT {}'.format(token))
+            client.login(**self.data)
+            response = client.get('/devices/')
+            self.assertEqual(response.status_code, 200)
+
+            # test permanent token expiration
+            frozen_time.tick(delta=timedelta(days=8))
+            client.credentials(**headers)
+            response = client.post('/device-refresh-token/', format='json')
+            self.assertEqual(response.status_code, status.HTTP_400_BAD_REQUEST)
+            with self.assertRaises(Device.DoesNotExist):
+                Device.objects.get(permanent_token=permanent_token)
+
+    def tearDown(self):
+        api_settings.JWT_PERMANENT_TOKEN_AUTH = False
+
+
+class DeviceViewTests(TokenTestCase):
+    def setUp(self):
+        super(DeviceViewTests, self).setUp()
+        self.device = Device.objects.create(
+            user=self.user, permanent_token='somestring2', name='Android',
+            last_request_datetime=datetime.now())
+        self.user2 = User.objects.create_user(email='jsmith@example.com', username='jsmith', password='password')
+        self.device2 = Device.objects.create(
+            user=self.user2, permanent_token='somestring98', name='Android',
+            last_request_datetime=datetime.now())
+
+    def _login(self, client):
+        client.credentials(HTTP_AUTHORIZATION='JWT {}'.format(self.get_token()))
+        return client.login(**self.data)
+
+    def test_device_delete(self):
+        client = APIClient()
+        # test accessing without being logged in
+        response = client.delete('/devices/{}/'.format(self.device.id))
+        self.assertEqual(response.status_code, 401)
+
+        self._login(client)
+        # try removing device linked to other user
+        response = client.delete('/devices/{}/'.format(self.device2.id))
+        self.assertEqual(response.status_code, 404)
+        # test regular case
+        self.assertEqual(Device.objects.filter(id=self.device.id).count(), 1)
+        response = client.delete('/devices/{}/'.format(self.device.id))
+        self.assertEqual(response.status_code, 204)
+        self.assertEqual(Device.objects.filter(id=self.device.id).count(), 0)
+
+    def test_device_list(self):
+        client = APIClient()
+        self._login(client)
+        response = client.get('/devices/', format='json')
+        self.assertEqual(response.status_code, 200)
+        self.assertEqual(len(response.data), 1)
+        self.assertEqual(set(response.data[0].keys()), {
+            'id', 'created', 'name', 'details', 'last_request_datetime'
+        })
+        self.assertEqual(response.data[0]['id'], self.device.id)
+
+
+class HeadersCheckViewMixinTests(BaseTestCase):
+    def setUp(self):
+        super(HeadersCheckViewMixinTests, self).setUp()
+        api_settings.JWT_PERMANENT_TOKEN_AUTH = True
+
+    def test_disallowing_permanent_token(self):
+        client = APIClient(enforce_csrf_checks=True)
+        client.credentials(permanent_token='123')
+        urls = [
+            '/auth-token/',
+            '/auth-token-refresh/',
+            '/auth-token-verify/',
+            '/device-logout/',
+            '/devices/',
+            '/devices/1/'
+        ]
+        for url in urls:
+            # request method makes no difference here, as the check is done on dispatch
+            response = client.get(url, format='json')
+            self.assertEqual(response.status_code, status.HTTP_400_BAD_REQUEST)
+
+        allowed_urls = [
+            '/device-refresh-token/'
+        ]
+        for url in allowed_urls:
+            response = client.get(url, format='json')
+            self.assertNotEqual(response.status_code, status.HTTP_400_BAD_REQUEST)
+
+    def tearDown(self):
+        api_settings.JWT_PERMANENT_TOKEN_AUTH = False

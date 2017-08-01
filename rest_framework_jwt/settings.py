@@ -46,6 +46,10 @@ DEFAULTS = {
 
     'JWT_AUTH_HEADER_PREFIX': 'JWT',
     'JWT_AUTH_COOKIE': None,
+
+    'JWT_PERMANENT_TOKEN_AUTH': False,
+    'JWT_PERMANENT_TOKEN_EXPIRATION_ACCURACY': datetime.timedelta(minutes=30),
+    'JWT_PERMANENT_TOKEN_EXPIRATION_DELTA': datetime.timedelta(days=7)
 }
 
 # List of settings that may be in string import notation.

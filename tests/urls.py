@@ -1,6 +1,6 @@
 from django.conf.urls import url
 from django.http import HttpResponse
-from rest_framework import permissions
+from rest_framework import permissions, routers
 from rest_framework.views import APIView
 try:
     from rest_framework_oauth.authentication import OAuth2Authentication
@@ -24,10 +24,15 @@ class MockView(APIView):
         return HttpResponse({'a': 1, 'b': 2, 'c': 3})
 
 
+router = routers.SimpleRouter()
+router.register(r'devices', views.DeviceViewSet)
+
 urlpatterns = [
     url(r'^auth-token/$', views.obtain_jwt_token),
     url(r'^auth-token-refresh/$', views.refresh_jwt_token),
     url(r'^auth-token-verify/$', views.verify_jwt_token),
+    url(r'^device-refresh-token/$', views.device_refresh_token),
+    url(r'^device-logout/$', views.device_logout),
 
     url(r'^jwt/$', MockView.as_view(
         authentication_classes=[JSONWebTokenAuthentication])),
@@ -37,4 +42,4 @@ urlpatterns = [
     url(r'^oauth2-jwt/$', MockView.as_view(
         authentication_classes=[
             OAuth2Authentication, JSONWebTokenAuthentication])),
-]
+] + router.urls

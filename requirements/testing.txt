@@ -2,6 +2,7 @@
 pytest==2.6.4
 pytest-django==2.8.0
 pytest-cov==1.6
+freezegun==0.3.9
 
 # Mocking the datetime module.
 cryptography==1.2.3

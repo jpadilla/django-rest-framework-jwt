@@ -35,11 +35,18 @@ def pytest_configure():
             'django.contrib.messages',
             'django.contrib.staticfiles',
 
+            'rest_framework',
+            'rest_framework_jwt',
             'tests',
         ),
         PASSWORD_HASHERS=(
             'django.contrib.auth.hashers.MD5PasswordHasher',
         ),
+        REST_FRAMEWORK={
+            'DEFAULT_AUTHENTICATION_CLASSES': [
+                'rest_framework_jwt.authentication.JSONWebTokenAuthentication'
+            ]
+        }
     )
 
     try:

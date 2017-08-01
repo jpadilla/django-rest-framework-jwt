@@ -9,6 +9,7 @@ from datetime import datetime
 
 from rest_framework_jwt.compat import get_username
 from rest_framework_jwt.compat import get_username_field
+from rest_framework_jwt.models import Device
 from rest_framework_jwt.settings import api_settings
 
 
@@ -21,6 +22,10 @@ def jwt_get_secret_key(payload=None):
         - password is changed
         - etc.
     """
+    if api_settings.JWT_PERMANENT_TOKEN_AUTH:
+        device = Device.objects.get(pk=payload.get('device_id'))
+        return device.jwt_secret.hex
+
     if api_settings.JWT_GET_USER_SECRET_KEY:
         User = get_user_model()  # noqa: N806
         user = User.objects.get(pk=payload.get('user_id'))
@@ -29,7 +34,7 @@ def jwt_get_secret_key(payload=None):
     return api_settings.JWT_SECRET_KEY
 
 
-def jwt_payload_handler(user):
+def jwt_payload_handler(user, device=None):
     username_field = get_username_field()
     username = get_username(user)
 
@@ -64,6 +69,9 @@ def jwt_payload_handler(user):
     if api_settings.JWT_ISSUER is not None:
         payload['iss'] = api_settings.JWT_ISSUER
 
+    if api_settings.JWT_PERMANENT_TOKEN_AUTH:
+        payload['device_id'] = str(device.pk)
+
     return payload
 
 
@@ -88,7 +96,11 @@ def jwt_get_username_from_payload_handler(payload):
 
 
 def jwt_encode_handler(payload):
-    key = api_settings.JWT_PRIVATE_KEY or jwt_get_secret_key(payload)
+    if api_settings.JWT_PERMANENT_TOKEN_AUTH or not api_settings.JWT_PRIVATE_KEY:
+        key = jwt_get_secret_key(payload)
+    else:
+        key = api_settings.JWT_PRIVATE_KEY
+
     return jwt.encode(
         payload,
         key,
@@ -115,7 +127,7 @@ def jwt_decode_handler(token):
     )
 
 
-def jwt_response_payload_handler(token, user=None, request=None):
+def jwt_response_payload_handler(token, user=None, request=None, **kwargs):
     """
     Returns the response data for both the login and refresh views.
     Override to return a custom response such as including the
@@ -123,13 +135,22 @@ def jwt_response_payload_handler(token, user=None, request=None):
 
     Example:
 
-    def jwt_response_payload_handler(token, user=None, request=None):
+    def jwt_response_payload_handler(token, user=None, request=None, **kwargs):
         return {
             'token': token,
             'user': UserSerializer(user, context={'request': request}).data
         }
 
     """
-    return {
+    data = {
         'token': token
     }
+    if api_settings.JWT_PERMANENT_TOKEN_AUTH:
+        permanent_token = kwargs.get('permanent_token')
+        if permanent_token:
+            data['permanent_token'] = permanent_token
+        device_id = kwargs.get('device_id')
+        if device_id:
+            data['device_id'] = device_id
+
+    return data

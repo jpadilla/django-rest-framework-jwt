@@ -1,18 +1,40 @@
+from django.utils.encoding import force_text
+from django.utils.translation import ugettext_lazy as _
+from rest_framework import mixins, status, viewsets
+from rest_framework.exceptions import APIException, NotFound
+from rest_framework.generics import DestroyAPIView
 from rest_framework.views import APIView
-from rest_framework import status
+from rest_framework.permissions import IsAuthenticated
 from rest_framework.response import Response
 from datetime import datetime
 
+from .models import Device
 from .settings import api_settings
 from .serializers import (
-    JSONWebTokenSerializer, RefreshJSONWebTokenSerializer,
+    DeviceSerializer, DeviceTokenRefreshSerializer, JSONWebTokenSerializer, RefreshJSONWebTokenSerializer,
     VerifyJSONWebTokenSerializer
 )
 
 jwt_response_payload_handler = api_settings.JWT_RESPONSE_PAYLOAD_HANDLER
 
 
-class JSONWebTokenAPIView(APIView):
+class HeaderDisallowed(APIException):
+    status_code = status.HTTP_400_BAD_REQUEST
+    default_detail = _('Using the {header} header is disallowed for {view_name}.')
+
+    def __init__(self, header, view_name, detail=None):
+        self.detail = force_text(self.default_detail).format(header=header, view_name=view_name)
+
+
+class HeadersCheckMixin(object):
+    def initial(self, request, *args, **kwargs):
+        if (api_settings.JWT_PERMANENT_TOKEN_AUTH and request.META.get('permanent_token') and
+                type(self) != DeviceRefreshJSONWebToken):
+            raise HeaderDisallowed('permanent_token', type(self).__name__)
+        super(HeadersCheckMixin, self).initial(request, *args, **kwargs)
+
+
+class JSONWebTokenAPIView(HeadersCheckMixin, APIView):
     """
     Base API View that various JWT interactions inherit from.
     """
@@ -57,7 +79,12 @@ class JSONWebTokenAPIView(APIView):
         if serializer.is_valid():
             user = serializer.object.get('user') or request.user
             token = serializer.object.get('token')
-            response_data = jwt_response_payload_handler(token, user, request)
+            device = serializer.object.get('device', None)
+            kwargs = {}
+            if device:
+                kwargs.update(dict(permanent_token=device.permanent_token, device_id=device.id))
+
+            response_data = jwt_response_payload_handler(token, user, request, **kwargs)
             response = Response(response_data)
             if api_settings.JWT_AUTH_COOKIE:
                 expiration = (datetime.utcnow() +
@@ -99,6 +126,44 @@ class RefreshJSONWebToken(JSONWebTokenAPIView):
     serializer_class = RefreshJSONWebTokenSerializer
 
 
+class DeviceRefreshJSONWebToken(HeadersCheckMixin, APIView):
+    """
+    API View used to refresh JSON Web Token using permanent token.
+    """
+    serializer_class = DeviceTokenRefreshSerializer
+
+    def post(self, request):
+        serializer = self.serializer_class(data=request.META)
+        if serializer.is_valid(raise_exception=True):
+            data = jwt_response_payload_handler(request=request, **serializer.validated_data)
+            return Response(data, status=status.HTTP_200_OK)
+
+
+class DeviceLogout(HeadersCheckMixin, DestroyAPIView):
+    """
+    Logout user by deleting Device.
+    """
+    queryset = Device.objects.all()
+    permission_classes = [IsAuthenticated]
+
+    def get_object(self):
+        try:
+            return self.get_queryset().get(user=self.request.user, id=self.request.META.get('device_id'))
+        except Device.DoesNotExist:
+            raise NotFound(_('Device does not exist.'))
+
+
+class DeviceViewSet(HeadersCheckMixin, mixins.ListModelMixin, mixins.DestroyModelMixin, viewsets.GenericViewSet):
+    queryset = Device.objects.all()
+    serializer_class = DeviceSerializer
+    permission_classes = [IsAuthenticated]
+
+    def get_queryset(self):
+        return self.queryset.filter(user=self.request.user)
+
+
 obtain_jwt_token = ObtainJSONWebToken.as_view()
 refresh_jwt_token = RefreshJSONWebToken.as_view()
 verify_jwt_token = VerifyJSONWebToken.as_view()
+device_refresh_token = DeviceRefreshJSONWebToken.as_view()
+device_logout = DeviceLogout.as_view()

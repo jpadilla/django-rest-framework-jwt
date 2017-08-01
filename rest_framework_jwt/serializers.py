@@ -8,6 +8,7 @@ from django.utils.translation import ugettext as _
 from rest_framework import serializers
 from .compat import Serializer
 
+from rest_framework_jwt.models import Device
 from rest_framework_jwt.settings import api_settings
 from rest_framework_jwt.compat import get_username_field, PasswordField
 
@@ -54,12 +55,29 @@ class JSONWebTokenSerializer(Serializer):
                     msg = _('User account is disabled.')
                     raise serializers.ValidationError(msg)
 
-                payload = jwt_payload_handler(user)
+                data = {}
+                device = None
+                if api_settings.JWT_PERMANENT_TOKEN_AUTH:
+                    headers = self.context['request'].META
+                    device_name = headers.get('HTTP_X_DEVICE_MODEL')
+                    user_agent = headers.get('HTTP_USER_AGENT', '')
+                    if not device_name:
+                        device_name = user_agent
+                        device_details = ''
+                    else:
+                        device_details = user_agent
 
-                return {
-                    'token': jwt_encode_handler(payload),
-                    'user': user
-                }
+                    device = Device.objects.create(
+                        user=user, last_request_datetime=datetime.now(),
+                        name=device_name, details=device_details)
+                    data['device'] = device
+
+                payload = jwt_payload_handler(user, device=device)
+                data.update({
+                    'user': user,
+                    'token': jwt_encode_handler(payload)
+                })
+                return data
             else:
                 msg = _('Unable to log in with provided credentials.')
                 raise serializers.ValidationError(msg)
@@ -168,4 +186,36 @@ class RefreshJSONWebTokenSerializer(VerificationBaseSerializer):
         return {
             'token': jwt_encode_handler(new_payload),
             'user': user
+        }
+
+
+class DeviceSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = Device
+        fields = ['id', 'created', 'name', 'details', 'last_request_datetime']
+
+
+class DeviceTokenRefreshSerializer(Serializer):
+    permanent_token = serializers.CharField(required=True)
+
+    def validate(self, attrs):
+        permanent_token = attrs['permanent_token']
+        try:
+            device = Device.objects.get(permanent_token=permanent_token)
+        except Device.DoesNotExist:
+            raise serializers.ValidationError({'permanent_token': _('Invalid permanent_token value.')})
+
+        now = datetime.now()
+        if now > device.last_request_datetime + api_settings.JWT_PERMANENT_TOKEN_EXPIRATION_DELTA:
+            device.delete()
+            raise serializers.ValidationError({'permanent_token': _('Permanent token has expired.')})
+
+        if now > device.last_request_datetime + api_settings.JWT_PERMANENT_TOKEN_EXPIRATION_ACCURACY:
+            device.last_request_datetime = now
+            device.save()
+
+        payload = jwt_payload_handler(device.user, device=device)
+        return {
+            'token': jwt_encode_handler(payload),
+            'user': device.user
         }
