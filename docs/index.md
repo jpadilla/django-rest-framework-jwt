@@ -304,6 +304,68 @@ class JSONWebTokenAuthenticationQS(BaseJSONWebTokenAuthentication):
 ```
 It is recommended to use `BaseJSONWebTokenAuthentication`, a new base class with no logic around parsing the HTTP headers.
 
+## Permanent token authentication
+
+By default JWT tokens have short lifetime because of security reasons, but sometimes you may want to keep user logged in, without the need to refresh the auth token each 5 minutes. For this case, you should consider using the permanent token authentication.
+
+### Configuration
+
+To enable permanent token authentication, add `"JWT_PERMANENT_TOKEN_AUTH": True` to your `REST_FRAMEWORK` configuration.
+
+Another step is to add a few urls to your url patterns, and register the ``DeviceViewSet``:
+
+```
+from rest_framework_jwt import views
+
+urlpatterns = [
+    # ...
+    url(r'^device-refresh-token/$', views.device_refresh_token),
+    url(r'^device-logout/$', views.device_logout)
+]
+
+router.register(r'devices', views.DeviceViewSet)
+```
+
+### Using the API views
+
+#### Login & logout view
+When using the regular JWT login or the device logout view, use the `HTTP_X_DEVICE_MODEL` header to pass device model
+(otherwise, user agent will used instead as the name). After a successful login, the permanent token and id of the
+created device will be returned, for example:
+
+```
+{
+    "token": "ads344fdgfd5454yJ0eAiOiJKV1QiLCJhbGciOiJIUzI1NiJ9.eyJ1c2VynRlYW1AYXJhYmVsLmxh",
+    "permanent_token": "gfd5454yJ0eAiOiJKV1QiLCJhbGciOiJ",
+    "device_id": 1
+}
+```
+The `device_id` is used to logout the device, so it should be saved on the front-end side (in local storage, for
+example).
+
+To logout a device, make a **DELETE** request to the `rest_framework_jwt.views.device_logout` view, passing device's id
+in the `device_id` header to identify the device. 
+
+#### Refresh JWT token using permanent token
+To refresh JWT token, you have to pass the `permanent_token` header along with the request to identify the device.
+On success, response will return new JWT token (the same as it does after login).
+
+In case the permanent token has expired, the device will be logged out, and it will require login in again to obtain a
+new permanent token. To customize the expiration time and expiration accuracy, set the following settings in your
+`REST_FRAMEWORK` configuration in **settings.py**
+
+**Settings**
+
+* `JWT_PERMANENT_TOKEN_EXPIRATION_DELTA` - describes how long can the permanent token live (default: `datetime.timedelta(days=7)`)
+* `JWT_PERMANENT_TOKEN_EXPIRATION_ACCURACY` - the accuracy of updating permanent token last request time to decrease the number of database queries (default: `datetime.timedelta(minutes=30)`)
+
+
+#### Views to list and delete devices
+You can use the `DeviceViewSet` to list all devices related to user, and delete selected device.
+
+* `GET devices/` - list all devices related to the user
+* `DELETE devices/{pk}/` - delete selected Device (similar to the logout view, but device id is passed in the url) 
+
 ## Creating a new token manually ##
 
 Sometimes you may want to manually generate a token, for example to return a token to the user immediately after account creation. You can do this as follows:
