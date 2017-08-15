@@ -27,7 +27,7 @@ author = 'Jose Padilla'
 author_email = 'jpadilla@getblimp.com'
 license = 'MIT'
 install_requires = [
-    'PyJWT>=1.4.0,<2.0.0',
+    'PyJWT>=1.5.2,<2.0.0',
 ]
 
 
@@ -65,9 +65,6 @@ def get_package_data(package):
 
 
 if sys.argv[-1] == 'publish':
-    if os.system('pip freeze | grep wheel'):
-        print('wheel not installed.\nUse `pip install wheel`.\nExiting.')
-        sys.exit()
     if os.system('pip freeze | grep twine'):
         print('twine not installed.\nUse `pip install twine`.\nExiting.')
         sys.exit()
