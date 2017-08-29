@@ -23,7 +23,6 @@ def jwt_get_secret_key(payload=None):
     """
     if api_settings.JWT_GET_USER_SECRET_KEY:
         User = get_user_model()  # noqa: N806
-        payload.get('username')
         user = User.objects.get_by_natural_key(payload.get('username'))
         key = str(api_settings.JWT_GET_USER_SECRET_KEY(user))
         return key
