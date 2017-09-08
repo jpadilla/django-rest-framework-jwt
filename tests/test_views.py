@@ -489,6 +489,64 @@ class RefreshJSONWebTokenTests(TokenTestCase):
         self.assertEqual(response.data['non_field_errors'][0],
                          'Refresh has expired.')
 
+    def test_refresh_jwt_with_orig_iat_returns_the_same_token_value(self):
+        """
+        The `jwt_encode_handler` uses the 'orig_iat' to encode, so
+        the refreshed token value is the same as the original.
+        """
+        client = APIClient(enforce_csrf_checks=True)
+        orig_token = self.get_token()
+
+        # new token response 1
+        response = client.post('/auth-token-refresh/', {'token': orig_token},
+                               format='json')
+        self.assertEqual(response.status_code, status.HTTP_200_OK)
+        new_token = response.data['token']
+
+        # new token response 2
+        response2 = client.post('/auth-token-refresh/', {'token': new_token},
+                                format='json')
+        self.assertEqual(response2.status_code, status.HTTP_200_OK)
+        new_token2 = response2.data['token']
+
+        self.assertEqual(new_token, new_token2)
+
+    def test_refresh_jwt_with_extend_orig_iat_setting_returns_a_new_token_value(self):
+        """
+        Extend the 'orig_iat' when refreshing the token, so the
+        client doesn't have to re-login on final token expiration,
+        and the refresh token will have an updated value.
+        """
+        api_settings.JWT_EXTEND_ORIG_IAT_ON_REFRESH = True
+        client = APIClient(enforce_csrf_checks=True)
+        orig_token = self.get_token()
+
+        # new token response 1
+        response = client.post('/auth-token-refresh/', {'token': orig_token},
+                               format='json')
+        self.assertEqual(response.status_code, status.HTTP_200_OK)
+        new_token = response.data['token']
+
+        # Must wait 1 second, or else orig_iat of new_token and new_token2
+        # will be the same, resulting in the same token value
+        time.sleep(1)
+        now_iat = timegm(datetime.utcnow().utctimetuple())
+        new_token_decoded = utils.jwt_decode_handler(new_token)
+        new_token_iat = new_token_decoded['orig_iat']
+        self.assertGreaterEqual(now_iat - new_token_iat, 1)
+
+        # new token response 2
+        response2 = client.post('/auth-token-refresh/', {'token': new_token},
+                                format='json')
+        self.assertEqual(response2.status_code, status.HTTP_200_OK)
+        new_token2 = response2.data['token']
+
+        self.assertNotEqual(new_token, new_token2)
+
+        # reset to setting default
+        api_settings.JWT_EXTEND_ORIG_IAT_ON_REFRESH = \
+            DEFAULTS['JWT_EXTEND_ORIG_IAT_ON_REFRESH']
+
     def tearDown(self):
         # Restore original settings
         api_settings.JWT_ALLOW_REFRESH = DEFAULTS['JWT_ALLOW_REFRESH']

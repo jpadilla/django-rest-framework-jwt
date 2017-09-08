@@ -163,7 +163,11 @@ class RefreshJSONWebTokenSerializer(VerificationBaseSerializer):
             raise serializers.ValidationError(msg)
 
         new_payload = jwt_payload_handler(user)
-        new_payload['orig_iat'] = orig_iat
+
+        if api_settings.JWT_EXTEND_ORIG_IAT_ON_REFRESH:
+            new_payload['orig_iat'] = timegm(datetime.utcnow().utctimetuple())
+        else:
+            new_payload['orig_iat'] = orig_iat
 
         return {
             'token': jwt_encode_handler(new_payload),
