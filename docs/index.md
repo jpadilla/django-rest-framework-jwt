@@ -179,6 +179,7 @@ JWT_AUTH = {
 
     'JWT_AUTH_HEADER_PREFIX': 'JWT',
     'JWT_AUTH_COOKIE': None,
+    'JWT_USE_CUSTOM_EXCEPTION_HANDLER': False
 
 }
 ```
@@ -291,6 +292,12 @@ The string you set here will be used as the cookie name that will be set in the 
 procedure will also look into this cookie, if set. The 'Authorization' header takes precedence if both the header and the cookie are present in the request.
 
 Default is `None` and no cookie is set when creating tokens nor accepted when validating them.
+
+### JWT_USE_CUSTOM_EXCEPTION_HANDLER
+You can set this to `True` if you like errors to be handled by your
+configured custom exception handler (see: [Custom Error Handling](https://www.django-rest-framework.org/api-guide/exceptions/#custom-exception-handling)).
+
+Default is `False`.
 
 ## Extending `JSONWebTokenAuthentication`
 
