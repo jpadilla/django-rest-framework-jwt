@@ -34,7 +34,8 @@ class JSONWebTokenSerializer(Serializer):
         super(JSONWebTokenSerializer, self).__init__(*args, **kwargs)
 
         self.fields[self.username_field] = serializers.CharField()
-        self.fields['password'] = PasswordField(write_only=True)
+        trim_whitespace = not api_settings.JWT_ALLOW_WHITE_SPACE_IN_PASSWORD
+        self.fields['password'] = PasswordField(write_only=True, trim_whitespace=trim_whitespace)
 
     @property
     def username_field(self):
