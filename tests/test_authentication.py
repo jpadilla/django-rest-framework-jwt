@@ -29,6 +29,7 @@ from rest_framework.test import APIClient
 from rest_framework.test import APIRequestFactory
 
 from rest_framework_jwt import utils
+from rest_framework_jwt.authentication import JSONWebTokenAuthentication
 from rest_framework_jwt.compat import get_user_model
 from rest_framework_jwt.settings import DEFAULTS
 from rest_framework_jwt.settings import api_settings
@@ -284,3 +285,17 @@ class JSONWebTokenAuthenticationTests(TestCase):
 
         # Restore original settings
         api_settings.JWT_AUTH_HEADER_PREFIX = DEFAULTS['JWT_AUTH_HEADER_PREFIX']
+
+    def test_authenticate_returns_decoded_payload(self):
+        """
+        Ensure `authenticate` returns the decoded payload, and not the
+        JWT value.
+        """
+        payload = utils.jwt_payload_handler(self.user)
+        token = utils.jwt_encode_handler(payload)
+        auth = 'JWT {0}'.format(token)
+        request = factory.request(HTTP_AUTHORIZATION=auth)
+        (user, payload) = JSONWebTokenAuthentication().authenticate(request)
+        self.assertIsInstance(payload, dict)
+        self.assertEqual(set(payload.keys()), {
+            'user_id', 'username', 'exp', 'email'})
