@@ -22,7 +22,7 @@ class PasswordField(serializers.CharField):
 def get_username_field():
     try:
         username_field = get_user_model().USERNAME_FIELD
-    except:
+    except AttributeError:
         username_field = 'username'
 
     return username_field
