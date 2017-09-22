@@ -62,6 +62,7 @@ class JSONWebTokenAuthenticationTests(TestCase):
             '/jwt/', {'example': 'example'}, HTTP_AUTHORIZATION=auth)
 
         self.assertEqual(response.status_code, status.HTTP_200_OK)
+        self.assertEqual(response.content, b'mockview-post')
 
     def test_post_json_passing_jwt_auth(self):
         """
