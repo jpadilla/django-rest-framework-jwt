@@ -29,7 +29,6 @@ from rest_framework.test import APIClient
 from rest_framework.test import APIRequestFactory
 
 from rest_framework_jwt import utils
-from rest_framework_jwt.authentication import JSONWebTokenAuthentication
 from rest_framework_jwt.compat import get_user_model
 from rest_framework_jwt.settings import DEFAULTS
 from rest_framework_jwt.settings import api_settings
