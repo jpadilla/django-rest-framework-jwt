@@ -64,6 +64,13 @@ class JSONWebTokenAuthenticationTests(TestCase):
 
         self.assertEqual(response.status_code, status.HTTP_200_OK)
 
+        # Ensure `authenticate` returned the decoded payload.
+        self.assertEqual(response.wsgi_request.user, self.user)
+        payload = response.wsgi_request.auth
+        self.assertIsInstance(payload, dict)
+        self.assertEqual(set(payload.keys()), {
+            'user_id', 'username', 'exp', 'email'})
+
     def test_post_json_passing_jwt_auth(self):
         """
         Ensure POSTing JSON over JWT auth with correct credentials
@@ -285,17 +292,3 @@ class JSONWebTokenAuthenticationTests(TestCase):
 
         # Restore original settings
         api_settings.JWT_AUTH_HEADER_PREFIX = DEFAULTS['JWT_AUTH_HEADER_PREFIX']
-
-    def test_authenticate_returns_decoded_payload(self):
-        """
-        Ensure `authenticate` returns the decoded payload, and not the
-        JWT value.
-        """
-        payload = utils.jwt_payload_handler(self.user)
-        token = utils.jwt_encode_handler(payload)
-        auth = 'JWT {0}'.format(token)
-        request = factory.request(HTTP_AUTHORIZATION=auth)
-        (user, payload) = JSONWebTokenAuthentication().authenticate(request)
-        self.assertIsInstance(payload, dict)
-        self.assertEqual(set(payload.keys()), {
-            'user_id', 'username', 'exp', 'email'})
