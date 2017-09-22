@@ -51,9 +51,12 @@ class JSONWebTokenAPIView(APIView):
         kwargs['context'] = self.get_serializer_context()
         return serializer_class(*args, **kwargs)
 
-    def post(self, request, *args, **kwargs):
-        serializer = self.get_serializer(data=request.data)
-
+    def post(self, request, *args, **kwargs):		
+        request_data = request.data.copy()
+		if api_settings.JWT_AUTH_COOKIE:
+			request_data['token'] = request.COOKIES.get(api_settings.JWT_AUTH_COOKIE)
+		serializer = self.get_serializer(data=request_data)
+        
         if serializer.is_valid():
             user = serializer.object.get('user') or request.user
             token = serializer.object.get('token')
