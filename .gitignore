@@ -16,5 +16,6 @@ include/
 lib/
 local/
 
+!.coveragerc
 !.gitignore
 !.travis.yml

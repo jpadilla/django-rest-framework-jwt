@@ -6,133 +6,142 @@ matrix:
   fast_finish: true
   include:
     - python: 2.7
-      env: TOX_ENV=py27-flake8
+      env: TOXENV=py27-flake8
     - python: 2.7
-      env: TOX_ENV=py27-docs
+      env: TOXENV=py27-docs
 
     - python: 2.7
-      env: TOX_ENV=py27-django1.8-drf3.1
+      env: TOXENV=py27-dj18-drf31-codecov
     - python: 2.7
-      env: TOX_ENV=py27-django1.8-drf3.2
+      env: TOXENV=py27-dj18-drf32-codecov
     - python: 2.7
-      env: TOX_ENV=py27-django1.8-drf3.3
+      env: TOXENV=py27-dj18-drf33-codecov
     - python: 2.7
-      env: TOX_ENV=py27-django1.8-drf3.4
+      env: TOXENV=py27-dj18-drf34-codecov
     - python: 2.7
-      env: TOX_ENV=py27-django1.8-drf3.5
+      env: TOXENV=py27-dj18-drf35-codecov
     - python: 2.7
-      env: TOX_ENV=py27-django1.8-drf3.6
+      env: TOXENV=py27-dj18-drf36-codecov
 
     - python: 2.7
-      env: TOX_ENV=py27-django1.9-drf3.1
+      env: TOXENV=py27-dj19-drf31-codecov
     - python: 2.7
-      env: TOX_ENV=py27-django1.9-drf3.2
+      env: TOXENV=py27-dj19-drf32-codecov
     - python: 2.7
-      env: TOX_ENV=py27-django1.9-drf3.3
+      env: TOXENV=py27-dj19-drf33-codecov
     - python: 2.7
-      env: TOX_ENV=py27-django1.9-drf3.4
+      env: TOXENV=py27-dj19-drf34-codecov
     - python: 2.7
-      env: TOX_ENV=py27-django1.9-drf3.5
+      env: TOXENV=py27-dj19-drf35-codecov
     - python: 2.7
-      env: TOX_ENV=py27-django1.9-drf3.6
+      env: TOXENV=py27-dj19-drf36-codecov
 
     - python: 2.7
-      env: TOX_ENV=py27-django1.10-drf3.4
+      env: TOXENV=py27-dj110-drf34-codecov
     - python: 2.7
-      env: TOX_ENV=py27-django1.10-drf3.5
+      env: TOXENV=py27-dj110-drf35-codecov
     - python: 2.7
-      env: TOX_ENV=py27-django1.10-drf3.6
+      env: TOXENV=py27-dj110-drf36-codecov
 
     - python: 2.7
-      env: TOX_ENV=py27-django1.11-drf3.4
+      env: TOXENV=py27-dj111-drf34-codecov
     - python: 2.7
-      env: TOX_ENV=py27-django1.11-drf3.5
+      env: TOXENV=py27-dj111-drf35-codecov
     - python: 2.7
-      env: TOX_ENV=py27-django1.11-drf3.6
+      env: TOXENV=py27-dj111-drf36-codecov
 
     - python: 3.3
-      env: TOX_ENV=py33-django1.8-drf3.1
+      env: TOXENV=py33-dj18-drf31-codecov
     - python: 3.3
-      env: TOX_ENV=py33-django1.8-drf3.2
+      env: TOXENV=py33-dj18-drf32-codecov
     - python: 3.3
-      env: TOX_ENV=py33-django1.8-drf3.3
+      env: TOXENV=py33-dj18-drf33-codecov
     - python: 3.3
-      env: TOX_ENV=py33-django1.8-drf3.4
+      env: TOXENV=py33-dj18-drf34-codecov
     - python: 3.3
-      env: TOX_ENV=py33-django1.8-drf3.5
+      env: TOXENV=py33-dj18-drf35-codecov
     - python: 3.3
-      env: TOX_ENV=py33-django1.8-drf3.6
+      env: TOXENV=py33-dj18-drf36-codecov
 
     - python: 3.4
-      env: TOX_ENV=py34-django1.8-drf3.1
+      env: TOXENV=py34-dj18-drf31-codecov
     - python: 3.4
-      env: TOX_ENV=py34-django1.8-drf3.2
+      env: TOXENV=py34-dj18-drf32-codecov
     - python: 3.4
-      env: TOX_ENV=py34-django1.8-drf3.3
+      env: TOXENV=py34-dj18-drf33-codecov
     - python: 3.4
-      env: TOX_ENV=py34-django1.8-drf3.4
+      env: TOXENV=py34-dj18-drf34-codecov
     - python: 3.4
-      env: TOX_ENV=py34-django1.8-drf3.5
+      env: TOXENV=py34-dj18-drf35-codecov
     - python: 3.4
-      env: TOX_ENV=py34-django1.8-drf3.6
+      env: TOXENV=py34-dj18-drf36-codecov
 
     - python: 3.4
-      env: TOX_ENV=py34-django1.9-drf3.1
+      env: TOXENV=py34-dj19-drf31-codecov
     - python: 3.4
-      env: TOX_ENV=py34-django1.9-drf3.2
+      env: TOXENV=py34-dj19-drf32-codecov
     - python: 3.4
-      env: TOX_ENV=py34-django1.9-drf3.3
+      env: TOXENV=py34-dj19-drf33-codecov
     - python: 3.4
-      env: TOX_ENV=py34-django1.9-drf3.4
+      env: TOXENV=py34-dj19-drf34-codecov
     - python: 3.4
-      env: TOX_ENV=py34-django1.9-drf3.5
+      env: TOXENV=py34-dj19-drf35-codecov
     - python: 3.4
-      env: TOX_ENV=py34-django1.9-drf3.6
+      env: TOXENV=py34-dj19-drf36-codecov
 
     - python: 3.4
-      env: TOX_ENV=py34-django1.10-drf3.4
+      env: TOXENV=py34-dj110-drf34-codecov
     - python: 3.4
-      env: TOX_ENV=py34-django1.10-drf3.5
+      env: TOXENV=py34-dj110-drf35-codecov
     - python: 3.4
-      env: TOX_ENV=py34-django1.10-drf3.6
+      env: TOXENV=py34-dj110-drf36-codecov
 
     - python: 3.4
-      env: TOX_ENV=py34-django1.11-drf3.4
+      env: TOXENV=py34-dj111-drf34-codecov
     - python: 3.4
-      env: TOX_ENV=py34-django1.11-drf3.5
+      env: TOXENV=py34-dj111-drf35-codecov
     - python: 3.4
-      env: TOX_ENV=py34-django1.11-drf3.6
-
-    - python: 3.5
-      env: TOX_ENV=py35-django1.10-drf3.4
-    - python: 3.5
-      env: TOX_ENV=py35-django1.10-drf3.5
-    - python: 3.5
-      env: TOX_ENV=py35-django1.10-drf3.6
+      env: TOXENV=py34-dj111-drf36-codecov
 
     - python: 3.5
-      env: TOX_ENV=py35-django1.11-drf3.4
+      env: TOXENV=py35-dj110-drf34-codecov
     - python: 3.5
-      env: TOX_ENV=py35-django1.11-drf3.5
+      env: TOXENV=py35-dj110-drf35-codecov
     - python: 3.5
-      env: TOX_ENV=py35-django1.11-drf3.6
+      env: TOXENV=py35-dj110-drf36-codecov
+
+    - python: 3.5
+      env: TOXENV=py35-dj111-drf34-codecov
+    - python: 3.5
+      env: TOXENV=py35-dj111-drf35-codecov
+    - python: 3.5
+      env: TOXENV=py35-dj111-drf36-codecov
 
     - python: 3.6
-      env: TOX_ENV=py36-django1.10-drf3.4
+      env: TOXENV=py36-dj110-drf34-codecov
     - python: 3.6
-      env: TOX_ENV=py36-django1.10-drf3.5
+      env: TOXENV=py36-dj110-drf35-codecov
     - python: 3.6
-      env: TOX_ENV=py36-django1.10-drf3.6
+      env: TOXENV=py36-dj110-drf36-codecov
 
     - python: 3.6
-      env: TOX_ENV=py36-django1.11-drf3.4
+      env: TOXENV=py36-dj111-drf34-codecov
     - python: 3.6
-      env: TOX_ENV=py36-django1.11-drf3.5
+      env: TOXENV=py36-dj111-drf35-codecov
     - python: 3.6
-      env: TOX_ENV=py36-django1.11-drf3.6
+      env: TOXENV=py36-dj111-drf36-codecov
 
 install:
-    - pip install tox
+  - pip install tox
 
 script:
-    - tox -e $TOX_ENV
+  - tox
+
+after_success:
+  - |
+    if [[ "${TOXENV%-codecov}" != "$TOXENV" ]]; then
+      pip install codecov
+      flags="${TOXENV//-/ }"
+      flags="${flags//./}"
+      codecov --name $TOXENV --flags $flags
+    fi
