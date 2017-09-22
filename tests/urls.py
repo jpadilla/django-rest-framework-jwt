@@ -18,10 +18,10 @@ class MockView(APIView):
     permission_classes = (permissions.IsAuthenticated,)
 
     def get(self, request):
-        return HttpResponse({'a': 1, 'b': 2, 'c': 3})
+        return HttpResponse('mockview-get')
 
     def post(self, request):
-        return HttpResponse({'a': 1, 'b': 2, 'c': 3})
+        return HttpResponse('mockview-post')
 
 
 urlpatterns = [
