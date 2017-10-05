@@ -64,6 +64,13 @@ class JSONWebTokenAuthenticationTests(TestCase):
         self.assertEqual(response.status_code, status.HTTP_200_OK)
         self.assertEqual(response.content, b'mockview-post')
 
+        # Ensure `authenticate` returned the decoded payload.
+        self.assertEqual(response.wsgi_request.user, self.user)
+        payload = response.wsgi_request.auth
+        self.assertIsInstance(payload, dict)
+        self.assertEqual(set(payload.keys()), {
+            'user_id', 'username', 'exp', 'email'})
+
     def test_post_json_passing_jwt_auth(self):
         """
         Ensure POSTing JSON over JWT auth with correct credentials
