@@ -1,3 +1,5 @@
+import inspect
+
 import jwt
 
 from django.contrib.auth import get_user_model
@@ -11,7 +13,6 @@ from rest_framework.authentication import (
 from rest_framework_jwt.settings import api_settings
 
 
-jwt_decode_handler = api_settings.JWT_DECODE_HANDLER
 jwt_get_username_from_payload = api_settings.JWT_PAYLOAD_GET_USERNAME_HANDLER
 
 
@@ -29,8 +30,14 @@ class BaseJSONWebTokenAuthentication(BaseAuthentication):
         if jwt_value is None:
             return None
 
+        jwt_decode_handler = api_settings.JWT_DECODE_HANDLER
+        num_args = len(inspect.getargs(jwt_decode_handler.__code__).args)
+        kwargs = {}
+        if num_args == 2:
+            kwargs["request"] = request
+
         try:
-            payload = jwt_decode_handler(jwt_value)
+            payload = jwt_decode_handler(jwt_value, **kwargs)
         except jwt.ExpiredSignature:
             msg = _('Signature has expired.')
             raise exceptions.AuthenticationFailed(msg)

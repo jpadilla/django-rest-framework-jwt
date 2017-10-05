@@ -25,6 +25,7 @@ except ImportError:
         # because models have not been initialized.
         oauth2_provider = None
 
+from rest_framework.request import Request
 from rest_framework.test import APIClient
 from rest_framework.test import APIRequestFactory
 
@@ -84,6 +85,35 @@ class JSONWebTokenAuthenticationTests(TestCase):
             '/jwt/', {'example': 'example'},
             HTTP_AUTHORIZATION=auth, format='json')
 
+        self.assertEqual(response.status_code, status.HTTP_200_OK)
+
+    def test_post_json_passing_jwt_auth_and_request(self):
+        """
+        Ensure POSTing JSON over JWT auth with correct credentials
+        passes and does not require CSRF, and that request is passed to
+        jwt_decode_handler when available
+        """
+        payload = utils.jwt_payload_handler(self.user)
+        token = utils.jwt_encode_handler(payload)
+
+        request_is_available = {'value': False}
+        _jwt_decode_handler = api_settings.JWT_DECODE_HANDLER
+
+        def jwt_decode_handler(jwt_value, request):
+            if isinstance(request, Request):
+                request_is_available['value'] = True
+            return _jwt_decode_handler(jwt_value)
+
+        api_settings.JWT_DECODE_HANDLER = jwt_decode_handler
+
+        auth = 'JWT {0}'.format(token)
+        response = self.csrf_client.post(
+            '/jwt/', {'example': 'example'},
+            HTTP_AUTHORIZATION=auth, format='json')
+
+        api_settings.JWT_DECODE_HANDLER = _jwt_decode_handler
+
+        self.assertEqual(request_is_available, {'value': True})
         self.assertEqual(response.status_code, status.HTTP_200_OK)
 
     def test_post_form_failing_jwt_auth(self):
