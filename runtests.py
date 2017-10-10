@@ -15,7 +15,7 @@ PYTEST_ARGS = {
     'fast': ['tests', '-q'],
 }
 
-FLAKE8_ARGS = ['rest_framework_jwt', 'tests', '--ignore=E501']
+FLAKE8_ARGS = ['rest_framework_jwt', 'tests']
 
 
 sys.path.append(os.path.dirname(__file__))

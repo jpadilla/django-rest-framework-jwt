@@ -42,7 +42,7 @@ class BaseJSONWebTokenAuthentication(BaseAuthentication):
 
         user = self.authenticate_credentials(payload)
 
-        return (user, jwt_value)
+        return (user, payload)
 
     def authenticate_credentials(self, payload):
         """
