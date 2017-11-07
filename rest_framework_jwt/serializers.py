@@ -3,10 +3,10 @@ import jwt
 from calendar import timegm
 from datetime import datetime, timedelta
 
-from django.contrib.auth import authenticate, get_user_model
+from django.contrib.auth import get_user_model
 from django.utils.translation import ugettext as _
 from rest_framework import serializers
-from .compat import Serializer
+from .compat import Serializer, authenticate
 
 from rest_framework_jwt.settings import api_settings
 from rest_framework_jwt.compat import get_username_field, PasswordField
@@ -47,7 +47,8 @@ class JSONWebTokenSerializer(Serializer):
         }
 
         if all(credentials.values()):
-            user = authenticate(**credentials)
+            request = self.context.get('request')
+            user = authenticate(request=request, **credentials)
 
             if user:
                 if not user.is_active:
