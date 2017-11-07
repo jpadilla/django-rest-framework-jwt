@@ -39,7 +39,7 @@ def get_username(user):
 
 
 def authenticate(request=None, **credentials):
-    if django.version < (1, 11):
+    if django.VERSION < (1, 11):
         return dj_authenticate(**credentials)
     else:
         return dj_authenticate(request=request, **credentials)
