@@ -55,8 +55,8 @@ class JSONWebTokenAPIView(APIView):
         serializer = self.get_serializer(data=request.data)
 
         if serializer.is_valid():
-            user = serializer.object.get('user') or request.user
-            token = serializer.object.get('token')
+            user = serializer.validated_data.get('user') or request.user
+            token = serializer.validated_data.get('token')
             response_data = jwt_response_payload_handler(token, user, request)
             response = Response(response_data)
             if api_settings.JWT_AUTH_COOKIE:
