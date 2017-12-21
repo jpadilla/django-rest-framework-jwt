@@ -2,6 +2,7 @@ import unittest
 from distutils.version import StrictVersion
 
 import django
+from django.http import HttpRequest
 from django.test import TestCase
 from django.test.utils import override_settings
 
@@ -34,7 +35,7 @@ class JSONWebTokenSerializerTests(TestCase):
 
     def get_serializer(self, **kwargs):
         serializer = JSONWebTokenSerializer(**kwargs)
-        serializer.context['request'] = Request(),
+        serializer.context['request'] = Request(HttpRequest()),
         return serializer
 
     @unittest.skipUnless(drf2, 'not supported in this version')
