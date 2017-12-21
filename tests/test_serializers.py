@@ -17,7 +17,6 @@ User = get_user_model()
 
 drf2 = rest_framework.VERSION < StrictVersion('3.0.0')
 drf3 = rest_framework.VERSION >= StrictVersion('3.0.0')
-Request = rest_framework.request.Request
 
 
 class JSONWebTokenSerializerTests(TestCase):
@@ -32,12 +31,11 @@ class JSONWebTokenSerializerTests(TestCase):
             'username': self.username,
             'password': self.password
         }
-        
+
     def get_serializer(self, **kwargs):
-        serializer = self.get_serializer(**kwargs)
+        serializer = JSONWebTokenSerializer(**kwargs)
         serializer.context['request'] = Request(),
         return serializer
-        
 
     @unittest.skipUnless(drf2, 'not supported in this version')
     def test_empty_drf2(self):
