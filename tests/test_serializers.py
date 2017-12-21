@@ -4,7 +4,10 @@ from distutils.version import StrictVersion
 import django
 from django.test import TestCase
 from django.test.utils import override_settings
+
 import rest_framework
+from rest_framework.request import Request
+
 
 from rest_framework_jwt.compat import get_user_model
 from rest_framework_jwt.serializers import JSONWebTokenSerializer
@@ -14,6 +17,7 @@ User = get_user_model()
 
 drf2 = rest_framework.VERSION < StrictVersion('3.0.0')
 drf3 = rest_framework.VERSION >= StrictVersion('3.0.0')
+Request = rest_framework.request.Request
 
 
 class JSONWebTokenSerializerTests(TestCase):
@@ -28,10 +32,16 @@ class JSONWebTokenSerializerTests(TestCase):
             'username': self.username,
             'password': self.password
         }
+        
+    def get_serializer(self, **kwargs):
+        serializer = self.get_serializer(**kwargs)
+        serializer.context['request'] = Request(),
+        return serializer
+        
 
     @unittest.skipUnless(drf2, 'not supported in this version')
     def test_empty_drf2(self):
-        serializer = JSONWebTokenSerializer()
+        serializer = self.get_serializer()
         expected = {
             'username': ''
         }
@@ -40,7 +50,7 @@ class JSONWebTokenSerializerTests(TestCase):
 
     @unittest.skipUnless(drf3, 'not supported in this version')
     def test_empty_drf3(self):
-        serializer = JSONWebTokenSerializer()
+        serializer = self.get_serializer()
         expected = {
             'username': '',
             'password': ''
@@ -49,7 +59,7 @@ class JSONWebTokenSerializerTests(TestCase):
         self.assertEqual(serializer.data, expected)
 
     def test_create(self):
-        serializer = JSONWebTokenSerializer(data=self.data)
+        serializer = self.get_serializer(data=self.data)
         is_valid = serializer.is_valid()
 
         token = serializer.object['token']
@@ -60,7 +70,7 @@ class JSONWebTokenSerializerTests(TestCase):
 
     def test_invalid_credentials(self):
         self.data['password'] = 'wrong'
-        serializer = JSONWebTokenSerializer(data=self.data)
+        serializer = self.get_serializer(data=self.data)
         is_valid = serializer.is_valid()
 
         expected_error = {
@@ -77,7 +87,7 @@ class JSONWebTokenSerializerTests(TestCase):
         self.user.is_active = False
         self.user.save()
 
-        serializer = JSONWebTokenSerializer(data=self.data)
+        serializer = self.get_serializer(data=self.data)
         is_valid = serializer.is_valid()
 
         expected_error = {
@@ -96,7 +106,7 @@ class JSONWebTokenSerializerTests(TestCase):
         self.user.is_active = False
         self.user.save()
 
-        serializer = JSONWebTokenSerializer(data=self.data)
+        serializer = self.get_serializer(data=self.data)
         is_valid = serializer.is_valid()
 
         expected_error = {
@@ -107,7 +117,7 @@ class JSONWebTokenSerializerTests(TestCase):
         self.assertEqual(serializer.errors, expected_error)
 
     def test_required_fields(self):
-        serializer = JSONWebTokenSerializer(data={})
+        serializer = self.get_serializer(data={})
         is_valid = serializer.is_valid()
 
         expected_error = {
