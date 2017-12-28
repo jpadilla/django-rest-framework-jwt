@@ -51,24 +51,30 @@ class JSONWebTokenAPIView(APIView):
         kwargs['context'] = self.get_serializer_context()
         return serializer_class(*args, **kwargs)
 
+    def serializer_valid(self, serializer, request):
+        user = serializer.object.get('user') or request.user
+        token = serializer.object.get('token')
+        response_data = jwt_response_payload_handler(token, user, request)
+        response = Response(response_data)
+        if api_settings.JWT_AUTH_COOKIE:
+            expiration = (datetime.utcnow() +
+                            api_settings.JWT_EXPIRATION_DELTA)
+            response.set_cookie(api_settings.JWT_AUTH_COOKIE,
+                                token,
+                                expires=expiration,
+                                httponly=True)
+        return response
+
+    def serializer_invalid(self, serializer, request):
+        return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
+
     def post(self, request, *args, **kwargs):
         serializer = self.get_serializer(data=request.data)
 
         if serializer.is_valid():
-            user = serializer.object.get('user') or request.user
-            token = serializer.object.get('token')
-            response_data = jwt_response_payload_handler(token, user, request)
-            response = Response(response_data)
-            if api_settings.JWT_AUTH_COOKIE:
-                expiration = (datetime.utcnow() +
-                              api_settings.JWT_EXPIRATION_DELTA)
-                response.set_cookie(api_settings.JWT_AUTH_COOKIE,
-                                    token,
-                                    expires=expiration,
-                                    httponly=True)
-            return response
+            return self.serializer_valid(serializer, request)
 
-        return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
+        return self.serializer_invalid(serializer, request)
 
 
 class ObtainJSONWebToken(JSONWebTokenAPIView):
