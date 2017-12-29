@@ -57,8 +57,7 @@ class JSONWebTokenAPIView(APIView):
         response_data = jwt_response_payload_handler(token, user, request)
         response = Response(response_data)
         if api_settings.JWT_AUTH_COOKIE:
-            expiration = (datetime.utcnow() +
-                            api_settings.JWT_EXPIRATION_DELTA)
+            expiration = (datetime.utcnow() + api_settings.JWT_EXPIRATION_DELTA)
             response.set_cookie(api_settings.JWT_AUTH_COOKIE,
                                 token,
                                 expires=expiration,
