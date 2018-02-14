@@ -55,7 +55,7 @@ msgstr "Não foi possível realizar o log in com as credenciais fornecidas "
 #: rest_framework_jwt/serializers.py:67
 #, python-brace-format
 msgid "Must include \"{username_field}\" and \"password\"."
-msgstr "Necessário incluir \"{username_field}\ e \"password\"."
+msgstr "Necessário incluir \"{username_field}\" e \"password\"."
 
 #: rest_framework_jwt/serializers.py:107
 msgid "User doesn't exist."
