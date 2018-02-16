@@ -1,0 +1,70 @@
+# SOME DESCRIPTIVE TITLE.
+# Copyright (C) YEAR THE PACKAGE'S COPYRIGHT HOLDER
+# This file is distributed under the same license as the PACKAGE package.
+# FIRST AUTHOR <EMAIL@ADDRESS>, YEAR.
+#
+#, fuzzy
+msgid ""
+msgstr ""
+"Project-Id-Version: PACKAGE VERSION\n"
+"Report-Msgid-Bugs-To: \n"
+"POT-Creation-Date: 2018-02-14 16:32-0200\n"
+"PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
+"Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
+"Language-Team: LANGUAGE <LL@li.org>\n"
+"Language: \n"
+"MIME-Version: 1.0\n"
+"Content-Type: text/plain; charset=UTF-8\n"
+"Content-Transfer-Encoding: 8bit\n"
+"Plural-Forms: nplurals=2; plural=(n > 1);\n"
+#: rest_framework_jwt/authentication.py:35 rest_framework_jwt/serializers.py:88
+msgid "Signature has expired."
+msgstr "Assinatura expirou."
+
+#: rest_framework_jwt/authentication.py:38 rest_framework_jwt/serializers.py:91
+msgid "Error decoding signature."
+msgstr "Erro decodificando assinatura."
+
+#: rest_framework_jwt/authentication.py:55
+#: rest_framework_jwt/serializers.py:100
+msgid "Invalid payload."
+msgstr "Payload inválido."
+
+#: rest_framework_jwt/authentication.py:61
+msgid "Invalid signature."
+msgstr "Assinatura inválida."
+
+#: rest_framework_jwt/authentication.py:65 rest_framework_jwt/serializers.py:54
+#: rest_framework_jwt/serializers.py:111
+msgid "User account is disabled."
+msgstr "Conta de usuário desativada."
+
+#: rest_framework_jwt/authentication.py:94
+msgid "Invalid Authorization header. No credentials provided."
+msgstr "Header de autorização inválido. Nenhuma credencial fornecida."
+
+#: rest_framework_jwt/authentication.py:97
+msgid ""
+"Invalid Authorization header. Credentials string should not contain spaces."
+msgstr "Header de autorização inválido. Credenciais não devem conter espaços."
+
+#: rest_framework_jwt/serializers.py:64
+msgid "Unable to log in with provided credentials."
+msgstr "Não foi possível realizar o log in com as credenciais fornecidas "
+
+#: rest_framework_jwt/serializers.py:67
+#, python-brace-format
+msgid "Must include \"{username_field}\" and \"password\"."
+msgstr "Necessário incluir \"{username_field}\" e \"password\"."
+
+#: rest_framework_jwt/serializers.py:107
+msgid "User doesn't exist."
+msgstr "Usuário não existe"
+
+#: rest_framework_jwt/serializers.py:159
+msgid "Refresh has expired."
+msgstr "Refresh expirado"
+
+#: rest_framework_jwt/serializers.py:162
+msgid "orig_iat field is required."
+msgstr "Campo 'orig_iat' é obrigatório"
