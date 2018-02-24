@@ -54,7 +54,7 @@ class JSONWebTokenAPIView(APIView):
     def post(self, request, *args, **kwargs):
         serializer = self.get_serializer(data=request.data)
 
-        if serializer.is_valid():
+        if serializer.is_valid(raise_exception=api_settings.JWT_SERIALIZER_RAISE_EXCEPTION):
             user = serializer.object.get('user') or request.user
             token = serializer.object.get('token')
             response_data = jwt_response_payload_handler(token, user, request)

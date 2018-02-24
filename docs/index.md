@@ -179,6 +179,7 @@ JWT_AUTH = {
 
     'JWT_AUTH_HEADER_PREFIX': 'JWT',
     'JWT_AUTH_COOKIE': None,
+    'JWT_SERIALIZER_RAISE_EXCEPTION': False,
 
 }
 ```
@@ -291,6 +292,11 @@ The string you set here will be used as the cookie name that will be set in the 
 procedure will also look into this cookie, if set. The 'Authorization' header takes precedence if both the header and the cookie are present in the request.
 
 Default is `None` and no cookie is set when creating tokens nor accepted when validating them.
+
+### JWT_SERIALIZER_RAISE_EXCEPTION
+If you have implemented custom exception handling as described in [django_rest_framework documentation](http://www.django-rest-framework.org/api-guide/exceptions/#custom-exception-handling) and want to have that function which converts exceptions raised in your API views into response objects.
+
+Default is 'False'
 
 ## Extending `JSONWebTokenAuthentication`
 
