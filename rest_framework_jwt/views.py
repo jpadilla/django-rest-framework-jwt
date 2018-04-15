@@ -3,6 +3,8 @@ from rest_framework import status
 from rest_framework.response import Response
 from datetime import datetime
 
+from django.middleware import csrf
+
 from .settings import api_settings
 from .serializers import (
     JSONWebTokenSerializer, RefreshJSONWebTokenSerializer,
@@ -53,6 +55,9 @@ class JSONWebTokenAPIView(APIView):
 
     def post(self, request, *args, **kwargs):
         serializer = self.get_serializer(data=request.data)
+
+        if api_settings.CSRF_COOKIE:
+            csrf.get_token(request)
 
         if serializer.is_valid():
             user = serializer.object.get('user') or request.user
