@@ -28,7 +28,7 @@ If you want to know more about JWT, check out the following resources:
 ## Requirements
 
 - Python (2.7, 3.3, 3.4, 3.5, 3.6)
-- Django (1.8, 1.9, 1.10)
+- Django (1.8, 1.9, 1.10, 1.11, 2.0)
 - Django REST Framework (3.0, 3.1, 3.2, 3.3, 3.4, 3.5)
 
 ## Security
@@ -76,7 +76,7 @@ urlpatterns = [
     '',
     # ...
 
-    url(r'^api-token-auth/', obtain_jwt_token),
+    path('api-token-auth/', obtain_jwt_token),
 ]
 ```
 
@@ -106,7 +106,7 @@ If `JWT_ALLOW_REFRESH` is True, **non-expired** tokens can be "refreshed" to obt
 
     urlpatterns = [
         #  ...
-        url(r'^api-token-refresh/', refresh_jwt_token),
+        path('api-token-refresh/', refresh_jwt_token),
     ]
 ```
 
@@ -132,7 +132,7 @@ This setup is supported in this package using a verification endpoint. Add the f
 
     urlpatterns = [
         #  ...
-        url(r'^api-token-verify/', verify_jwt_token),
+        path('api-token-verify/', verify_jwt_token),
     ]
 ```
 
