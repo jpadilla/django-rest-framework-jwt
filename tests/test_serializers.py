@@ -18,6 +18,7 @@ drf3 = rest_framework.VERSION >= StrictVersion('3.0.0')
 django_strict_version = StrictVersion('%s.%s.%s' % django.VERSION[:3])
 django2 = django_strict_version > StrictVersion('1.10.0')
 
+
 class JSONWebTokenSerializerTests(TestCase):
     def setUp(self):
         self.email = 'jpueblo@example.com'
