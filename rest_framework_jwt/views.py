@@ -66,6 +66,7 @@ class JSONWebTokenAPIView(APIView):
                                     token,
                                     expires=expiration,
                                     httponly=True)
+            request.user = user
             return response
 
         return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
