@@ -6,6 +6,8 @@ from rest_framework import serializers
 from django.forms import widgets
 from rest_framework.exceptions import APIException
 
+from distutils.version import StrictVersion
+
 
 class ValidationError(APIException):
     status_code = status.HTTP_400_BAD_REQUEST
