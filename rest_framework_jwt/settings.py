@@ -1,8 +1,8 @@
 import datetime
 
 from django.conf import settings
-from rest_framework.settings import APISettings
-
+from django.core.signals import setting_changed
+from rest_framework.settings import APISettings as BaseAPISettings
 
 USER_SETTINGS = getattr(settings, 'JWT_AUTH', None)
 
@@ -59,4 +59,22 @@ IMPORT_STRINGS = (
     'JWT_GET_USER_SECRET_KEY',
 )
 
+
+class APISettings(BaseAPISettings):
+    @property
+    def user_settings(self):
+        if not hasattr(self, '_user_settings'):
+            self._user_settings = getattr(settings, 'JWT_AUTH', None)
+        return self._user_settings
+
+
 api_settings = APISettings(USER_SETTINGS, DEFAULTS, IMPORT_STRINGS)
+
+
+def reload_api_settings(*args, **kwargs):
+    setting = kwargs['setting']
+    if setting == 'JWT_AUTH':
+        api_settings.reload()
+
+
+setting_changed.connect(reload_api_settings)
