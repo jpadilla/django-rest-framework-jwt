@@ -1,19 +1,6 @@
-<div class="badges">
-    <a href="https://travis-ci.org/GetBlimp/django-rest-framework-jwt">
-        <img src="https://travis-ci.org/GetBlimp/django-rest-framework-jwt.svg?branch=master">
-    </a>
-    <a href="https://pypi.python.org/pypi/djangorestframework-jwt">
-        <img src="https://img.shields.io/pypi/v/djangorestframework-jwt.svg">
-    </a>
-</div>
-
----
-
 # REST framework JWT Auth
 
 JSON Web Token Authentication support for Django REST Framework
-
----
 
 ## Overview
 
@@ -45,8 +32,8 @@ replay attacks.
 
 Install using `pip`...
 
-```
-$ pip install djangorestframework-jwt
+```bash
+$ pip install drf-jwt
 ```
 
 ## Usage

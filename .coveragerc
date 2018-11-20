@@ -1,3 +1,0 @@
-[run]
-branch = true
-source = rest_framework_jwt,tests
