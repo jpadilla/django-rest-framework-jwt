@@ -6,8 +6,6 @@ matrix:
   fast_finish: true
   include:
     - python: 2.7
-      env: TOXENV=py27-flake8
-    - python: 2.7
       env: TOXENV=py27-docs
 
     - python: 2.7
