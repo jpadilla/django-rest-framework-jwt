@@ -6,7 +6,6 @@ matrix:
   include:
   - python: 2.7
     env: TOXENV=py27-docs
-
   - python: 2.7
     env: TOXENV=py27-dj111-drf37-codecov
   - python: 3.4
@@ -15,7 +14,6 @@ matrix:
     env: TOXENV=py35-dj111-drf37-codecov
   - python: 3.6
     env: TOXENV=py36-dj111-drf37-codecov
-
   - python: 2.7
     env: TOXENV=py27-dj111-drf38-codecov
   - python: 3.4
