@@ -1,5 +1,7 @@
 # REST framework JWT Auth
 
+[![Build Status](https://travis-ci.org/Styria-Digital/django-rest-framework-jwt.svg?branch=master)](https://travis-ci.org/Styria-Digital/django-rest-framework-jwt)
+
 JSON Web Token Authentication support for Django REST Framework
 
 ## Overview
