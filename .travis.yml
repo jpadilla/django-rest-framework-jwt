@@ -4,18 +4,18 @@ cache: pip
 matrix:
   fast_finish: true
   include:
-  - python: "2.7"
+  - python: "2.7.13"
     env: TOXENV=py27-docs
-  - python: "2.7"
+  - python: "2.7.13"
     env: TOXENV=py27-dj111-drf37-codecov
   - python: "3.6"
     env: TOXENV=py36-dj111-drf37-codecov
-  - python: "2.7"
+  - python: "2.7.13"
     env: TOXENV=py27-dj111-drf38-codecov
   - python: "3.6"
     env: TOXENV=py36-dj111-drf38-codecov
 install:
-- pip install -U tox setuptools pip
+- pip install tox
 script:
 - tox
 after_success:
