@@ -8,10 +8,22 @@ matrix:
     env: TOXENV=py27-docs
   - python: "2.7.13"
     env: TOXENV=py27-dj111-drf37-codecov
+  - python: "3.3"
+    env: TOXENV=py33-dj111-drf37-codecov
+  - python: "3.4"
+    env: TOXENV=py34-dj111-drf37-codecov
+  - python: "3.5"
+    env: TOXENV=py35-dj111-drf37-codecov
   - python: "3.6"
     env: TOXENV=py36-dj111-drf37-codecov
   - python: "2.7.13"
     env: TOXENV=py27-dj111-drf38-codecov
+  - python: "3.3"
+    env: TOXENV=py33-dj111-drf38-codecov
+  - python: "3.4"
+    env: TOXENV=py34-dj111-drf38-codecov
+  - python: "3.5"
+    env: TOXENV=py35-dj111-drf38-codecov
   - python: "3.6"
     env: TOXENV=py36-dj111-drf38-codecov
 install:
