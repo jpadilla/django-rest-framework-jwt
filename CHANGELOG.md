@@ -12,3 +12,11 @@ Do **NOT** add changelog entries here! This changelog is managed by
 time.
 
 .. towncrier release notes start
+
+v1.11.0 (2018-12-13)
+====================
+
+Misc
+----
+
+- Project restructuring according to SDS code style and conventions. ([#2](https://github.com/Styria-Digital/django-rest-framework-jwt/pull/2))
