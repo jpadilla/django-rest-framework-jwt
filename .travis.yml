@@ -4,23 +4,23 @@ cache: pip
 matrix:
   fast_finish: true
   include:
-  - python: "2.7.13"
+  - python: 2.7.13
     env: TOXENV=py27-docs
-  - python: "2.7.13"
+  - python: 2.7.13
     env: TOXENV=py27-dj111-drf37-codecov
-  - python: "3.4"
+  - python: '3.4'
     env: TOXENV=py34-dj111-drf37-codecov
-  - python: "3.5"
+  - python: '3.5'
     env: TOXENV=py35-dj111-drf37-codecov
-  - python: "3.6"
+  - python: '3.6'
     env: TOXENV=py36-dj111-drf37-codecov
-  - python: "2.7.13"
+  - python: 2.7.13
     env: TOXENV=py27-dj111-drf38-codecov
-  - python: "3.4"
+  - python: '3.4'
     env: TOXENV=py34-dj111-drf38-codecov
-  - python: "3.5"
+  - python: '3.5'
     env: TOXENV=py35-dj111-drf38-codecov
-  - python: "3.6"
+  - python: '3.6'
     env: TOXENV=py36-dj111-drf38-codecov
 install:
 - pip install tox
@@ -38,7 +38,9 @@ deploy:
   provider: pypi
   user: styria
   password:
-    secure: dwpBnUZ8yYvGNYs9C0sFEhKhfleqTWbhTfzS3vGFEbyljnoYeKCspziEdPQLVIKeBnlS+rSo83PksyGiFL17FpxBuASShIfRTuNJl1lhD2Q3c9ZWZhrcMgUIE1zryxPRMY9Oaze7MEsxlzWzWcDpYpcCTLy5McEWHoRbnTtjK2De1PuqxiKHC9RKmQnZdELzysujtiQLuywmzgFAfdg+77C/vSfBTWc+GxKrdRKEmnncY2LH0fju9mo+tZk242CR25JXzhNisp8g+tqxU5DROyP1T99z9nVLHa0/SMKP3CcQbDz9DQ3C7Uuub36L+7hQdInaNzMRUMk9fhjYmrx2PrBp30uP7ICZgGBPzAe8D59IKS27PmzdYE6qQ2HDD08WboE/RkzxGeLOgOx74MmzVdPOPvRcI82ZwhSZ0JB8vCR6MXZ4myt0kIEv4BqtSmSzBh3X3aGLjQeAl2w49YLgcShasHN0ztLHEAkwDRMt4XtNE7cCuddPZYmzMM8yRi2B4U3pfUy0zDFqsu62Tk5qePC9vbz7gAqUvvtau4q9Vs0aFsUijgvf4ZwTFFz5Bu8eY+vGwrDgkcIkLVmx54xdgSCn+zjLMR9UPZxSVER3+qX2l/ByLt5FPNYMpkcKnfVzJ9QwrcrAZsSCBvVZIYdRWlxjFYpJfsisRuPwXoCw9fM=
+    secure: vgeBovjCjamXAZjIa9IObvJn0qkMSRqO+iW7SIUn8aQJCUoAkKohdCFuCPgvsX0txzGOn2WQrTOvHf34oLcb9psAclh3JmqXqr9JmP9yjG9+vuf2uA4S9mGM+Sf4bQQ7NEEWqy0i7T9YAJbT09ncPR4VzEzOD73uxSXW7Y02sN0dO47r1kog7Mmc+fJIl0bs09z6JR0mhhIJV14JhAdIBO0ZlqlK/G3+OOK7WtaQSI6JAqz49DGq7MxqUvlYElgfWt0j3I2W7I7c5WQtka9ASsvWQVA7E/Af6HhLbhnrRImvVYNhzZQ2TApIVdmY5+MdEP6RGudn7jjgvD8fVldfazXxtzvO2TIuXvO8QAPGjOwXOd9mKimlGGeiWB1TZBi6rUMi0O6IaJ3Mf8jnnkV06IxIc0B9CnUHvqBCExBWH1zVqD0AkyoX+uDg7pSEjP/Tp7iuwabheSOldrVNCsmfTQ/Uifd5p/X56UU7KGyJknNhjyGqBQzah80dfXISAIYtWetgGgvU3thg8qFHGGWzZqukEzkbOzzGYqBshomP4JsFt2wOeOpgSC9hqydOXKRBba5RLZcDxCFrx/ZjJp78gmp70OW9cXBpeJI/kQTb078d/2RZUTnM0G6kMXKEQCkrk/bCI4BqUC8vWPzuMDYnXMh87VUFRUZ+v9kg2eSJIpk=
+  skip_cleanup: true
+  skip_existing: true
   on:
     tags: true
     branch: master
