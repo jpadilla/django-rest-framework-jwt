@@ -1,19 +1,6 @@
-<div class="badges">
-    <a href="https://travis-ci.org/GetBlimp/django-rest-framework-jwt">
-        <img src="https://travis-ci.org/GetBlimp/django-rest-framework-jwt.svg?branch=master">
-    </a>
-    <a href="https://pypi.python.org/pypi/djangorestframework-jwt">
-        <img src="https://img.shields.io/pypi/v/djangorestframework-jwt.svg">
-    </a>
-</div>
-
----
-
 # REST framework JWT Auth
 
 JSON Web Token Authentication support for Django REST Framework
-
----
 
 ## Overview
 
@@ -27,9 +14,9 @@ If you want to know more about JWT, check out the following resources:
 
 ## Requirements
 
-- Python (2.7, 3.3, 3.4, 3.5, 3.6)
-- Django (1.8, 1.9, 1.10)
-- Django REST Framework (3.0, 3.1, 3.2, 3.3, 3.4, 3.5)
+- Python 2.7, 3.4, 3.5, 3.6
+- Django 1.11
+- Django REST Framework 3.7.x, 3.8.x
 
 ## Security
 
@@ -45,8 +32,8 @@ replay attacks.
 
 Install using `pip`...
 
-```
-$ pip install djangorestframework-jwt
+```bash
+$ pip install drf-jwt
 ```
 
 ## Usage

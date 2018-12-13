@@ -1,21 +1,104 @@
-*.pyc
-*.db
-*~
-.*
-
-html/
-htmlcov/
-coverage/
-build/
-dist/
-*.egg-info/
-MANIFEST
-
-bin/
-include/
-lib/
-local/
-
 !.coveragerc
 !.gitignore
 !.travis.yml
+
+# Temporary, DB binary files
+*~
+*.db
+
+# Byte-compiled / optimized / DLL files
+
+__pycache__/
+*.py[cod]
+*$py.class
+
+# OSX useful to ignore
+*.DS_Store
+.AppleDouble
+.LSOverride
+
+# Thumbnails
+._*
+
+# C extensions
+*.so
+
+# Distribution / packaging
+.Python
+env/
+build/
+develop-eggs/
+dist/
+downloads/
+eggs/
+.eggs/
+lib/
+lib64/
+parts/
+sdist/
+var/
+*.egg-info/
+MANIFEST
+.installed.cfg
+*.egg
+
+# PyInstaller
+#  Usually these files are written by a python script from a template
+#  before PyInstaller builds the exe, so as to inject date/other infos into it.
+*.manifest
+*.spec
+
+# Installer logs
+pip-log.txt
+pip-delete-this-directory.txt
+
+# Unit test / coverage reports
+html/
+htmlcov/
+.tox/
+.coverage
+.coverage.*
+.cache
+nosetests.xml
+coverage.xml
+*,cover
+.hypothesis/
+.pytest_cache/
+
+# Translations
+*.mo
+*.pot
+
+# Django stuff:
+*.log
+
+# Sphinx documentation
+docs/_build/
+reno.cache
+
+# IntelliJ Idea family of suites
+.idea
+*.iml
+## File-based project format:
+*.ipr
+*.iws
+## mpeltonen/sbt-idea plugin
+.idea_modules/
+
+# PyBuilder
+target/
+
+# Cookiecutter
+output/
+python_boilerplate/
+
+# IPython Notebook
+.ipynb_checkpoints
+*.ipynb
+
+# Sublime Text settings
+*.sublime-*
+
+# Sqlite3
+*.sqlite3
+
