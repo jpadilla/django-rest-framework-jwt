@@ -13,7 +13,7 @@ time.
 
 .. towncrier release notes start
 
-v1.12.3 (2018-12-17)
+1.12.4 (2018-12-17)
 ====================
 
 Misc
