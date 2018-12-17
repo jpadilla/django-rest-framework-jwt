@@ -69,7 +69,13 @@ you'll be using it through `tox`, but please adhere to the following rules:
 To build the documentation, run the following command:
 
 ```bash
-$ tox -e py27-docs
+$ tox -e docs
+```
+
+To deploy documentation to GitHub run:
+
+```bash
+$ mkdocs gh-deploy
 ```
 
 The documentation should be available in `/html/index.html`.
