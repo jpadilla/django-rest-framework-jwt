@@ -1,22 +1,21 @@
 sudo: false
 language: python
 cache: pip
+install:
+  - pip install tox
+script:
+  - tox
+after_success:
+  - |
+    if [[ "${TOXENV%-codecov}" != "$TOXENV" ]]; then
+      pip install codecov
+      flags="${TOXENV//-/ }"
+      flags="${flags//./}"
+      codecov --name $TOXENV --flags $flags
+    fi
 jobs:
   include:
     - stage: tests
-      name: "Tests"
-      install:
-        - pip install tox
-      script:
-        - tox
-      after_success:
-        - |
-          if [[ "${TOXENV%-codecov}" != "$TOXENV" ]]; then
-            pip install codecov
-            flags="${TOXENV//-/ }"
-            flags="${flags//./}"
-            codecov --name $TOXENV --flags $flags
-          fi
       python: '2.7.13'
       env: TOXENV=docs
     - python: '2.7.13'
@@ -36,9 +35,9 @@ jobs:
     - python: '3.6'
       env: TOXENV=py36-dj111-drf38-codecov
     - stage: deploy
-      name: "Deploy to PyPI.org"
       if: branch = master AND tag IS present
       python: '2.7.13'
+      env: TOXENV=py27-dj111-drf37
       deploy:
         provider: pypi
         user: styria
