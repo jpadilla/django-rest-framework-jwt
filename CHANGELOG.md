@@ -13,6 +13,15 @@ time.
 
 .. towncrier release notes start
 
+v1.12.3 (2018-12-17)
+====================
+
+Misc
+----
+
+- Switch to Travis CI build stages ([#3](https://github.com/Styria-Digital/django-rest-framework-jwt/pull/3))
+
+
 1.12.3 (2018-12-13)
 ====================
 
