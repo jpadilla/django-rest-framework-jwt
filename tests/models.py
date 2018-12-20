@@ -1,43 +1,24 @@
-import uuid
+# -*- coding: utf-8 -*-
 
-from django.contrib.auth.models import AbstractBaseUser
-from django.contrib.auth.models import BaseUserManager
+from __future__ import unicode_literals
+
+from django.contrib.auth.models import AbstractUser
 from django.db import models
 
 
-class CustomUser(AbstractBaseUser):
-    email = models.EmailField(max_length=255, unique=True)
-    jwt_secret = models.UUIDField(
-        'Token secret',
-        help_text='Changing this will log out user everywhere',
-        default=uuid.uuid4)
-
-    objects = BaseUserManager()
-
-    USERNAME_FIELD = 'email'
+class UserWithProfile(AbstractUser):
 
     class Meta:
         app_label = 'tests'
 
-
-class CustomUserWithoutEmail(AbstractBaseUser):
-    username = models.CharField(max_length=255, unique=True)
-
-    objects = BaseUserManager()
-
-    USERNAME_FIELD = 'username'
-
-    class Meta:
-        app_label = 'tests'
+    def save(self, *args, **kwargs):
+        if not self.pk:
+            self.profile = UserProfile(user=self)
+        super(UserWithProfile, self).save(*args, **kwargs)
 
 
-class CustomUserUUID(AbstractBaseUser):
-    id = models.UUIDField(primary_key=True, default=uuid.uuid4, editable=False)
-    email = models.EmailField(max_length=255, unique=True)
-
-    objects = BaseUserManager()
-
-    USERNAME_FIELD = 'email'
+class UserProfile(models.Model):
+    user = models.OneToOneField(UserWithProfile, related_name='profile')
 
     class Meta:
         app_label = 'tests'

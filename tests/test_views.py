@@ -1,494 +1,468 @@
-import unittest
-from calendar import timegm
-from datetime import datetime, timedelta
-import time
+# -*- coding: utf-8 -*-
 
-from cryptography.hazmat.backends import default_backend
-from cryptography.hazmat.primitives.asymmetric import rsa
-from django import get_version
-from django.test import TestCase
-from django.test.utils import override_settings
-from rest_framework import status
-from rest_framework.test import APIClient
+from __future__ import unicode_literals
 
-from rest_framework_jwt import utils, views
-from rest_framework_jwt.compat import get_user_model
-from rest_framework_jwt.settings import api_settings, DEFAULTS
+from django.contrib.auth import get_user_model
+from mock import patch
 
-from . import utils as test_utils
+from django.utils.encoding import force_text
+from django.utils.translation import ugettext_lazy as _
+
+from rest_framework.reverse import reverse
+from rest_framework.status import HTTP_200_OK, HTTP_401_UNAUTHORIZED
+from rest_framework.test import APITestCase
+
+from rest_framework_jwt import settings
+from tests.utils import \
+    call_auth_endpoint, call_auth_refresh_endpoint, call_auth_verify_endpoint,\
+    jwt_get_user_secret_key
+
+from rest_framework_jwt.authentication import JSONWebTokenAuthentication
 
 User = get_user_model()
 
-NO_CUSTOM_USER_MODEL = 'Custom User Model only supported after Django 1.5'
 
-orig_datetime = datetime
-
-
-class BaseTestCase(TestCase):
-
-    def setUp(self):
-        self.email = 'jpueblo@example.com'
-        self.username = 'jpueblo'
-        self.password = 'password'
-        self.user = User.objects.create_user(
-            self.username, self.email, self.password)
-
-        self.data = {
-            'username': self.username,
-            'password': self.password
-        }
+def setup_default_mocked_api_settings(mock_settings):
+    for setting_name, setting_value in settings.DEFAULTS.items():
+        setattr(mock_settings, setting_name,
+                getattr(settings.api_settings, setting_name))
+    return mock_settings
 
 
-class TestCustomResponsePayload(BaseTestCase):
+class TestAuthViews(APITestCase):
 
     def setUp(self):
-        self.original_handler = views.jwt_response_payload_handler
-        views.jwt_response_payload_handler = test_utils\
-            .jwt_response_payload_handler
-        return super(TestCustomResponsePayload, self).setUp()
-
-    def test_jwt_login_custom_response_json(self):
-        """
-        Ensure JWT login view using JSON POST works.
-        """
-        client = APIClient(enforce_csrf_checks=True)
-
-        response = client.post('/auth-token/', self.data, format='json')
-
-        decoded_payload = utils.jwt_decode_handler(response.data['token'])
-
-        self.assertEqual(response.status_code, status.HTTP_200_OK)
-        self.assertEqual(decoded_payload['username'], self.username)
-        self.assertEqual(response.data['user'], self.username)
+        self.active_user = User.objects.create_user(
+            username='foobar', email='foobar@example.com', password='foo',
+            is_active=True
+        )
+        self.inactive_user = User.objects.create_user(
+            username='inactive', email='inactive@example.com', password='pass',
+            is_active=False
+        )
 
     def tearDown(self):
-        views.jwt_response_payload_handler = self.original_handler
+        # reset any leftover auth tokens
+        self.client.credentials()
+
+    def test_auth__empty_credentials__returns_validation_error(self):
+        expected_output = {
+            'password': [_('This field may not be blank.')],
+            'username': [_('This field may not be blank.')]
+        }
+
+        response = call_auth_endpoint(self.client, "", "")
+
+        self.assertEqual(response.json(), expected_output)
+
+    def test_auth__invalid_credentials__returns_validation_error(self):
+        expected_output = {
+            'non_field_errors': [
+                _('Unable to log in with provided credentials.')
+            ]
+        }
+
+        response = call_auth_endpoint(
+            self.client, "invalid_username", "invalid_password"
+        )
+
+        self.assertEqual(response.json(), expected_output)
+
+    def test_auth__valid_credentials__returns_jwt_token(self):
+        response = call_auth_endpoint(self.client, "foobar", "foo")
+
+        token = response.json()['token']
+        payload = JSONWebTokenAuthentication.jwt_decode_token(token)
+
+        self.assertEqual(response.status_code, HTTP_200_OK)
+        self.assertEqual(payload['user_id'], self.active_user.id)
+        self.assertEqual(payload['username'], self.active_user.get_username())
+
+    @patch('rest_framework_jwt.utils.api_settings', autospec=True)
+    def test_auth__valid_credentials_with_aud_and_iss_settings__returns_jwt_token(self, mock_settings):
+        # Use default settings and override JWT_AUDIENCE and JWT_ISSUER settings
+        mock_settings = setup_default_mocked_api_settings(mock_settings)
+        mock_settings.JWT_AUDIENCE = 'test-aud'
+        mock_settings.JWT_ISSUER = 'test-iss'
+
+        response = call_auth_endpoint(self.client, "foobar", "foo")
+
+        token = response.json()['token']
+        payload = JSONWebTokenAuthentication.jwt_decode_token(token)
+
+        self.assertEqual(response.status_code, HTTP_200_OK)
+        self.assertEqual(payload['aud'], mock_settings.JWT_AUDIENCE)
+        self.assertEqual(payload['iss'], mock_settings.JWT_ISSUER)
+        self.assertEqual(payload['user_id'], self.active_user.id)
+        self.assertEqual(payload['username'], self.active_user.get_username())
+
+    @patch('rest_framework_jwt.utils.api_settings', autospec=True)
+    def test_auth__valid_credentials_with_JWT_GET_USER_SECRET_KEY_handler_set__returns_jwt_token(self, mock_settings):
+        # Use default settings and override JWT_GET_USER_SECRET_KEY setting
+        mock_settings = setup_default_mocked_api_settings(mock_settings)
+        mock_settings.JWT_GET_USER_SECRET_KEY = jwt_get_user_secret_key
+
+        response = call_auth_endpoint(self.client, "foobar", "foo")
+
+        token = response.json()['token']
+        payload = JSONWebTokenAuthentication.jwt_decode_token(token)
+
+        self.assertEqual(response.status_code, HTTP_200_OK)
+        self.assertEqual(payload['user_id'], self.active_user.id)
+        self.assertEqual(payload['username'], self.active_user.get_username())
+
+    def test_auth__valid_credentials_inactive_user__returns_validation_error(self):
+        expected_output = {
+            'non_field_errors': [
+                _('Unable to log in with provided credentials.')
+            ]
+        }
+
+        response = call_auth_endpoint(self.client, "inactive", "pass")
+
+        self.assertEqual(response.json(), expected_output)
+
+    @patch('rest_framework_jwt.views.api_settings', autospec=True)
+    def test_auth__valid_credentials_with_auth_cookie_settings__returns_jwt_token_and_cookie(
+            self, mock_settings):
+
+        auth_cookie = 'jwt-auth'
+        # Use default settings and override JWT_AUTH_COOKIE setting
+        mock_settings = setup_default_mocked_api_settings(mock_settings)
+        mock_settings.JWT_AUTH_COOKIE = auth_cookie
+
+        response = call_auth_endpoint(self.client, "foobar", "foo")
+
+        self.assertEqual(response.status_code, HTTP_200_OK)
+        self.assertIn('token', force_text(response.content))
+        self.assertIn(auth_cookie, response.client.cookies)
+
+    def test_auth_verify__invalid_token__returns_validation_error(self):
+        expected_output = {'non_field_errors': [_('Error decoding token.')]}
+
+        response = call_auth_verify_endpoint(self.client, "invalid_token")
+
+        self.assertEqual(response.json(), expected_output)
+
+    def test_auth_verify__valid_token__returns_same_token(self):
+        auth_response = call_auth_endpoint(self.client, "foobar", "foo")
+        auth_token = auth_response.json()['token']
+
+        verify_response = call_auth_verify_endpoint(self.client, auth_token)
+        verify_token = verify_response.json()['token']
+
+        self.assertEqual(verify_token, auth_token)
+
+    def test_auth_verify__token_without_username__returns_validation_error(self):
+        # create token without username field
+        payload = JSONWebTokenAuthentication.jwt_create_payload(self.active_user)
+        del payload['username']
+        auth_token = JSONWebTokenAuthentication.jwt_encode_payload(payload)
+
+        expected_output = {'non_field_errors': [_('Invalid token.')]}
+
+        verify_response = call_auth_verify_endpoint(self.client, auth_token)
+
+        self.assertEqual(verify_response.json(), expected_output)
+
+    def test_auth_verify__token_with_invalid_username__returns_validation_error(self):
+        # create token with invalid username
+        payload = JSONWebTokenAuthentication.jwt_create_payload(
+            self.active_user)
+        payload['username'] = "i_do_not_exist"
+        auth_token = JSONWebTokenAuthentication.jwt_encode_payload(payload)
+
+        expected_output = {'non_field_errors': [_("User doesn't exist.")]}
+
+        verify_response = call_auth_verify_endpoint(self.client, auth_token)
+        self.assertEqual(verify_response.json(), expected_output)
+
+    def test_auth_verify__token_for_inactive_user__returns_validation_error(self):
+        # create token with invalid username
+        payload = JSONWebTokenAuthentication.jwt_create_payload(
+            self.inactive_user)
+        auth_token = JSONWebTokenAuthentication.jwt_encode_payload(payload)
+
+        expected_output = {'non_field_errors': [_('User account is disabled.')]}
+
+        verify_response = call_auth_verify_endpoint(self.client, auth_token)
+        self.assertEqual(verify_response.json(), expected_output)
+
+    def test_auth_verify__expired_token__returns_validation_error(self):
+
+        payload = JSONWebTokenAuthentication.jwt_create_payload(
+            self.active_user)
+        payload['iat'] = 0  # beginning of time
+        payload['exp'] = 1  # one second after beginning of time
+        auth_token = JSONWebTokenAuthentication.jwt_encode_payload(payload)
+
+        expected_output = {'non_field_errors': [_('Token has expired.')]}
+
+        verify_response = call_auth_verify_endpoint(self.client, auth_token)
+        self.assertEqual(verify_response.json(), expected_output)
+
+    def test_auth_refresh__invalid_token__returns_validation_error(self):
+        expected_output = {'non_field_errors': [_('Error decoding token.')]}
+
+        response = call_auth_refresh_endpoint(self.client, "invalid_token")
+        self.assertEqual(response.json(), expected_output)
+
+    @patch('rest_framework_jwt.utils.api_settings', autospec=True)
+    def test_auth_refresh__with_JWT_ALLOW_REFRESH_disabled__returns_validation_error(self, mock_settings):
+        mock_settings = setup_default_mocked_api_settings(mock_settings)
+        mock_settings.JWT_ALLOW_REFRESH = False
+
+        payload = JSONWebTokenAuthentication.jwt_create_payload(
+            self.active_user)
+        payload['exp'] = payload['iat'] + 100  # add 100 seconds to issued at time
+        auth_token = JSONWebTokenAuthentication.jwt_encode_payload(payload)
+
+        expected_output = {
+            'non_field_errors': ['orig_iat field not found in token.']
+        }
+
+        refresh_response = call_auth_refresh_endpoint(self.client, auth_token)
+
+        self.assertEqual(refresh_response.json(), expected_output)
 
 
-class ObtainJSONWebTokenTests(BaseTestCase):
+    def test_auth_refresh__without_orig_iat_in_payload__returns_validation_error(self):
+        # create token without orig_iat in payload
+        payload = JSONWebTokenAuthentication.jwt_create_payload(
+            self.active_user)
+        del payload['orig_iat']
+        auth_token = JSONWebTokenAuthentication.jwt_encode_payload(payload)
 
-    def test_jwt_login_json(self):
-        """
-        Ensure JWT login view using JSON POST works.
-        """
-        client = APIClient(enforce_csrf_checks=True)
+        expected_output = {
+            'non_field_errors': [_('orig_iat field not found in token.')]
+        }
 
-        response = client.post('/auth-token/', self.data, format='json')
+        response = call_auth_refresh_endpoint(self.client, auth_token)
+        self.assertEqual(response.json(), expected_output)
 
-        decoded_payload = utils.jwt_decode_handler(response.data['token'])
+    def test_auth_refresh__refresh_limit_expired__returns_validation_error(self):
+        payload = JSONWebTokenAuthentication.jwt_create_payload(
+            self.active_user)
+        payload['orig_iat'] = 0  # beginning of time
+        auth_token = JSONWebTokenAuthentication.jwt_encode_payload(payload)
 
-        self.assertEqual(response.status_code, status.HTTP_200_OK)
-        self.assertEqual(decoded_payload['username'], self.username)
+        expected_output = {
+            'non_field_errors': [_('Refresh has expired.')]
+        }
 
-    def test_jwt_login_json_bad_creds(self):
-        """
-        Ensure JWT login view using JSON POST fails
-        if bad credentials are used.
-        """
-        client = APIClient(enforce_csrf_checks=True)
+        response = call_auth_refresh_endpoint(self.client, auth_token)
+        self.assertEqual(response.json(), expected_output)
 
-        self.data['password'] = 'wrong'
-        response = client.post('/auth-token/', self.data, format='json')
+    def test_auth_refresh__valid_token__returns_new_token(self):
+        payload = JSONWebTokenAuthentication.jwt_create_payload(
+            self.active_user)
+        payload['exp'] = payload['iat'] + 100  # add 100 seconds to issued at time
+        auth_token = JSONWebTokenAuthentication.jwt_encode_payload(payload)
 
-        self.assertEqual(response.status_code, 400)
+        refresh_response = call_auth_refresh_endpoint(self.client, auth_token)
+        refresh_token = refresh_response.json()['token']
+        self.assertNotEqual(refresh_token, auth_token)
 
-    def test_jwt_login_json_missing_fields(self):
-        """
-        Ensure JWT login view using JSON POST fails if missing fields.
-        """
-        client = APIClient(enforce_csrf_checks=True)
-
-        response = client.post('/auth-token/',
-                               {'username': self.username}, format='json')
-
-        self.assertEqual(response.status_code, 400)
-
-    def test_jwt_login_form(self):
-        """
-        Ensure JWT login view using form POST works.
-        """
-        client = APIClient(enforce_csrf_checks=True)
-
-        response = client.post('/auth-token/', self.data)
-
-        decoded_payload = utils.jwt_decode_handler(response.data['token'])
-
-        self.assertEqual(response.status_code, status.HTTP_200_OK)
-        self.assertEqual(decoded_payload['username'], self.username)
-
-    def test_jwt_login_with_expired_token(self):
-        """
-        Ensure JWT login view works even if expired token is provided
-        """
-        payload = utils.jwt_payload_handler(self.user)
+    def test_auth_refresh__expired_token__returns_validation_error(self):
+        payload = JSONWebTokenAuthentication.jwt_create_payload(
+            self.active_user)
+        payload['iat'] = 0
         payload['exp'] = 1
-        token = utils.jwt_encode_handler(payload)
+        auth_token = JSONWebTokenAuthentication.jwt_encode_payload(payload)
 
-        auth = 'JWT {0}'.format(token)
-        client = APIClient(enforce_csrf_checks=True)
-        response = client.post(
-            '/auth-token/', self.data,
-            HTTP_AUTHORIZATION=auth, format='json')
+        expected_output = {'non_field_errors': [_('Token has expired.')]}
 
-        decoded_payload = utils.jwt_decode_handler(response.data['token'])
-
-        self.assertEqual(response.status_code, status.HTTP_200_OK)
-        self.assertEqual(decoded_payload['username'], self.username)
-
-    def test_jwt_login_using_zero(self):
-        """
-        Test to reproduce issue #33
-        """
-        client = APIClient(enforce_csrf_checks=True)
-
-        data = {
-            'username': '0',
-            'password': '0'
-        }
-
-        response = client.post('/auth-token/', data, format='json')
-
-        self.assertEqual(response.status_code, 400)
+        refresh_response = call_auth_refresh_endpoint(self.client, auth_token)
+        self.assertEqual(refresh_response.json(), expected_output)
 
 
-@unittest.skipIf(get_version() < '1.5.0', 'No Configurable User model feature')
-@override_settings(AUTH_USER_MODEL='tests.CustomUser')
-class CustomUserObtainJSONWebTokenTests(TestCase):
-    """JSON Web Token Authentication"""
+class TestAuthIntegration(APITestCase):
 
     def setUp(self):
-        from .models import CustomUser
-
-        self.email = 'jpueblo@example.com'
-        self.password = 'password'
-        user = CustomUser.objects.create(email=self.email)
-        user.set_password(self.password)
-        user.save()
-        self.user = user
-
-        self.data = {
-            'email': self.email,
-            'password': self.password
-        }
-
-    def test_jwt_login_json(self):
-        """
-        Ensure JWT login view using JSON POST works.
-        """
-        client = APIClient(enforce_csrf_checks=True)
-
-        response = client.post('/auth-token/', self.data, format='json')
-
-        self.assertEqual(response.status_code, status.HTTP_200_OK)
-        decoded_payload = utils.jwt_decode_handler(response.data['token'])
-        self.assertEqual(decoded_payload['email'], self.email)
-
-    def test_jwt_login_json_bad_creds(self):
-        """
-        Ensure JWT login view using JSON POST fails
-        if bad credentials are used.
-        """
-        client = APIClient(enforce_csrf_checks=True)
-
-        self.data['password'] = 'wrong'
-        response = client.post('/auth-token/', self.data, format='json')
-
-        self.assertEqual(response.status_code, 400)
-
-
-@override_settings(AUTH_USER_MODEL='tests.CustomUserUUID')
-class CustomUserUUIDObtainJSONWebTokenTests(TestCase):
-    """JSON Web Token Authentication"""
-
-    def setUp(self):
-        from .models import CustomUserUUID
-
-        self.email = 'jpueblo@example.com'
-        self.password = 'password'
-        user = CustomUserUUID.objects.create(email=self.email)
-        user.set_password(self.password)
-        user.save()
-        self.user = user
-
-        self.data = {
-            'email': self.email,
-            'password': self.password
-        }
-
-    def test_jwt_login_json(self):
-        """
-        Ensure JWT login view using JSON POST works.
-        """
-        client = APIClient(enforce_csrf_checks=True)
-
-        response = client.post('/auth-token/', self.data, format='json')
-
-        self.assertEqual(response.status_code, status.HTTP_200_OK)
-        decoded_payload = utils.jwt_decode_handler(response.data['token'])
-        self.assertEqual(decoded_payload['user_id'], str(self.user.id))
-
-    def test_jwt_login_json_bad_creds(self):
-        """
-        Ensure JWT login view using JSON POST fails
-        if bad credentials are used.
-        """
-        client = APIClient(enforce_csrf_checks=True)
-
-        self.data['password'] = 'wrong'
-        response = client.post('/auth-token/', self.data, format='json')
-
-        self.assertEqual(response.status_code, 400)
-
-
-class TokenTestCase(BaseTestCase):
-    """
-    Handlers for getting tokens from the API, or creating arbitrary ones.
-    """
-
-    def setUp(self):
-        super(TokenTestCase, self).setUp()
-
-    def get_token(self):
-        client = APIClient(enforce_csrf_checks=True)
-        response = client.post('/auth-token/', self.data, format='json')
-        return response.data['token']
-
-    def create_token(self, user, exp=None, orig_iat=None):
-        payload = utils.jwt_payload_handler(user)
-        if exp:
-            payload['exp'] = exp
-
-        if orig_iat:
-            payload['orig_iat'] = timegm(orig_iat.utctimetuple())
-
-        token = utils.jwt_encode_handler(payload)
-        return token
-
-
-class VerifyJSONWebTokenTestsSymmetric(TokenTestCase):
-
-    def test_verify_jwt(self):
-        """
-        Test that a valid, non-expired token will return a 200 response
-        and itself when passed to the validation endpoint.
-        """
-        client = APIClient(enforce_csrf_checks=True)
-        orig_token = self.get_token()
-
-        # Now try to get a refreshed token
-        response = client.post('/auth-token-verify/', {'token': orig_token},
-                               format='json')
-
-        self.assertEqual(response.status_code, status.HTTP_200_OK)
-
-        self.assertEqual(response.data['token'], orig_token)
-
-    def test_verify_jwt_fails_with_expired_token(self):
-        """
-        Test that an expired token will fail with the correct error.
-        """
-        client = APIClient(enforce_csrf_checks=True)
-
-        # Make an expired token..
-        token = self.create_token(
-            self.user,
-            exp=datetime.utcnow() - timedelta(seconds=5),
-            orig_iat=datetime.utcnow() - timedelta(hours=1)
+        self.user = User.objects.create_user(
+            username='foobar', email='foobar@example.com', password='foo',
+            is_active=True
         )
-
-        response = client.post('/auth-token-verify/', {'token': token},
-                               format='json')
-        self.assertEqual(response.status_code, status.HTTP_400_BAD_REQUEST)
-        self.assertRegexpMatches(response.data['non_field_errors'][0],
-                                 'Signature has expired')
-
-    def test_verify_jwt_fails_with_bad_token(self):
-        """
-        Test that an invalid token will fail with the correct error.
-        """
-        client = APIClient(enforce_csrf_checks=True)
-
-        token = "i am not a correctly formed token"
-
-        response = client.post('/auth-token-verify/', {'token': token},
-                               format='json')
-        self.assertEqual(response.status_code, status.HTTP_400_BAD_REQUEST)
-        self.assertRegexpMatches(response.data['non_field_errors'][0],
-                                 'Error decoding signature')
-
-    def test_verify_jwt_fails_with_missing_user(self):
-        """
-        Test that an invalid token will fail with a user that does not exist.
-        """
-        client = APIClient(enforce_csrf_checks=True)
-
-        user = User.objects.create_user(
-            email='jsmith@example.com', username='jsmith', password='password')
-
-        token = self.create_token(user)
-        # Delete the user used to make the token
-        user.delete()
-
-        response = client.post('/auth-token-verify/', {'token': token},
-                               format='json')
-        self.assertEqual(response.status_code, status.HTTP_400_BAD_REQUEST)
-        self.assertRegexpMatches(response.data['non_field_errors'][0],
-                                 "User doesn't exist")
-
-
-class VerifyJSONWebTokenTestsAsymmetric(TokenTestCase):
-
-    def setUp(self):
-
-        super(VerifyJSONWebTokenTestsAsymmetric, self).setUp()
-
-        private_key = rsa.generate_private_key(public_exponent=65537,
-                                               key_size=2048,
-                                               backend=default_backend())
-        public_key = private_key.public_key()
-
-        api_settings.JWT_PRIVATE_KEY = private_key
-        api_settings.JWT_PUBLIC_KEY = public_key
-        api_settings.JWT_ALGORITHM = 'RS512'
-
-    def test_verify_jwt_with_pub_pvt_key(self):
-        """
-        Test that a token can be signed with asymmetrics keys
-        """
-        client = APIClient(enforce_csrf_checks=True)
-
-        orig_token = self.get_token()
-
-        # Now try to get a refreshed token
-        response = client.post('/auth-token-verify/', {'token': orig_token},
-                               format='json')
-
-        self.assertEqual(response.status_code, status.HTTP_200_OK)
-        self.assertEqual(response.data['token'], orig_token)
-
-    def test_verify_jwt_fails_with_expired_token(self):
-        """
-        Test that an expired token will fail with the correct error.
-        """
-        client = APIClient(enforce_csrf_checks=True)
-
-        # Make an expired token..
-        token = self.create_token(
-            self.user,
-            exp=datetime.utcnow() - timedelta(seconds=5),
-            orig_iat=datetime.utcnow() - timedelta(hours=1)
-        )
-
-        response = client.post('/auth-token-verify/', {'token': token},
-                               format='json')
-        self.assertEqual(response.status_code, status.HTTP_400_BAD_REQUEST)
-        self.assertRegexpMatches(response.data['non_field_errors'][0],
-                                 'Signature has expired')
-
-    def test_verify_jwt_fails_with_bad_token(self):
-        """
-        Test that an invalid token will fail with the correct error.
-        """
-
-        client = APIClient(enforce_csrf_checks=True)
-
-        token = "i am not a correctly formed token"
-
-        response = client.post('/auth-token-verify/', {'token': token},
-                               format='json')
-        self.assertEqual(response.status_code, status.HTTP_400_BAD_REQUEST)
-        self.assertRegexpMatches(response.data['non_field_errors'][0],
-                                 'Error decoding signature')
-
-    def test_verify_jwt_fails_with_bad_pvt_key(self):
-        """
-        Test that an mismatched private key token will fail with
-        the correct error.
-        """
-
-        # Generate a new private key
-        private_key = rsa.generate_private_key(public_exponent=65537,
-                                               key_size=2048,
-                                               backend=default_backend())
-
-        # Don't set the private key
-        api_settings.JWT_PRIVATE_KEY = private_key
-
-        client = APIClient(enforce_csrf_checks=True)
-        orig_token = self.get_token()
-
-        # Now try to get a refreshed token
-        response = client.post('/auth-token-verify/', {'token': orig_token},
-                               format='json')
-
-        self.assertEqual(response.status_code, status.HTTP_400_BAD_REQUEST)
-        self.assertRegexpMatches(response.data['non_field_errors'][0],
-                                 'Error decoding signature')
 
     def tearDown(self):
-        # Restore original settings
-        api_settings.JWT_ALGORITHM = DEFAULTS['JWT_ALGORITHM']
-        api_settings.JWT_PRIVATE_KEY = DEFAULTS['JWT_PRIVATE_KEY']
-        api_settings.JWT_PUBLIC_KEY = DEFAULTS['JWT_PUBLIC_KEY']
+        # reset any leftover auth tokens
+        self.client.credentials()
 
+    def test_view__unauthenticated(self):
+        url = reverse('test-view')
+        response = self.client.get(url)
 
-class RefreshJSONWebTokenTests(TokenTestCase):
+        expected_output = {
+            'detail': _("Authentication credentials were not provided.")
+        }
 
-    def setUp(self):
-        super(RefreshJSONWebTokenTests, self).setUp()
-        api_settings.JWT_ALLOW_REFRESH = True
+        self.assertEqual(response.status_code, HTTP_401_UNAUTHORIZED)
+        self.assertEqual(response.json(), expected_output)
 
-    def test_refresh_jwt(self):
-        """
-        Test getting a refreshed token from original token works
+    def test_view__authenticated(self):
+        auth_response = call_auth_endpoint(self.client, "foobar", "foo")
+        token = auth_response.json()["token"]
+        self.client.credentials(HTTP_AUTHORIZATION='Bearer ' + token)
 
-        No date/time modifications are neccessary because it is assumed
-        that this operation will take less than 300 seconds.
-        """
-        client = APIClient(enforce_csrf_checks=True)
-        orig_token = self.get_token()
-        orig_token_decoded = utils.jwt_decode_handler(orig_token)
+        url = reverse('test-view')
+        response = self.client.get(url)
 
-        expected_orig_iat = timegm(datetime.utcnow().utctimetuple())
+        self.assertEqual(response.status_code, HTTP_200_OK)
 
-        # Make sure 'orig_iat' exists and is the current time (give some slack)
-        orig_iat = orig_token_decoded['orig_iat']
-        self.assertLessEqual(orig_iat - expected_orig_iat, 1)
+    def test_view__invalid_token(self):
+        token = 'invalid'
+        self.client.credentials(HTTP_AUTHORIZATION='Bearer ' + token)
 
-        time.sleep(1)
+        expected_output = {
+            'detail': _("Error decoding token.")
+        }
 
-        # Now try to get a refreshed token
-        response = client.post('/auth-token-refresh/', {'token': orig_token},
-                               format='json')
-        self.assertEqual(response.status_code, status.HTTP_200_OK)
+        url = reverse('test-view')
+        response = self.client.get(url)
 
-        new_token = response.data['token']
-        new_token_decoded = utils.jwt_decode_handler(new_token)
+        self.assertEqual(response.status_code, HTTP_401_UNAUTHORIZED)
+        self.assertEqual(response.json(), expected_output)
 
-        # Make sure 'orig_iat' on the new token is same as original
-        self.assertEquals(new_token_decoded['orig_iat'], orig_iat)
-        self.assertGreater(new_token_decoded['exp'], orig_token_decoded['exp'])
+    def test_view__expired_token(self):
+        payload = JSONWebTokenAuthentication.jwt_create_payload(
+            self.user)
+        payload['iat'] = 0
+        payload['exp'] = 1
+        token = JSONWebTokenAuthentication.jwt_encode_payload(payload)
 
-    def test_refresh_jwt_after_refresh_expiration(self):
-        """
-        Test that token can't be refreshed after token refresh limit
-        """
-        client = APIClient(enforce_csrf_checks=True)
+        self.client.credentials(HTTP_AUTHORIZATION='Bearer ' + token)
 
-        orig_iat = (datetime.utcnow() - api_settings.JWT_REFRESH_EXPIRATION_DELTA -
-                    timedelta(seconds=5))
-        token = self.create_token(
-            self.user,
-            exp=datetime.utcnow() + timedelta(hours=1),
-            orig_iat=orig_iat
-        )
+        expected_output = {
+            'detail': _("Token has expired.")
+        }
 
-        response = client.post('/auth-token-refresh/', {'token': token},
-                               format='json')
-        self.assertEqual(response.status_code, status.HTTP_400_BAD_REQUEST)
-        self.assertEqual(response.data['non_field_errors'][0],
-                         'Refresh has expired.')
+        url = reverse('test-view')
+        response = self.client.get(url)
 
-    def tearDown(self):
-        # Restore original settings
-        api_settings.JWT_ALLOW_REFRESH = DEFAULTS['JWT_ALLOW_REFRESH']
+        self.assertEqual(response.status_code, HTTP_401_UNAUTHORIZED)
+        self.assertEqual(response.json(), expected_output)
+
+    def test_view__user_deactivated(self):
+        payload = JSONWebTokenAuthentication.jwt_create_payload(self.user)
+        token = JSONWebTokenAuthentication.jwt_encode_payload(payload)
+        self.user.is_active = False
+        self.user.save()
+
+        self.client.credentials(HTTP_AUTHORIZATION='Bearer ' + token)
+
+        expected_output = {
+            'detail': _("User account is disabled.")
+        }
+
+        url = reverse('test-view')
+        response = self.client.get(url)
+
+        self.assertEqual(response.status_code, HTTP_401_UNAUTHORIZED)
+        self.assertEqual(response.json(), expected_output)
+
+    def test_view__username_does_not_exist(self):
+        # create token with invalid username
+        payload = JSONWebTokenAuthentication.jwt_create_payload(
+            self.user)
+        payload['username'] = "i_do_not_exist"
+        token = JSONWebTokenAuthentication.jwt_encode_payload(payload)
+
+        self.client.credentials(HTTP_AUTHORIZATION='Bearer ' + token)
+
+        expected_output = {
+            'detail': _("Invalid token.")
+        }
+
+        url = reverse('test-view')
+        response = self.client.get(url)
+
+        self.assertEqual(response.status_code, HTTP_401_UNAUTHORIZED)
+        self.assertEqual(response.json(), expected_output)
+
+    def test_view__token_without_username(self):
+        # create token without username
+        payload = JSONWebTokenAuthentication.jwt_create_payload(
+            self.user)
+        del payload['username']
+        token = JSONWebTokenAuthentication.jwt_encode_payload(payload)
+
+        self.client.credentials(HTTP_AUTHORIZATION='Bearer ' + token)
+
+        expected_output = {
+            'detail': _("Invalid payload.")
+        }
+
+        url = reverse('test-view')
+        response = self.client.get(url)
+
+        self.assertEqual(response.status_code, HTTP_401_UNAUTHORIZED)
+        self.assertEqual(response.json(), expected_output)
+
+    def test_view__authorization_header_without_token(self):
+        self.client.credentials(HTTP_AUTHORIZATION='Bearer ')
+
+        expected_output = {
+            'detail':
+                _("Invalid Authorization header. No credentials provided.")
+        }
+
+        url = reverse('test-view')
+        response = self.client.get(url)
+
+        self.assertEqual(response.status_code, HTTP_401_UNAUTHORIZED)
+        self.assertEqual(response.json(), expected_output)
+
+    def test_view__authorization_header_token_with_spaces(self):
+        payload = JSONWebTokenAuthentication.jwt_create_payload(self.user)
+        token = JSONWebTokenAuthentication.jwt_encode_payload(payload)
+        token = token.replace('.', ' ')
+
+        self.client.credentials(HTTP_AUTHORIZATION='Bearer ' + token)
+
+        expected_output = {
+            'detail':
+                _("Invalid Authorization header. Credentials string should "
+                  "not contain spaces.")
+        }
+
+        url = reverse('test-view')
+        response = self.client.get(url)
+
+        self.assertEqual(response.status_code, HTTP_401_UNAUTHORIZED)
+        self.assertEqual(response.json(), expected_output)
+
+    def test_view__authorization_head_with_invalid_token_prefix(self):
+        payload = JSONWebTokenAuthentication.jwt_create_payload(self.user)
+        token = JSONWebTokenAuthentication.jwt_encode_payload(payload)
+
+        self.client.credentials(HTTP_AUTHORIZATION='INVALID_PREFIX ' + token)
+
+        expected_output = {
+            'detail':
+                _("Authentication credentials were not provided.")
+        }
+
+        url = reverse('test-view')
+        response = self.client.get(url)
+
+        self.assertEqual(response.status_code, HTTP_401_UNAUTHORIZED)
+        self.assertEqual(response.json(), expected_output)
+
+    @patch('rest_framework_jwt.authentication.api_settings', autospec=True)
+    @patch('rest_framework_jwt.views.api_settings', autospec=True)
+    def test_view__auth_cookie(self, auth_mock_settings, views_mock_settings):
+        auth_cookie = 'jwt-auth'
+        # Use default settings and override JWT_AUTH_COOKIE setting
+        auth_mock_settings = \
+            setup_default_mocked_api_settings(auth_mock_settings)
+        views_mock_settings = \
+            setup_default_mocked_api_settings(views_mock_settings)
+        auth_mock_settings.JWT_AUTH_COOKIE = auth_cookie
+        views_mock_settings.JWT_AUTH_COOKIE = auth_cookie
+
+        response = call_auth_endpoint(self.client, "foobar", "foo")
+
+        url = reverse('test-view')
+        response = response.client.get(url)
+
+        self.assertEqual(response.status_code, HTTP_200_OK)
