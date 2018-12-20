@@ -23,21 +23,7 @@ def unix_epoch(datetime_object=None):
 
 
 def get_username_field():
-    try:
-        username_field = get_user_model().USERNAME_FIELD
-    except AttributeError:
-        username_field = 'username'
-
-    return username_field
-
-
-def get_username(user):
-    try:
-        username = user.get_username()
-    except AttributeError:
-        username = user.username
-
-    return username
+    return get_user_model().USERNAME_FIELD
 
 
 def jwt_get_secret_key(payload=None):
@@ -50,9 +36,10 @@ def jwt_get_secret_key(payload=None):
         - etc.
     """
     if api_settings.JWT_GET_USER_SECRET_KEY:
-        User = get_user_model()  # noqa: N806
-        user = User.objects.get(pk=payload.get('user_id'))
-        key = str(api_settings.JWT_GET_USER_SECRET_KEY(user))
+        username = jwt_get_username_from_payload_handler(payload)
+        User = get_user_model()
+        user = User.objects.get_by_natural_key(username)
+        key = api_settings.JWT_GET_USER_SECRET_KEY(user)
         return key
     return api_settings.JWT_SECRET_KEY
 
@@ -65,14 +52,12 @@ def jwt_create_payload(user):
     specification: https://tools.ietf.org/html/rfc7519#section-4.1
     """
 
-    username = get_username(user)
-
     issued_at_time = datetime.utcnow()
     expiration_time = issued_at_time + api_settings.JWT_EXPIRATION_DELTA
 
     payload = {
         'user_id': user.pk,
-        'username': username,
+        'username': user.get_username(),
         'iat': unix_epoch(issued_at_time),
         'exp': expiration_time
     }
@@ -95,14 +80,6 @@ def jwt_create_payload(user):
         payload['iss'] = api_settings.JWT_ISSUER
 
     return payload
-
-
-def jwt_get_user_id_from_payload_handler(payload):
-    """
-    Override this function if user_id is formatted differently in payload
-    """
-
-    return payload.get('user_id')
 
 
 def jwt_get_username_from_payload_handler(payload):

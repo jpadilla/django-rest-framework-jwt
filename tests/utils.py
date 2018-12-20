@@ -35,3 +35,7 @@ def call_auth_refresh_endpoint(api_client, token):
             "token": token
         }), content_type='application/json'
     )
+
+
+def jwt_get_user_secret_key(user):
+    return "{0}-{1}-{2}".format(user.pk, user.get_username(), "key")

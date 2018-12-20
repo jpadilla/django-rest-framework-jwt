@@ -44,20 +44,8 @@ class JSONWebTokenAuthentication(BaseAuthentication):
         return api_settings.JWT_PAYLOAD_GET_USERNAME_HANDLER(*args, **kwargs)
 
     @classmethod
-    def jwt_get_user_id_from_payload(cls, *args, **kwargs):
-        return api_settings.JWT_PAYLOAD_GET_USER_ID_HANDLER(*args, **kwargs)
-
-    @classmethod
     def jwt_create_response_payload(cls, *args, **kwargs):
         return api_settings.JWT_RESPONSE_PAYLOAD_HANDLER(*args, **kwargs)
-
-    @staticmethod
-    def check_payload(self):
-        pass
-
-    @staticmethod
-    def check_user(self):
-        pass
 
     def authenticate(self, request):
         """
@@ -77,8 +65,6 @@ class JSONWebTokenAuthentication(BaseAuthentication):
         except jwt.DecodeError:
             msg = _('Error decoding token.')
             raise exceptions.AuthenticationFailed(msg)
-        except jwt.InvalidTokenError:
-            raise exceptions.AuthenticationFailed()
 
         user = self.authenticate_credentials(payload)
 

@@ -5,6 +5,7 @@ from __future__ import unicode_literals
 import datetime
 
 from django.conf import settings
+from django.core.exceptions import ImproperlyConfigured
 from rest_framework.settings import APISettings
 
 
@@ -35,8 +36,6 @@ DEFAULTS = {
     'JWT_AUTH_HEADER_PREFIX': 'Bearer',
     'JWT_RESPONSE_PAYLOAD_HANDLER':
         'rest_framework_jwt.utils.jwt_create_response_payload',
-    'JWT_PAYLOAD_GET_USER_ID_HANDLER':
-        'rest_framework_jwt.utils.jwt_get_user_id_from_payload_handler',
     'JWT_AUTH_COOKIE': None
 }
 
@@ -45,10 +44,23 @@ IMPORT_STRINGS = (
     'JWT_ENCODE_HANDLER',
     'JWT_DECODE_HANDLER',
     'JWT_PAYLOAD_HANDLER',
-    'JWT_PAYLOAD_GET_USER_ID_HANDLER',
     'JWT_PAYLOAD_GET_USERNAME_HANDLER',
     'JWT_RESPONSE_PAYLOAD_HANDLER',
     'JWT_GET_USER_SECRET_KEY',
 )
 
 api_settings = APISettings(USER_SETTINGS, DEFAULTS, IMPORT_STRINGS)
+
+# check if settings have valid values
+if not isinstance(api_settings.JWT_EXPIRATION_DELTA, datetime.timedelta):
+
+    raise ImproperlyConfigured(
+        '`JWT_EXPIRATION_DELTA` setting must be instance of '
+        '`datetime.timedelta`')
+
+if not isinstance(
+        api_settings.JWT_REFRESH_EXPIRATION_DELTA, datetime.timedelta):
+
+    raise ImproperlyConfigured(
+        '`JWT_REFRESH_EXPIRATION_DELTA` setting must be instance of '
+        '`datetime.timedelta`')

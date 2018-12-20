@@ -143,9 +143,6 @@ JWT_AUTH = {
     'JWT_PAYLOAD_HANDLER':
     'rest_framework_jwt.utils.jwt_payload_handler',
 
-    'JWT_PAYLOAD_GET_USER_ID_HANDLER':
-    'rest_framework_jwt.utils.jwt_get_user_id_from_payload_handler',
-
     'JWT_RESPONSE_PAYLOAD_HANDLER':
     'rest_framework_jwt.utils.jwt_response_payload_handler',
 
@@ -242,9 +239,6 @@ Default is `datetime.timedelta(days=7)` (7 days).
 
 ### JWT_PAYLOAD_HANDLER
 Specify a custom function to generate the token payload
-
-### JWT_PAYLOAD_GET_USER_ID_HANDLER
-If you store `user_id` differently than the default payload handler does, implement this function to fetch `user_id` from the payload. **Note:** Will be deprecated in favor of `JWT_PAYLOAD_GET_USERNAME_HANDLER`.
 
 ### JWT_PAYLOAD_GET_USERNAME_HANDLER
 If you store `username` differently than the default payload handler does, implement this function to fetch `username` from the payload.
