@@ -13,6 +13,15 @@ time.
 
 .. towncrier release notes start
 
+v1.12.7 (2018-12-21)
+====================
+
+Misc
+----
+
+- Updated docs. Drop support for Django < 1.8 and DRF < 3.7.x. ([#6](https://github.com/Styria-Digital/django-rest-framework-jwt/pull/6))
+
+
 1.12.7 (2018-12-17)
 ====================
 
