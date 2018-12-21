@@ -63,7 +63,7 @@ class ObtainJSONWebTokenView(BaseJSONWebTokenAPIView):
     serializer_class = JSONWebTokenSerializer
 
 
-class VerifyAuthTokenViewView(BaseJSONWebTokenAPIView):
+class VerifyJSONWebTokenView(BaseJSONWebTokenAPIView):
     """
     API View that checks the validity of a token, returning the token if it
     is valid.
@@ -85,5 +85,5 @@ class RefreshJSONWebTokenView(BaseJSONWebTokenAPIView):
 
 
 obtain_jwt_token = ObtainJSONWebTokenView.as_view()
-verify_jwt_token = VerifyAuthTokenViewView.as_view()
+verify_jwt_token = VerifyJSONWebTokenView.as_view()
 refresh_jwt_token = RefreshJSONWebTokenView.as_view()
