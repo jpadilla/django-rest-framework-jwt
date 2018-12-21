@@ -13,6 +13,15 @@ time.
 
 .. towncrier release notes start
 
+v1.12.8 (2018-12-21)
+====================
+
+Misc
+----
+
+- Fixed inconsistent View names. ([#7](https://github.com/Styria-Digital/django-rest-framework-jwt/pull/7))
+
+
 1.12.8 (2018-12-21)
 ====================
 
