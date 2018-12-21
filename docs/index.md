@@ -79,10 +79,10 @@ Alternatively, you can use all the content types supported by the Django REST fr
 $ curl -X POST -H "Content-Type: application/json" -d '{"username":"admin","password":"password123"}' http://localhost:8000/api-token-auth/
 ```
 
-Now in order to access protected api urls you must include the `Authorization: JWT <your_token>` header.
+Now in order to access protected api urls you must include the `Authorization: Bearer <your_token>` header.
 
 ```bash
-$ curl -H "Authorization: JWT <your_token>" http://localhost:8000/protected-url/
+$ curl -H "Authorization: Bearer <your_token>" http://localhost:8000/protected-url/
 ```
 
 ## Refresh Token
@@ -134,70 +134,97 @@ There are some additional settings that you can override similar to how you'd do
 
 ```python
 JWT_AUTH = {
-    'JWT_ENCODE_HANDLER':
-    'rest_framework_jwt.utils.jwt_encode_handler',
-
-    'JWT_DECODE_HANDLER':
-    'rest_framework_jwt.utils.jwt_decode_handler',
-
-    'JWT_PAYLOAD_HANDLER':
-    'rest_framework_jwt.utils.jwt_payload_handler',
-
-    'JWT_RESPONSE_PAYLOAD_HANDLER':
-    'rest_framework_jwt.utils.jwt_response_payload_handler',
-
     'JWT_SECRET_KEY': settings.SECRET_KEY,
     'JWT_GET_USER_SECRET_KEY': None,
-    'JWT_PUBLIC_KEY': None,
     'JWT_PRIVATE_KEY': None,
+    'JWT_PUBLIC_KEY': None,
     'JWT_ALGORITHM': 'HS256',
+    'JWT_AUDIENCE': None,
+    'JWT_ISSUER': None,
+    'JWT_ENCODE_HANDLER':
+        'rest_framework_jwt.utils.jwt_encode_payload',
+    'JWT_DECODE_HANDLER':
+        'rest_framework_jwt.utils.jwt_decode_token',
+    'JWT_PAYLOAD_HANDLER':
+        'rest_framework_jwt.utils.jwt_create_payload',
+    'JWT_PAYLOAD_GET_USERNAME_HANDLER':
+        'rest_framework_jwt.utils.jwt_get_username_from_payload_handler',
     'JWT_VERIFY': True,
     'JWT_VERIFY_EXPIRATION': True,
     'JWT_LEEWAY': 0,
     'JWT_EXPIRATION_DELTA': datetime.timedelta(seconds=300),
-    'JWT_AUDIENCE': None,
-    'JWT_ISSUER': None,
-
-    'JWT_ALLOW_REFRESH': False,
+    'JWT_ALLOW_REFRESH': True,
     'JWT_REFRESH_EXPIRATION_DELTA': datetime.timedelta(days=7),
-
-    'JWT_AUTH_HEADER_PREFIX': 'JWT',
-    'JWT_AUTH_COOKIE': None,
-
+    'JWT_AUTH_HEADER_PREFIX': 'Bearer',
+    'JWT_RESPONSE_PAYLOAD_HANDLER':
+        'rest_framework_jwt.utils.jwt_create_response_payload',
+    'JWT_AUTH_COOKIE': None
 }
 ```
 This packages uses the JSON Web Token Python implementation, [PyJWT](https://github.com/jpadilla/pyjwt) and allows to modify some of it's available options.
 
 ### JWT_SECRET_KEY
+
 This is the secret key used to sign the JWT. Make sure this is safe and not shared or public.
 
 Default is your project's `settings.SECRET_KEY`.
 
 ### JWT_GET_USER_SECRET_KEY
+
 This is more robust version of JWT_SECRET_KEY. It is defined per User, so in case token is compromised it can be
-easily changed by owner. Changing this value will make all tokens for given user unusable. Value should be a function, accepting user as only parameter and returning it's secret key.
-
-Default is `None`.
-
-### JWT_PUBLIC_KEY
-This is an object of type `cryptography.hazmat.primitives.asymmetric.rsa.RSAPublicKey`. It will be used to verify the signature of the incoming JWT. Will override `JWT_SECRET_KEY` when set. Read the [documentation](https://cryptography.io/en/latest/hazmat/primitives/asymmetric/rsa/#cryptography.hazmat.primitives.asymmetric.rsa.RSAPublicKey) for more details. Please note that `JWT_ALGORITHM` must be set to one of `RS256`, `RS384`, or `RS512`.
+easily changed by owner. Changing this value will make all tokens for given user unusable. Value should be a function, accepting user as only parameter and returning it's secret key as string.
 
 Default is `None`.
 
 ### JWT_PRIVATE_KEY
+
 This is an object of type `cryptography.hazmat.primitives.asymmetric.rsa.RSAPrivateKey`. It will be used to sign the signature component of the JWT. Will override `JWT_SECRET_KEY` when set. Read the [documentation](https://cryptography.io/en/latest/hazmat/primitives/asymmetric/rsa/#cryptography.hazmat.primitives.asymmetric.rsa.RSAPrivateKey) for more details. Please note that `JWT_ALGORITHM` must be set to one of `RS256`, `RS384`, or `RS512`.
+
+Default is `None`.
+
+### JWT_PUBLIC_KEY
+
+This is an object of type `cryptography.hazmat.primitives.asymmetric.rsa.RSAPublicKey`. It will be used to verify the signature of the incoming JWT. Will override `JWT_SECRET_KEY` when set. Read the [documentation](https://cryptography.io/en/latest/hazmat/primitives/asymmetric/rsa/#cryptography.hazmat.primitives.asymmetric.rsa.RSAPublicKey) for more details. Please note that `JWT_ALGORITHM` must be set to one of `RS256`, `RS384`, or `RS512`.
 
 Default is `None`.
 
 ### JWT_ALGORITHM
 
-Possible values are any of the [supported algorithms](https://github.com/jpadilla/pyjwt#algorithms) for cryptographic signing in PyJWT.
+Possible values are any of the [supported algorithms](https://github.com/jpadilla/pyjwt#algorithms) for cryptographic signing in `PyJWT`.
 
 Default is `"HS256"`.
 
+### JWT_AUDIENCE
+
+This is a string that will be checked against the `aud` field of the token, if present.
+
+Default is `None` (fail if `aud` present on JWT).
+
+### JWT_ISSUER
+
+This is a string that will be checked against the `iss` field of the token.
+
+Default is `None` (do not check `iss` on JWT).
+
+### JWT_ENCODE_HANDLER
+
+Encodes JWT payload data and returns JWT token.
+
+### JWT_DECODE_HANDLER
+
+Decodes JWT token and returns JWT payload data.
+
+### JWT_PAYLOAD_HANDLER
+
+Specify a custom function to generate the token payload
+
+### JWT_PAYLOAD_GET_USERNAME_HANDLER
+
+If you store `username` differently than the default payload handler does, implement this function to fetch `username` from the payload.
+
 ### JWT_VERIFY
 
-If the secret is wrong, it will raise a jwt.DecodeError telling you as such. You can still get at the payload by setting the `JWT_VERIFY` to `False`.
+If the secret is wrong, it will raise a `jwt.DecodeError`. You can still get the payload by setting the `JWT_VERIFY` to `False`.
 
 Default is `True`.
 
@@ -215,75 +242,77 @@ This allows you to validate an expiration time which is in the past but not very
 Default is `0` seconds.
 
 ### JWT_EXPIRATION_DELTA
+
 This is an instance of Python's `datetime.timedelta`. This will be added to `datetime.utcnow()` to set the expiration time.
 
-Default is `datetime.timedelta(seconds=300)`(5 minutes).
-
-### JWT_AUDIENCE
-This is a string that will be checked against the `aud` field of the token, if present.
-
-Default is `None`(fail if `aud` present on JWT).
-
-### JWT_ISSUER
-This is a string that will be checked against the `iss` field of the token.
-
-Default is `None`(do not check `iss` on JWT).
+Default is `datetime.timedelta(seconds=300)` (5 minutes).
 
 ### JWT_ALLOW_REFRESH
-Enable token refresh functionality. Token issued from `rest_framework_jwt.views.obtain_jwt_token` will have an `orig_iat` field. Default is `False`
+
+Enable token refresh functionality. Token issued from `rest_framework_jwt.views.obtain_jwt_token` will have an `orig_iat` field. 
+
+Default is `True`.
 
 ### JWT_REFRESH_EXPIRATION_DELTA
+
 Limit on token refresh, is a `datetime.timedelta` instance. This is how much time after the original token that future tokens can be refreshed from.
 
 Default is `datetime.timedelta(days=7)` (7 days).
 
-### JWT_PAYLOAD_HANDLER
-Specify a custom function to generate the token payload
+### JWT_AUTH_HEADER_PREFIX
 
-### JWT_PAYLOAD_GET_USERNAME_HANDLER
-If you store `username` differently than the default payload handler does, implement this function to fetch `username` from the payload.
+You can modify the Authorization header value prefix that is required to be sent together with the token. 
+
+Default value is `Bearer`.
 
 ### JWT_RESPONSE_PAYLOAD_HANDLER
-Responsible for controlling the response data returned after login or refresh. Override to return a custom response such as including the serialized representation of the User.
 
-Defaults to return the JWT token.
+Creates a response payload instance that will get passed to authentication response serializer.
+You might want to implement your own handler if you use custom response serializer (typical use-case would be including serialized `user` object in response).
+
+By default returns a `namedtuple` with attributes `pk` (issued-at time) and `token`.
 
 Example:
 ```
-def jwt_response_payload_handler(token, user=None, request=None):
-    return {
-        'token': token,
-        'user': UserSerializer(user, context={'request': request}).data
-    }
+def jwt_create_response_payload(token, user=None, request=None, issued_at=None):
+    """
+    Return data ready to be passed to serializer.
+
+    Override this function if you need to include any additional data for
+    serializer.
+
+    Note that we are using `pk` field here - this is for forward compatibility
+    with drf add-ons that might require `pk` field in order (eg. jsonapi).
+    """
+    
+    response_payload = namedtuple('ResponsePayload', 'pk token user')
+    response_payload.pk = issued_at
+    response_payload.token = token
+    response_payload.user = user
+
+    return response_payload
 ```
 
-Default is `{'token': token}`
-
-### JWT_AUTH_HEADER_PREFIX
-You can modify the Authorization header value prefix that is required to be sent together with the token. The default value is `JWT`. This decision was introduced in PR [#4](https://github.com/GetBlimp/django-rest-framework-jwt/pull/4) to allow using both this package and OAuth2 in DRF.
-
-Another common value used for tokens and Authorization headers is `Bearer`.
-
-Default is `JWT`.
-
 ### JWT_AUTH_COOKIE
+
 You can set this to a string if you want to use http cookies in addition to the Authorization header as a valid transport for the token.
 The string you set here will be used as the cookie name that will be set in the response headers when requesting a token. The token validation
 procedure will also look into this cookie, if set. The 'Authorization' header takes precedence if both the header and the cookie are present in the request.
 
 Default is `None` and no cookie is set when creating tokens nor accepted when validating them.
 
-## Extending `JSONWebTokenAuthentication`
+## Extending/Overriding `JSONWebTokenAuthentication`
 
 Right now `JSONWebTokenAuthentication` assumes that the JWT will come in the header, or a cookie if configured (see [JWT_AUTH_COOKIE](#JWT_AUTH_COOKIE)). The JWT spec does not require this (see: [Making a service Call](https://developer.atlassian.com/static/connect/docs/concepts/authentication.html)). For example, the JWT may come in the querystring. The ability to send the JWT in the querystring is needed in cases where the user cannot set the header (for example the src element in HTML).
 
-To achieve this functionality, the user might write a custom `Authentication`:
+To achieve this functionality, the user might write a custom `Authentication` class:
+
 ```python
-class JSONWebTokenAuthenticationQS(BaseJSONWebTokenAuthentication):
+class JSONWebTokenAuthenticationQS(JSONWebTokenAuthentication):
+
     def get_jwt_value(self, request):
-         return request.QUERY_PARAMS.get('jwt')
+        return request.QUERY_PARAMS.get('jwt')
 ```
-It is recommended to use `BaseJSONWebTokenAuthentication`, a new base class with no logic around parsing the HTTP headers.
 
 ## Creating a new token manually ##
 
