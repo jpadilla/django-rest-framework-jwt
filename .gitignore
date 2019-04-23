@@ -2,6 +2,9 @@
 !.gitignore
 !.travis.yml
 
+# The migrations are built each time
+tests/migrations/
+
 # Temporary, DB binary files
 *~
 *.db

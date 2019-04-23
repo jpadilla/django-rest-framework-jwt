@@ -18,7 +18,8 @@ class UserWithProfile(AbstractUser):
 
 
 class UserProfile(models.Model):
-    user = models.OneToOneField(UserWithProfile, related_name='profile')
+    user = models.OneToOneField(UserWithProfile, related_name='profile',
+                                on_delete=models.CASCADE)
 
     class Meta:
         app_label = 'tests'

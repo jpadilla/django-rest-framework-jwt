@@ -1,39 +1,21 @@
-sudo: false
+dist: xenial
 language: python
 cache: pip
+python:
+  - 2.7.13
+  - 3.4
+  - 3.5
+  - 3.6
+  - 3.7
 install:
-  - pip install tox
+  - pip install tox-travis
 script:
   - tox
-after_success:
-  - |
-    if [[ "${TOXENV%-codecov}" != "$TOXENV" ]]; then
-      pip install codecov
-      flags="${TOXENV//-/ }"
-      flags="${flags//./}"
-      codecov --name $TOXENV --flags $flags
-    fi
 jobs:
   include:
     - stage: test
       python: '2.7.13'
       env: TOXENV=docs
-    - python: '2.7.13'
-      env: TOXENV=py27-dj111-drf37-codecov
-    - python: '3.4'
-      env: TOXENV=py34-dj111-drf37-codecov
-    - python: '3.5'
-      env: TOXENV=py35-dj111-drf37-codecov
-    - python: '3.6'
-      env: TOXENV=py36-dj111-drf37-codecov
-    - python: '2.7.13'
-      env: TOXENV=py27-dj111-drf38-codecov
-    - python: '3.4'
-      env: TOXENV=py34-dj111-drf38-codecov
-    - python: '3.5'
-      env: TOXENV=py35-dj111-drf38-codecov
-    - python: '3.6'
-      env: TOXENV=py36-dj111-drf38-codecov
     - stage: deploy
       python: '2.7.13'
       env: TOXENV=py27-dj111-drf37
