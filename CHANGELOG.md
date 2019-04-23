@@ -13,6 +13,16 @@ time.
 
 .. towncrier release notes start
 
+v1.12.10 (2019-04-23)
+=====================
+
+Features
+--------
+
+- Added `on_delete` to `tests.models.UserProfile.user` required by Django 2.2,
+  and added Django 2.x, Python 3.7 and djangorestframework 3.9 to the support matrix. ([#9](https://github.com/Styria-Digital/django-rest-framework-jwt/pull/9))
+
+
 1.12.10 (2018-12-21)
 ====================
 
