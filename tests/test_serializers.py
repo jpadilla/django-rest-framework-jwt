@@ -71,7 +71,7 @@ class JSONWebTokenSerializerTests(TestCase):
         self.assertEqual(serializer.errors, expected_error)
 
     @unittest.skipIf(
-        django.VERSION[1] >= 10,
+        django.VERSION[1] >= 1,
         reason='The ModelBackend does not permit login when is_active is False.')
     def test_disabled_user(self):
         self.user.is_active = False

@@ -49,7 +49,7 @@ def pytest_configure():
         pass
     else:
         settings.INSTALLED_APPS += (
-            'oauth_provider',
+            'oauth2_provider',
         )
 
     try:
