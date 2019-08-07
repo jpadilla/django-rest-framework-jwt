@@ -42,7 +42,7 @@ Full documentation for the project is available at `docs`_.
 
 You may also want to follow the `author`_ on Twitter.
 
-.. _docs: http://getblimp.github.io/django-rest-framework-jwt
+.. _docs: https://jpadilla.github.io/django-rest-framework-jwt/
 .. _JSON Web Token Authentication: http://tools.ietf.org/html/draft-ietf-oauth-json-web-token
 .. _Django REST framework: http://django-rest-framework.org/
 .. _Video: https://www.youtube.com/watch?v=825hodQ61bg
