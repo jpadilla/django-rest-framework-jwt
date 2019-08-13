@@ -1,4 +1,5 @@
-from django.contrib.auth import get_user_model
+import django
+from django.contrib.auth import authenticate as dj_authenticate, get_user_model
 
 from rest_framework import serializers
 
@@ -35,3 +36,10 @@ def get_username(user):
         username = user.username
 
     return username
+
+
+def authenticate(request=None, **credentials):
+    if django.VERSION < (1, 11):
+        return dj_authenticate(**credentials)
+    else:
+        return dj_authenticate(request=request, **credentials)
