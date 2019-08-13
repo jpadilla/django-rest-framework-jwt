@@ -10,6 +10,7 @@ from .serializers import (
 )
 
 jwt_response_payload_handler = api_settings.JWT_RESPONSE_PAYLOAD_HANDLER
+jwt_response_payload_error_handler = api_settings.JWT_RESPONSE_PAYLOAD_ERROR_HANDLER
 
 
 class JSONWebTokenAPIView(APIView):
@@ -67,8 +68,8 @@ class JSONWebTokenAPIView(APIView):
                                     expires=expiration,
                                     httponly=True)
             return response
-
-        return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
+        error_response_data = jwt_response_payload_error_handler(serializer, request)
+        return Response(error_response_data, status=status.HTTP_400_BAD_REQUEST)
 
 
 class ObtainJSONWebToken(JSONWebTokenAPIView):
