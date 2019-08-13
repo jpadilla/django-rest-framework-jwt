@@ -48,10 +48,14 @@ def pytest_configure():
     except ImportError:
         pass
     else:
-        settings.INSTALLED_APPS += (
-            'oauth_provider',
-        )
-
+        if django.VERSION[0] > 1:
+            settings.INSTALLED_APPS += (
+                'oauth2_provider',
+            )
+        else:
+            settings.INSTALLED_APPS += (
+                'oauth_provider',
+            )
     try:
         if django.VERSION >= (1, 8):
             # django-oauth2-provider does not support Django1.8
