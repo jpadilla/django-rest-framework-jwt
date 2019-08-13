@@ -300,7 +300,7 @@ To achieve this functionality, the user might write a custom `Authentication`:
 ```python
 class JSONWebTokenAuthenticationQS(BaseJSONWebTokenAuthentication):
     def get_jwt_value(self, request):
-         return request.QUERY_PARAMS.get('jwt')
+         return request.query_params.get('jwt')
 ```
 It is recommended to use `BaseJSONWebTokenAuthentication`, a new base class with no logic around parsing the HTTP headers.
 
