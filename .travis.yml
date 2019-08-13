@@ -42,6 +42,8 @@ matrix:
       env: TOXENV=py27-dj110-drf35-codecov
     - python: 2.7
       env: TOXENV=py27-dj110-drf36-codecov
+    - python: 2.7
+      env: TOXENV=py27-dj110-drf37-codecov
 
     - python: 2.7
       env: TOXENV=py27-dj111-drf34-codecov
@@ -49,6 +51,8 @@ matrix:
       env: TOXENV=py27-dj111-drf35-codecov
     - python: 2.7
       env: TOXENV=py27-dj111-drf36-codecov
+    - python: 2.7
+      env: TOXENV=py27-dj111-drf37-codecov
 
     - python: 3.3
       env: TOXENV=py33-dj18-drf31-codecov
@@ -95,6 +99,8 @@ matrix:
       env: TOXENV=py34-dj110-drf35-codecov
     - python: 3.4
       env: TOXENV=py34-dj110-drf36-codecov
+    - python: 3.4
+      env: TOXENV=py34-dj110-drf37-codecov
 
     - python: 3.4
       env: TOXENV=py34-dj111-drf34-codecov
@@ -102,6 +108,8 @@ matrix:
       env: TOXENV=py34-dj111-drf35-codecov
     - python: 3.4
       env: TOXENV=py34-dj111-drf36-codecov
+    - python: 3.4
+      env: TOXENV=py34-dj111-drf37-codecov
 
     - python: 3.5
       env: TOXENV=py35-dj110-drf34-codecov
@@ -109,6 +117,8 @@ matrix:
       env: TOXENV=py35-dj110-drf35-codecov
     - python: 3.5
       env: TOXENV=py35-dj110-drf36-codecov
+    - python: 3.5
+      env: TOXENV=py35-dj110-drf37-codecov
 
     - python: 3.5
       env: TOXENV=py35-dj111-drf34-codecov
@@ -116,6 +126,8 @@ matrix:
       env: TOXENV=py35-dj111-drf35-codecov
     - python: 3.5
       env: TOXENV=py35-dj111-drf36-codecov
+    - python: 3.5
+      env: TOXENV=py35-dj111-drf37-codecov
 
     - python: 3.6
       env: TOXENV=py36-dj110-drf34-codecov
@@ -123,6 +135,8 @@ matrix:
       env: TOXENV=py36-dj110-drf35-codecov
     - python: 3.6
       env: TOXENV=py36-dj110-drf36-codecov
+    - python: 3.6
+      env: TOXENV=py36-dj110-drf37-codecov
 
     - python: 3.6
       env: TOXENV=py36-dj111-drf34-codecov
@@ -130,6 +144,8 @@ matrix:
       env: TOXENV=py36-dj111-drf35-codecov
     - python: 3.6
       env: TOXENV=py36-dj111-drf36-codecov
+    - python: 3.6
+      env: TOXENV=py36-dj111-drf37-codecov
 
 install:
   - pip install tox
