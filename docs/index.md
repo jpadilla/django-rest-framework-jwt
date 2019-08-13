@@ -180,6 +180,7 @@ JWT_AUTH = {
     'JWT_AUTH_HEADER_PREFIX': 'JWT',
     'JWT_AUTH_COOKIE': None,
 
+    'JWT_ALLOW_WHITE_SPACE_IN_PASSWORD': False,
 }
 ```
 This packages uses the JSON Web Token Python implementation, [PyJWT](https://github.com/jpadilla/pyjwt) and allows to modify some of it's available options.

@@ -46,6 +46,8 @@ DEFAULTS = {
 
     'JWT_AUTH_HEADER_PREFIX': 'JWT',
     'JWT_AUTH_COOKIE': None,
+
+    'JWT_ALLOW_WHITE_SPACE_IN_PASSWORD': False,
 }
 
 # List of settings that may be in string import notation.
