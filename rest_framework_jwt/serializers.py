@@ -5,6 +5,7 @@ from datetime import datetime, timedelta
 
 from django.contrib.auth import authenticate, get_user_model
 from django.utils.translation import ugettext as _
+from django.core.exceptions import ObjectDoesNotExist
 from rest_framework import serializers
 from .compat import Serializer
 
@@ -50,10 +51,6 @@ class JSONWebTokenSerializer(Serializer):
             user = authenticate(**credentials)
 
             if user:
-                if not user.is_active:
-                    msg = _('User account is disabled.')
-                    raise serializers.ValidationError(msg)
-
                 payload = jwt_payload_handler(user)
 
                 return {
@@ -61,8 +58,14 @@ class JSONWebTokenSerializer(Serializer):
                     'user': user
                 }
             else:
-                msg = _('Unable to log in with provided credentials.')
-                raise serializers.ValidationError(msg)
+                try:
+                    user = User.objects.get(**{self.username_field: attrs.get(self.username_field)})
+                    if not user.is_active:
+                        msg = _('User account is disabled.')
+                        raise serializers.ValidationError(msg)
+                except ObjectDoesNotExist:
+                    msg = _('Unable to log in with provided credentials.')
+                    raise serializers.ValidationError(msg)
         else:
             msg = _('Must include "{username_field}" and "password".')
             msg = msg.format(username_field=self.username_field)
