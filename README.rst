@@ -1,6 +1,13 @@
 REST framework JWT Auth
 =======================
 
+Notice
+------
+
+This project is currently unmaintained. `Check #484 for more details and suggested alternatives`_.
+
+------------
+
 |build-status-image| |pypi-version|
 
 **JSON Web Token Authentication support for Django REST Framework**
@@ -42,6 +49,7 @@ Full documentation for the project is available at `docs`_.
 
 You may also want to follow the `author`_ on Twitter.
 
+.. _Check #484 for more details and suggested alternatives: https://github.com/jpadilla/django-rest-framework-jwt/issues/484
 .. _docs: https://jpadilla.github.io/django-rest-framework-jwt/
 .. _JSON Web Token Authentication: http://tools.ietf.org/html/draft-ietf-oauth-json-web-token
 .. _Django REST framework: http://django-rest-framework.org/
