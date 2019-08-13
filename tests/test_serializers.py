@@ -71,7 +71,7 @@ class JSONWebTokenSerializerTests(TestCase):
         self.assertEqual(serializer.errors, expected_error)
 
     @unittest.skipIf(
-        django.VERSION[1] >= 10,
+        django.VERSION >= (1, 10),
         reason='The ModelBackend does not permit login when is_active is False.')
     def test_disabled_user(self):
         self.user.is_active = False
@@ -88,7 +88,7 @@ class JSONWebTokenSerializerTests(TestCase):
         self.assertEqual(serializer.errors, expected_error)
 
     @unittest.skipUnless(
-        django.VERSION[1] >= 10,
+        django.VERSION >= (1, 10),
         reason='The AllowAllUsersModelBackend permits login when is_active is False.')
     @override_settings(AUTHENTICATION_BACKENDS=[
         'django.contrib.auth.backends.AllowAllUsersModelBackend'])
