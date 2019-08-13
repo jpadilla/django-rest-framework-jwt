@@ -21,7 +21,7 @@ def jwt_get_secret_key(payload=None):
         - password is changed
         - etc.
     """
-    if api_settings.JWT_GET_USER_SECRET_KEY:
+    if api_settings.JWT_GET_USER_SECRET_KEY and 'user_id' in payload:
         User = get_user_model()  # noqa: N806
         user = User.objects.get(pk=payload.get('user_id'))
         key = str(api_settings.JWT_GET_USER_SECRET_KEY(user))
