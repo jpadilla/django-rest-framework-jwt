@@ -292,6 +292,11 @@ procedure will also look into this cookie, if set. The 'Authorization' header ta
 
 Default is `None` and no cookie is set when creating tokens nor accepted when validating them.
 
+### CSRF_COOKIE
+To prevent Cross-Site Request Forgery when using JWT_AUTH_COOKIE, the `csrftoken` cookie will also be set when issuing the JWT authentication token. This works in conjuntion with django csrf middleware. The cookie contains another token which should be included in the 'X-CSRFToken' header.
+
+Default is `False`. Nevertheless, if you are using JWT_AUTH_COOKIE, it is recommended that CSRF_COOKIE is set to `True`.
+
 ## Extending `JSONWebTokenAuthentication`
 
 Right now `JSONWebTokenAuthentication` assumes that the JWT will come in the header, or a cookie if configured (see [JWT_AUTH_COOKIE](#JWT_AUTH_COOKIE)). The JWT spec does not require this (see: [Making a service Call](https://developer.atlassian.com/static/connect/docs/concepts/authentication.html)). For example, the JWT may come in the querystring. The ability to send the JWT in the querystring is needed in cases where the user cannot set the header (for example the src element in HTML).

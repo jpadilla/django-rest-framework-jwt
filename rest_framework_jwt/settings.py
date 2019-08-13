@@ -46,6 +46,7 @@ DEFAULTS = {
 
     'JWT_AUTH_HEADER_PREFIX': 'JWT',
     'JWT_AUTH_COOKIE': None,
+    'CSRF_COOKIE': False,
 }
 
 # List of settings that may be in string import notation.
