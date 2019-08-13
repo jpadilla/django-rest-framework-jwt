@@ -47,7 +47,7 @@ class JSONWebTokenSerializer(Serializer):
         }
 
         if all(credentials.values()):
-            user = authenticate(**credentials)
+            user = authenticate(request=self.context.get('request', None), **credentials)
 
             if user:
                 if not user.is_active:
