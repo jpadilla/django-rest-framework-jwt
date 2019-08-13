@@ -256,6 +256,19 @@ Default is `datetime.timedelta(days=7)` (7 days).
 ### JWT_PAYLOAD_HANDLER
 Specify a custom function to generate the token payload
 
+Example:
+```
+from rest_framework_jwt.utils import jwt_payload_handler
+
+def jwt_custom_payload_handler(user):
+    payload = jwt_payload_handler(user)
+    payload['role'] = 'xyz'
+    return payload
+
+# settings.py
+JWT_AUTH['JWT_PAYLOAD_HANDLER'] = 'path.to.your.jwt_custom_payload_handler',
+```
+
 ### JWT_PAYLOAD_GET_USER_ID_HANDLER
 If you store `user_id` differently than the default payload handler does, implement this function to fetch `user_id` from the payload. **Note:** Will be deprecated in favor of `JWT_PAYLOAD_GET_USERNAME_HANDLER`.
 
