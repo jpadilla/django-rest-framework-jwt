@@ -9,6 +9,8 @@ from django import get_version
 from django.test import TestCase
 from django.test.utils import override_settings
 from rest_framework import status
+from rest_framework.response import Response
+from rest_framework.settings import api_settings as rest_framework_settings
 from rest_framework.test import APIClient
 
 from rest_framework_jwt import utils, views
@@ -492,3 +494,35 @@ class RefreshJSONWebTokenTests(TokenTestCase):
     def tearDown(self):
         # Restore original settings
         api_settings.JWT_ALLOW_REFRESH = DEFAULTS['JWT_ALLOW_REFRESH']
+
+
+class ObtainJSONWebTokenWithCustomExceptionHandlerTest(BaseTestCase):
+
+    def setUp(self):
+        super(ObtainJSONWebTokenWithCustomExceptionHandlerTest, self).setUp()
+        self.DEFAULT_HANDLER = rest_framework_settings.EXCEPTION_HANDLER
+
+        def exception_handler(exc, request):
+            data = 'All errors look like this.'
+            return Response(data, status=status.HTTP_400_BAD_REQUEST)
+
+        rest_framework_settings.EXCEPTION_HANDLER = exception_handler
+        api_settings.JWT_USE_CUSTOM_EXCEPTION_HANDLER = True
+
+    def test_jwt_login_json_bad_creds(self):
+        """
+        Ensure JWT login view uses custom exception handler when using JSON
+        POST fails because bad credentials are used.
+        """
+        client = APIClient()
+
+        self.data['password'] = 'wrong'
+        response = client.post('/auth-token/', self.data, format='json')
+        self.assertEqual(response.status_code, 400)
+        self.assertEquals(response.content, b'"All errors look like this."')
+
+    def tearDown(self):
+        # Restore original settings
+        rest_framework_settings.EXCEPTION_HANDLER = self.DEFAULT_HANDLER
+        api_settings.JWT_USE_CUSTOM_EXCEPTION_HANDLER = DEFAULTS[
+            'JWT_USE_CUSTOM_EXCEPTION_HANDLER']
