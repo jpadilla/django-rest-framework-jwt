@@ -19,6 +19,13 @@ jwt_decode_handler = api_settings.JWT_DECODE_HANDLER
 jwt_get_username_from_payload = api_settings.JWT_PAYLOAD_GET_USERNAME_HANDLER
 
 
+class JSONWebTokenAuthenticationError(serializers.ValidationError):
+
+    def __init__(self):
+        msg = _('Unable to log in with provided credentials.')
+        super(JSONWebTokenAuthenticationError, self).__init__(msg)
+
+
 class JSONWebTokenSerializer(Serializer):
     """
     Serializer class used to validate a username and password.
@@ -61,8 +68,7 @@ class JSONWebTokenSerializer(Serializer):
                     'user': user
                 }
             else:
-                msg = _('Unable to log in with provided credentials.')
-                raise serializers.ValidationError(msg)
+                raise JSONWebTokenAuthenticationError()
         else:
             msg = _('Must include "{username_field}" and "password".')
             msg = msg.format(username_field=self.username_field)
