@@ -84,7 +84,8 @@ def jwt_get_username_from_payload_handler(payload):
     """
     Override this function if username is formatted differently in payload
     """
-    return payload.get('username')
+    username_field = get_username_field()
+    return payload.get(username_field)
 
 
 def jwt_encode_handler(payload):
