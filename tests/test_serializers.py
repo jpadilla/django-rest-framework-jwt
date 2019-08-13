@@ -15,6 +15,9 @@ User = get_user_model()
 drf2 = rest_framework.VERSION < StrictVersion('3.0.0')
 drf3 = rest_framework.VERSION >= StrictVersion('3.0.0')
 
+django_strict_version = StrictVersion('%s.%s.%s' % django.VERSION[:3])
+django2 = django_strict_version > StrictVersion('1.10.0')
+
 
 class JSONWebTokenSerializerTests(TestCase):
     def setUp(self):
@@ -71,7 +74,7 @@ class JSONWebTokenSerializerTests(TestCase):
         self.assertEqual(serializer.errors, expected_error)
 
     @unittest.skipIf(
-        django.VERSION[1] >= 10,
+        django2,
         reason='The ModelBackend does not permit login when is_active is False.')
     def test_disabled_user(self):
         self.user.is_active = False
@@ -88,7 +91,7 @@ class JSONWebTokenSerializerTests(TestCase):
         self.assertEqual(serializer.errors, expected_error)
 
     @unittest.skipUnless(
-        django.VERSION[1] >= 10,
+        django2,
         reason='The AllowAllUsersModelBackend permits login when is_active is False.')
     @override_settings(AUTHENTICATION_BACKENDS=[
         'django.contrib.auth.backends.AllowAllUsersModelBackend'])

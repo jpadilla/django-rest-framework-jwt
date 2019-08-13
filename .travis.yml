@@ -50,19 +50,6 @@ matrix:
     - python: 2.7
       env: TOXENV=py27-dj111-drf36-codecov
 
-    - python: 3.3
-      env: TOXENV=py33-dj18-drf31-codecov
-    - python: 3.3
-      env: TOXENV=py33-dj18-drf32-codecov
-    - python: 3.3
-      env: TOXENV=py33-dj18-drf33-codecov
-    - python: 3.3
-      env: TOXENV=py33-dj18-drf34-codecov
-    - python: 3.3
-      env: TOXENV=py33-dj18-drf35-codecov
-    - python: 3.3
-      env: TOXENV=py33-dj18-drf36-codecov
-
     - python: 3.4
       env: TOXENV=py34-dj18-drf31-codecov
     - python: 3.4
@@ -130,6 +117,17 @@ matrix:
       env: TOXENV=py36-dj111-drf35-codecov
     - python: 3.6
       env: TOXENV=py36-dj111-drf36-codecov
+    - python: 3.6
+      env: TOXENV=py36-dj111-drf37-codecov
+    - python: 3.6
+      env: TOXENV=py36-dj111-drf38-codecov
+
+
+    - python: 3.6
+      env: TOXENV=py36-dj20-drf37-codecov
+    - python: 3.6
+      env: TOXENV=py36-dj20-drf38-codecov
+
 
 install:
   - pip install tox
