@@ -1,0 +1,64 @@
+# SOME DESCRIPTIVE TITLE.
+# Copyright (C) YEAR THE PACKAGE'S COPYRIGHT HOLDER
+# This file is distributed under the same license as the PACKAGE package.
+#
+msgid ""
+msgstr ""
+"Project-Id-Version: Django Rest Framework JWT\n"
+"Report-Msgid-Bugs-To: \n"
+"POT-Creation-Date: 2017-02-06 15:35+0100\n"
+"PO-Revision-Date: 2017-02-06 15:35+0100\n"
+"Last-Translator: Lukas Bischofberger <me@worx.li>\n"
+"Language: de\n"
+"MIME-Version: 1.0\n"
+"Content-Type: text/plain; charset=UTF-8\n"
+"Content-Transfer-Encoding: 8bit\n"
+
+#: authentication.py:33 serializers.py:100
+msgid "Signature has expired."
+msgstr "Die Signatur ist abgelaufen."
+
+#: authentication.py:36 serializers.py:103
+msgid "Error decoding signature."
+msgstr "Fehler beim Entschlüsseln der Signatur."
+
+#: authentication.py:55
+msgid "Invalid signature."
+msgstr "Ungültige Signatur."
+
+#: authentication.py:58 serializers.py:117
+msgid "Invalid payload."
+msgstr "Ungültige Daten."
+
+#: authentication.py:82
+msgid "Invalid Authorization header. No credentials provided."
+msgstr "Ungültiger Authorization header. Keine Anmeldeinformationen vorhanden."
+
+#: authentication.py:85
+msgid "Invalid Authorization header. Credentials string should not contain spaces."
+msgstr "Ungültiger Authorization header. Anmeldedaten dürfen keine Leerzeichen enthalten."
+
+#: serializers.py:59
+msgid "User account is disabled."
+msgstr "Benutzerkonto ist deaktiviert."
+
+#: serializers.py:76
+msgid "Unable to log in with provided credentials."
+msgstr "Anmeldung mit angegebenen Anmeldeinformationen nicht möglich."
+
+#: serializers.py:79
+#, python-brace-format
+msgid "Must include \"{username_field}\" and \"password\"."
+msgstr "Sollte \"{username_field}\" und \"password\" enthalten."
+
+#: serializers.py:120
+msgid "User doesn't exist."
+msgstr "Der Benutzer existiert nicht."
+
+#: serializers.py:170
+msgid "Refresh has expired."
+msgstr "Die Aktualisierunsperiode ist vergangen."
+
+#: serializers.py:173
+msgid "orig_iat field is required."
+msgstr "orig_iat Feld ist notwendig."
