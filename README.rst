@@ -51,7 +51,7 @@ You may also want to follow the `author`_ on Twitter.
 .. _JWT.io: http://jwt.io/
 .. _author: https://twitter.com/blimp
 
-.. |build-status-image| image:: https://secure.travis-ci.org/GetBlimp/django-rest-framework-jwt.svg?branch=master
-   :target: http://travis-ci.org/GetBlimp/django-rest-framework-jwt?branch=master
+.. |build-status-image| image:: https://secure.travis-ci.org/jpadilla/django-rest-framework-jwt.svg?branch=master
+   :target: http://travis-ci.org/jpadilla/django-rest-framework-jwt?branch=master
 .. |pypi-version| image:: https://img.shields.io/pypi/v/djangorestframework-jwt.svg
    :target: https://pypi.python.org/pypi/djangorestframework-jwt

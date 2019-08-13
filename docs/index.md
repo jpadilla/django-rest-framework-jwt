@@ -1,6 +1,6 @@
 <div class="badges">
-    <a href="https://travis-ci.org/GetBlimp/django-rest-framework-jwt">
-        <img src="https://travis-ci.org/GetBlimp/django-rest-framework-jwt.svg?branch=master">
+    <a href="https://travis-ci.org/jpadilla/django-rest-framework-jwt">
+        <img src="https://travis-ci.org/jpadilla/django-rest-framework-jwt.svg?branch=master">
     </a>
     <a href="https://pypi.python.org/pypi/djangorestframework-jwt">
         <img src="https://img.shields.io/pypi/v/djangorestframework-jwt.svg">
@@ -279,7 +279,7 @@ def jwt_response_payload_handler(token, user=None, request=None):
 Default is `{'token': token}`
 
 ### JWT_AUTH_HEADER_PREFIX
-You can modify the Authorization header value prefix that is required to be sent together with the token. The default value is `JWT`. This decision was introduced in PR [#4](https://github.com/GetBlimp/django-rest-framework-jwt/pull/4) to allow using both this package and OAuth2 in DRF.
+You can modify the Authorization header value prefix that is required to be sent together with the token. The default value is `JWT`. This decision was introduced in PR [#4](https://github.com/jpadilla/django-rest-framework-jwt/pull/4) to allow using both this package and OAuth2 in DRF.
 
 Another common value used for tokens and Authorization headers is `Bearer`.
 
