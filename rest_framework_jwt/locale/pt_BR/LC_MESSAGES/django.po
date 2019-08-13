@@ -1,0 +1,70 @@
+# SOME DESCRIPTIVE TITLE.
+# Copyright (C) YEAR THE PACKAGE'S COPYRIGHT HOLDER
+# This file is distributed under the same license as the PACKAGE package.
+# FIRST AUTHOR <EMAIL@ADDRESS>, YEAR.
+#
+#, fuzzy
+msgid ""
+msgstr ""
+"Project-Id-Version: PACKAGE VERSION\n"
+"Report-Msgid-Bugs-To: \n"
+"POT-Creation-Date: 2015-03-01 21:35+0100\n"
+"PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
+"Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
+"Language-Team: LANGUAGE <LL@li.org>\n"
+"Language: \n"
+"MIME-Version: 1.0\n"
+"Content-Type: text/plain; charset=UTF-8\n"
+"Content-Transfer-Encoding: 8bit\n"
+"Plural-Forms: nplurals=2; plural=(n > 1);\n"
+
+#: authentication.py:33 serializers.py:100
+msgid "Signature has expired."
+msgstr "A assinatura expirou."
+
+#: authentication.py:36 serializers.py:103
+msgid "Error decoding signature."
+msgstr "Erro ao decodificar assinatura."
+
+#: authentication.py:55
+msgid "Invalid signature."
+msgstr "Assinatura inválida."
+
+#: authentication.py:58 serializers.py:117
+msgid "Invalid payload."
+msgstr "Payload inválido."
+
+#: authentication.py:82
+msgid "Invalid Authorization header. No credentials provided."
+msgstr "Cabeçalho \"Authorization\" inválido. Nenhuma credencial fornecida."
+
+#: authentication.py:85
+msgid ""
+"Invalid Authorization header. Credentials string should not contain spaces."
+msgstr ""
+"Cabeçalho de autorização inválido. A string de credenciais não deve conter espaços."
+
+#: serializers.py:59
+msgid "User account is disabled."
+msgstr "A conta do usuário está desativada."
+
+#: serializers.py:76
+msgid "Unable to login with provided credentials."
+msgstr "Não é possível fazer o login com as credenciais fornecidas."
+
+#: serializers.py:79
+#, python-brace-format
+msgid "Must include \"{username_field}\" and \"password\"."
+msgstr "Deve incluir \"{username_field}\" e \"password\"."
+
+#: serializers.py:120
+msgid "User doesn't exist."
+msgstr "O usuário não existe."
+
+#: serializers.py:170
+msgid "Refresh has expired."
+msgstr "A atualização expirou."
+
+#: serializers.py:173
+msgid "orig_iat field is required."
+msgstr "O campo orig_iat é obrigatório."
