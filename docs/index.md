@@ -180,6 +180,8 @@ JWT_AUTH = {
     'JWT_AUTH_HEADER_PREFIX': 'JWT',
     'JWT_AUTH_COOKIE': None,
 
+    'JWT_EXTEND_ORIG_IAT_ON_REFRESH': False,
+
 }
 ```
 This packages uses the JSON Web Token Python implementation, [PyJWT](https://github.com/jpadilla/pyjwt) and allows to modify some of it's available options.
@@ -264,6 +266,9 @@ If you store `username` differently than the default payload handler does, imple
 
 ### JWT_RESPONSE_PAYLOAD_HANDLER
 Responsible for controlling the response data returned after login or refresh. Override to return a custom response such as including the serialized representation of the User.
+
+### JWT_EXTEND_ORIG_IAT_ON_REFRESH
+This setting updates the original token issue timestamp (orig_iat) when doing a token refresh. It will result in a new token value being returned when refreshing the token, since the encoded token value is based on the orig_iat. Default is `False`
 
 Defaults to return the JWT token.
 
