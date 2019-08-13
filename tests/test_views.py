@@ -469,6 +469,25 @@ class RefreshJSONWebTokenTests(TokenTestCase):
         self.assertEquals(new_token_decoded['orig_iat'], orig_iat)
         self.assertGreater(new_token_decoded['exp'], orig_token_decoded['exp'])
 
+    def test_refresh_after_token_expiration_and_before_refresh_expiration(self):
+        client = APIClient(enforce_csrf_checks=True)
+
+        token = self.create_token(
+            self.user,
+            exp=datetime.utcnow() + timedelta(seconds=0.1),
+            orig_iat=datetime.utcnow(),
+        )
+
+        time.sleep(0.5)
+
+        # now the access token is expired but still can be refreshed
+        response = client.post(
+            '/auth-token-refresh/',
+            {'token': token},
+            format='json'
+        )
+        self.assertEqual(response.status_code, status.HTTP_200_OK)
+
     def test_refresh_jwt_after_refresh_expiration(self):
         """
         Test that token can't be refreshed after token refresh limit

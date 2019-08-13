@@ -96,9 +96,12 @@ def jwt_encode_handler(payload):
     ).decode('utf-8')
 
 
-def jwt_decode_handler(token):
+def jwt_decode_handler(token, verify_expiration=None):
+    if verify_expiration is None:
+        verify_expiration = api_settings.JWT_VERIFY_EXPIRATION
+
     options = {
-        'verify_exp': api_settings.JWT_VERIFY_EXPIRATION,
+        'verify_exp': verify_expiration,
     }
     # get user from token, BEFORE verification, to get user secret key
     unverified_payload = jwt.decode(token, None, False)
