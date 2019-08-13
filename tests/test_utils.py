@@ -4,11 +4,13 @@ import pytest
 
 import jwt.exceptions
 from django.test import TestCase
+from django.conf import settings
 
 from rest_framework_jwt import utils
 from rest_framework_jwt.compat import get_user_model
 from rest_framework_jwt.settings import api_settings, DEFAULTS
 from tests.models import CustomUserWithoutEmail
+from tests.utils import custom_get_user_id, custom_get_user_secret
 
 User = get_user_model()
 
@@ -81,6 +83,27 @@ class UtilsTests(TestCase):
         utils.jwt_decode_handler(token)
 
         api_settings.JWT_VERIFY_EXPIRATION = True
+
+    def test_jwt_get_secret_key(self):
+        secret = utils.jwt_get_secret_key({'user_id': self.user.pk})
+        self.assertEqual(secret, settings.SECRET_KEY)
+
+    def test_jwt_get_secret_key_customer_secret_getter(self):
+        old = api_settings.JWT_GET_USER_SECRET_KEY
+        api_settings.JWT_GET_USER_SECRET_KEY = custom_get_user_secret
+        secret = utils.jwt_get_secret_key({'user_id': self.user.pk})
+        api_settings.JWT_GET_USER_SECRET_KEY = old
+        self.assertEqual(secret, str(self.user.pk))
+
+    def test_jwt_get_secret_key_customer_id_and_secret_getter(self):
+        old = api_settings.JWT_GET_USER_SECRET_KEY
+        api_settings.JWT_GET_USER_SECRET_KEY = custom_get_user_secret
+        old2 = api_settings.JWT_PAYLOAD_GET_USER_ID_HANDLER
+        api_settings.JWT_PAYLOAD_GET_USER_ID_HANDLER = custom_get_user_id
+        secret = utils.jwt_get_secret_key({'custom_uid': self.user.pk})
+        api_settings.JWT_PAYLOAD_GET_USER_ID_HANDLER = old2
+        api_settings.JWT_GET_USER_SECRET_KEY = old
+        self.assertEqual(secret, str(self.user.pk))
 
 
 class TestAudience(TestCase):
