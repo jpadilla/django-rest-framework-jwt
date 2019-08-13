@@ -52,7 +52,7 @@ class JSONWebTokenSerializerTests(TestCase):
         serializer = JSONWebTokenSerializer(data=self.data)
         is_valid = serializer.is_valid()
 
-        token = serializer.object['token']
+        token = serializer.validated_data['token']
         decoded_payload = utils.jwt_decode_handler(token)
 
         self.assertTrue(is_valid)
