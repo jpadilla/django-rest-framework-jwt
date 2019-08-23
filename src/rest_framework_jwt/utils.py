@@ -66,7 +66,7 @@ def jwt_create_payload(user):
     # If you have some other implementation feel free to create your own
     # `jwt_create_payload` method with custom payload.
     if hasattr(user, 'profile'):
-        payload['user_profile_id'] = user.profile.id if user.profile else None,
+        payload['user_profile_id'] = user.profile.pk if user.profile else None,
 
     # Include original issued at time for a brand new token
     # to allow token refresh
