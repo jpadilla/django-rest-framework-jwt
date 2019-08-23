@@ -82,7 +82,7 @@ class JSONWebTokenSerializer(serializers.Serializer):
             'password': data.get('password')
         }
 
-        user = authenticate(**credentials)
+        user = authenticate(self.context['request'], **credentials)
 
         if not user:
             msg = _('Unable to log in with provided credentials.')
