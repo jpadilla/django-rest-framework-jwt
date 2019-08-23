@@ -13,6 +13,15 @@ time.
 
 .. towncrier release notes start
 
+v1.13.0 (2019-08-23)
+====================
+
+Bugfixes
+--------
+
+- Pass `request` to `django.contrib.auth.authenticate`. ([#14](https://github.com/Styria-Digital/django-rest-framework-jwt/pull/14))
+
+
 1.13.0 (2019-04-23)
 =====================
 
