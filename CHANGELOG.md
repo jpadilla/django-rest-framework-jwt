@@ -13,6 +13,15 @@ time.
 
 .. towncrier release notes start
 
+v1.13.1 (2019-08-26)
+====================
+
+Bugfixes
+--------
+
+- Use pk to get profile's id in `rest_framework_jwt.utils.jwt_create_payload`. ([#15](https://github.com/Styria-Digital/django-rest-framework-jwt/pull/15))
+
+
 1.13.1 (2019-08-23)
 ====================
 
