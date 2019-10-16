@@ -161,7 +161,7 @@ JWT_AUTH = {
     'JWT_AUTH_COOKIE': None
 }
 ```
-This packages uses the JSON Web Token Python implementation, [PyJWT](https://github.com/jpadilla/pyjwt) and allows to modify some of it's available options.
+This packages uses the JSON Web Token Python implementation, [PyJWT](https://github.com/jpadilla/pyjwt) and allows to modify some of its available options.
 
 ### JWT_SECRET_KEY
 
@@ -172,7 +172,7 @@ Default is your project's `settings.SECRET_KEY`.
 ### JWT_GET_USER_SECRET_KEY
 
 This is more robust version of JWT_SECRET_KEY. It is defined per User, so in case token is compromised it can be
-easily changed by owner. Changing this value will make all tokens for given user unusable. Value should be a function, accepting user as only parameter and returning it's secret key as string.
+easily changed by owner. Changing this value will make all tokens for given user unusable. Value should be a function, accepting user as only parameter and returning its secret key as string.
 
 Default is `None`.
 
