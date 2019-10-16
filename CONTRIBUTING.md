@@ -102,4 +102,4 @@ If you want to make a **patch** release, type:
 $ tox -e make-release -- patch
 ```
 
-If Travis CI builds were successful release should be automatically uploaded to PiPY.org.
+If Travis CI builds were successful release should be automatically uploaded to PyPI.org.
