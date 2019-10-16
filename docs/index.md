@@ -161,7 +161,7 @@ JWT_AUTH = {
     'JWT_AUTH_COOKIE': None
 }
 ```
-This packages uses the JSON Web Token Python implementation, [PyJWT](https://github.com/jpadilla/pyjwt) and allows to modify some of its available options.
+This package uses the JSON Web Token Python implementation, [PyJWT](https://github.com/jpadilla/pyjwt) and allows to modify some of its available options.
 
 ### JWT_SECRET_KEY
 
