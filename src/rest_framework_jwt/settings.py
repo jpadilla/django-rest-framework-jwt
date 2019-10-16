@@ -27,6 +27,7 @@ DEFAULTS = {
         'rest_framework_jwt.utils.jwt_create_payload',
     'JWT_PAYLOAD_GET_USERNAME_HANDLER':
         'rest_framework_jwt.utils.jwt_get_username_from_payload_handler',
+    'JWT_PAYLOAD_INCLUDE_USER_ID': True,
     'JWT_VERIFY': True,
     'JWT_VERIFY_EXPIRATION': True,
     'JWT_LEEWAY': 0,
