@@ -13,6 +13,16 @@ time.
 
 .. towncrier release notes start
 
+v1.13.2 (2019-10-17)
+====================
+
+Features
+--------
+
+- - Added support for djangorestframework 3.10 ([#18](https://github.com/Styria-Digital/django-rest-framework-jwt/pull/18))
+- Allow control of setting the `user_id` in the payload with `JWT_PAYLOAD_INCLUDE_USER_ID`. ([#20](https://github.com/Styria-Digital/django-rest-framework-jwt/pull/20))
+
+
 1.13.2 (2019-08-26)
 ====================
 
