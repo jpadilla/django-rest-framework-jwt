@@ -149,6 +149,7 @@ JWT_AUTH = {
         'rest_framework_jwt.utils.jwt_create_payload',
     'JWT_PAYLOAD_GET_USERNAME_HANDLER':
         'rest_framework_jwt.utils.jwt_get_username_from_payload_handler',
+    'JWT_PAYLOAD_INCLUDE_USER_ID': True,
     'JWT_VERIFY': True,
     'JWT_VERIFY_EXPIRATION': True,
     'JWT_LEEWAY': 0,
@@ -221,6 +222,12 @@ Specify a custom function to generate the token payload
 ### JWT_PAYLOAD_GET_USERNAME_HANDLER
 
 If you store `username` differently than the default payload handler does, implement this function to fetch `username` from the payload.
+
+### JWT_PAYLOAD_INCLUDE_USER_ID
+
+If you do not wish to include the user's primary key (typically `id`) in the token payload, then set this to `False`.
+
+Default is `True`.
 
 ### JWT_VERIFY
 

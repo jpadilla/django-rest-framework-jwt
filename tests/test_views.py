@@ -111,6 +111,20 @@ class TestAuthViews(APITestCase):
         self.assertEqual(payload['user_id'], self.active_user.id)
         self.assertEqual(payload['username'], self.active_user.get_username())
 
+    @patch('rest_framework_jwt.utils.api_settings', autospec=True)
+    def test_auth__valid_credentials_with_no_user_id_setting__returns_jwt_token(self, mock_settings):
+        mock_settings = setup_default_mocked_api_settings(mock_settings)
+        mock_settings.JWT_PAYLOAD_INCLUDE_USER_ID = False
+
+        response = call_auth_endpoint(self.client, "foobar", "foo")
+
+        token = response.json()['token']
+        payload = JSONWebTokenAuthentication.jwt_decode_token(token)
+
+        self.assertEqual(response.status_code, HTTP_200_OK)
+        self.assertNotIn('user_id', payload)
+        self.assertEqual(payload['username'], self.active_user.get_username())
+
     def test_auth__valid_credentials_inactive_user__returns_validation_error(self):
         expected_output = {
             'non_field_errors': [

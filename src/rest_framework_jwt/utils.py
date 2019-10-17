@@ -56,11 +56,13 @@ def jwt_create_payload(user):
     expiration_time = issued_at_time + api_settings.JWT_EXPIRATION_DELTA
 
     payload = {
-        'user_id': user.pk,
         'username': user.get_username(),
         'iat': unix_epoch(issued_at_time),
         'exp': expiration_time
     }
+
+    if api_settings.JWT_PAYLOAD_INCLUDE_USER_ID:
+        payload['user_id'] = user.pk
 
     # It's common practice to have user object attached to profile objects.
     # If you have some other implementation feel free to create your own
