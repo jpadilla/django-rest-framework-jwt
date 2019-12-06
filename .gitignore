@@ -106,3 +106,6 @@ python_boilerplate/
 # Sqlite3
 *.sqlite3
 
+# virtual environment stuff
+venv/
+.python-version

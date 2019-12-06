@@ -130,9 +130,4 @@ def jwt_create_response_payload(
     Note that we are using `pk` field here - this is for forward compatibility
     with drf add-ons that might require `pk` field in order (eg. jsonapi).
     """
-
-    response_payload = namedtuple('ResponsePayload', 'pk token')
-    response_payload.pk = issued_at
-    response_payload.token = token
-
-    return response_payload
+    return {'pk': issued_at, 'token': token}
