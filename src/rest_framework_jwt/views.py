@@ -7,11 +7,11 @@ from datetime import datetime
 from rest_framework import status
 from rest_framework.generics import GenericAPIView
 from rest_framework.response import Response
-
+from rest_framework.permissions import IsAdminUser
 from .authentication import JSONWebTokenAuthentication
 from .serializers import \
     JSONWebTokenSerializer, RefreshAuthTokenSerializer, \
-    VerifyAuthTokenSerializer
+    VerifyAuthTokenSerializer, ImpersonationSerializer
 from .settings import api_settings
 
 
@@ -84,6 +84,40 @@ class RefreshJSONWebTokenView(BaseJSONWebTokenAPIView):
     serializer_class = RefreshAuthTokenSerializer
 
 
+class ImpersonationView(GenericAPIView):
+    permission_classes = (IsAdminUser,)
+    authentication_classes = (JSONWebTokenAuthentication,)
+    serializer_class = ImpersonationSerializer
+
+    def post(self, request, *args, **kwargs):
+        serializer = self.get_serializer(data=request.data)
+
+        if not serializer.is_valid():
+            return Response(
+                serializer.errors, status=status.HTTP_400_BAD_REQUEST
+            )
+
+        user = serializer.validated_data.get('user')
+        token = serializer.validated_data.get('token')
+        issued_at = serializer.validated_data.get('issued_at')
+
+        response_data = JSONWebTokenAuthentication. \
+            jwt_create_response_payload(token, user, request, issued_at)
+
+        response = Response({"token": response_data.token, "user": user.pk})
+
+        if api_settings.JWT_AUTH_COOKIE:
+            expiration = (
+                    datetime.utcnow() + api_settings.JWT_EXPIRATION_DELTA
+            )
+            response.set_cookie(
+                api_settings.JWT_AUTH_COOKIE, token, expires=expiration,
+                httponly=True
+            )
+        return response
+
+
 obtain_jwt_token = ObtainJSONWebTokenView.as_view()
 verify_jwt_token = VerifyJSONWebTokenView.as_view()
 refresh_jwt_token = RefreshJSONWebTokenView.as_view()
+impersonation_view = ImpersonationView.as_view()

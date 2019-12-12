@@ -16,6 +16,9 @@ from rest_framework_jwt.settings import api_settings
 from rest_framework_jwt.utils import unix_epoch, get_username_field
 
 
+User = get_user_model()
+
+
 def _check_payload(token):
     try:
         payload = JSONWebTokenAuthentication.jwt_decode_token(token)
@@ -158,4 +161,22 @@ class RefreshAuthTokenSerializer(serializers.Serializer):
                 user,
             'issued_at':
                 new_payload.get('iat', unix_epoch())
+        }
+
+
+class ImpersonationSerializer(serializers.Serializer):
+    user = serializers.PrimaryKeyRelatedField(queryset=User.objects.all())
+    token = serializers.CharField(read_only=True)
+
+    class Meta:
+        fields = ("user",)
+
+    def validate(self, data):
+        user = data["user"]
+        payload = JSONWebTokenAuthentication.jwt_create_payload(user)
+
+        return {
+            'token': JSONWebTokenAuthentication.jwt_encode_payload(payload),
+            'user': user,
+            'issued_at': payload.get('iat', unix_epoch())
         }

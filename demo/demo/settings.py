@@ -40,7 +40,6 @@ INSTALLED_APPS = [
     'app',
     'rest_framework',
     'rest_framework_jwt',
-    'impersonate',
 ]
 
 MIDDLEWARE = [
@@ -51,7 +50,6 @@ MIDDLEWARE = [
     'django.contrib.auth.middleware.AuthenticationMiddleware',
     'django.contrib.messages.middleware.MessageMiddleware',
     'django.middleware.clickjacking.XFrameOptionsMiddleware',
-    'impersonate.middleware.ImpersonateMiddleware',
 ]
 
 ROOT_URLCONF = 'demo.urls'
@@ -130,6 +128,20 @@ AUTH_USER_MODEL = 'app.UserWithProfile'
 
 SITE_ID = 1
 
+# REST_FRAMEWORK = {
+#     'DEFAULT_AUTHENTICATION_CLASSES': [
+#         'rest_framework_jwt.authentication.JSONWebTokenAuthentication',
+#         'rest_framework.authentication.BasicAuthentication',
+#         'rest_framework.authentication.SessionAuthentication',
+#     ]
+# }
+
+# AUTHENTICATION_BACKENDS = [
+#     'rest_framework_jwt.authentication.JSONWebTokenAuthentication',
+#     'django.contrib.auth.backends.ModelBackend'
+# ]
+
+import datetime
 JWT_AUTH = {
-    'JWT_AUTH_COOKIE' : 'my_cookie'
+    'JWT_EXPIRATION_DELTA': datetime.timedelta(seconds=300000),
 }
