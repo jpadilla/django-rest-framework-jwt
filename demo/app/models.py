@@ -8,9 +8,6 @@ from django.db import models
 
 class UserWithProfile(AbstractUser):
 
-    class Meta:
-        app_label = 'tests'
-
     def save(self, *args, **kwargs):
         if not self.pk:
             self.profile = UserProfile(user=self)
@@ -20,6 +17,3 @@ class UserWithProfile(AbstractUser):
 class UserProfile(models.Model):
     user = models.OneToOneField(UserWithProfile, related_name='profile',
                                 on_delete=models.CASCADE)
-
-    class Meta:
-        app_label = 'tests'

@@ -5,7 +5,7 @@ from __future__ import unicode_literals
 from django.conf.urls import url
 
 from rest_framework_jwt import views
-from tests.views import test_view
+from .views import test_view
 
 urlpatterns = [
     url(r'^auth/$', views.obtain_jwt_token, name='auth'),
