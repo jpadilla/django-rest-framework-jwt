@@ -165,6 +165,10 @@ class RefreshAuthTokenSerializer(serializers.Serializer):
 
 
 class ImpersonationSerializer(serializers.Serializer):
+    """
+    Serializer used for impersonation.
+    """
+
     user = serializers.PrimaryKeyRelatedField(queryset=User.objects.all())
     token = serializers.CharField(read_only=True)
 

@@ -85,6 +85,10 @@ class RefreshJSONWebTokenView(BaseJSONWebTokenAPIView):
 
 
 class ImpersonationView(GenericAPIView):
+    """Impersonation View allows superusers to impersonate other non-superusers
+    accounts.
+    """
+
     permission_classes = (IsAdminUser,)
     authentication_classes = (JSONWebTokenAuthentication,)
     serializer_class = ImpersonationSerializer
