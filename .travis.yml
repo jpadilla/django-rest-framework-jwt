@@ -17,6 +17,9 @@ jobs:
     - stage: test
       python: '2.7.13'
       env: TOXENV=docs
+    - stage: test
+      python: '3.7'
+      env: TOXENV=manifest
     - stage: deploy
       python: '2.7.13'
       env: TOXENV=py27-dj111-drf37
