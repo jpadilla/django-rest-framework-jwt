@@ -127,21 +127,3 @@ PASSWORD_HASHERS = ('django.contrib.auth.hashers.MD5PasswordHasher', )
 AUTH_USER_MODEL = 'app.UserWithProfile'
 
 SITE_ID = 1
-
-# REST_FRAMEWORK = {
-#     'DEFAULT_AUTHENTICATION_CLASSES': [
-#         'rest_framework_jwt.authentication.JSONWebTokenAuthentication',
-#         'rest_framework.authentication.BasicAuthentication',
-#         'rest_framework.authentication.SessionAuthentication',
-#     ]
-# }
-
-# AUTHENTICATION_BACKENDS = [
-#     'rest_framework_jwt.authentication.JSONWebTokenAuthentication',
-#     'django.contrib.auth.backends.ModelBackend'
-# ]
-
-import datetime
-JWT_AUTH = {
-    'JWT_EXPIRATION_DELTA': datetime.timedelta(seconds=300000),
-}

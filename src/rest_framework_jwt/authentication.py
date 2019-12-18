@@ -112,9 +112,12 @@ class JSONWebTokenAuthentication(BaseAuthentication):
         auth_header_prefix = api_settings.JWT_AUTH_HEADER_PREFIX.lower()
 
         if not auth:
-            if api_settings.JWT_AUTH_COOKIE:
+            if api_settings.JWT_IMPERSONATION_COOKIE:
+                return request.COOKIES.get(api_settings.JWT_IMPERSONATION_COOKIE)
+            elif api_settings.JWT_AUTH_COOKIE:
                 return request.COOKIES.get(api_settings.JWT_AUTH_COOKIE)
-            return None
+            else:
+                return None
 
         if smart_text(auth[0].lower()) != auth_header_prefix:
             return None
