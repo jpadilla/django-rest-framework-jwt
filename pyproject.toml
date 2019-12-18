@@ -1,5 +1,5 @@
 [build-system]
-requires = ["setuptools", "wheel"]
+requires = ["setuptools>=40.7.0", "wheel>=0.31.1"]
 
 [tool.towncrier]
     package = "rest_framework_jwt"
@@ -36,3 +36,24 @@ requires = ["setuptools", "wheel"]
         directory = "misc"
         name = "Misc"
         showcontent = true
+
+
+[tool.black]
+line-length = 79
+target-version = ['py37']
+include = '\.pyi?$'
+exclude = '''
+(
+  /(
+      \.eggs         # exclude a few common directories in the
+    | \.git          # root of the project
+    | \.tox
+    | \.venv
+    | \.changelog.d
+    | _build
+    | build
+    | dist
+    | locale
+  )/
+)
+'''
