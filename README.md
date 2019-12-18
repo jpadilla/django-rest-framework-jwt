@@ -7,7 +7,7 @@ JSON Web Token Authentication support for Django REST Framework
 
 ## Overview
 
-This package provides [JSON Web Token Authentication][jwt-auth-spec] support 
+This package provides [JSON Web Token Authentication][jwt-auth-spec] support
 for [Django REST framework][drf].
 
 If you want to know more about JWT, check out the following resources:
@@ -18,8 +18,8 @@ If you want to know more about JWT, check out the following resources:
 
 ## Requirements
 
--  Python 2.7, 3.4, 3.5, 3.6, 3.7
--  Django 1.11, 2.0, 2.1, 2.2
+-  Python 2.7, 3.4+
+-  Django 1.11+
 -  Django REST Framework 3.7+
 
 ## Installation
