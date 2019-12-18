@@ -7,5 +7,6 @@ recursive-include tests *
 recursive-exclude * __pycache__
 recursive-exclude * *.py[co]
 recursive-exclude html *
-recursive-exclude demo *
-recursive-exclude changelog.d *
+
+prune demo
+prune changelog.d
