@@ -24,6 +24,16 @@ If it is not installed, type:
 $ pip install tox
 ```
 
+### Using the demo project
+
+You can use the `demo` project as you would any other Django project by running `$ tox -e serve`.
+This creates a separate `tox` environment and executes the `runserver` command using the development settings.
+If you want to pass additional arguments, e.g. your custom settings, use the following syntax:
+
+```bash
+$ tox -e server -- --settings=demo.settings.dev-custom
+```
+
 ## Testing
 
 To run the test suite against current virtual environment run the `pytest` while adding the `src` directory to `PYTHONPATH`:
