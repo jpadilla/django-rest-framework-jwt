@@ -2,14 +2,12 @@
 
 from __future__ import unicode_literals
 
+from django.conf import settings
 from django.contrib.auth.models import AbstractUser
 from django.db import models
 
 
 class UserWithProfile(AbstractUser):
-
-    class Meta:
-        app_label = 'tests'
 
     def save(self, *args, **kwargs):
         if not self.pk:
@@ -18,8 +16,8 @@ class UserWithProfile(AbstractUser):
 
 
 class UserProfile(models.Model):
-    user = models.OneToOneField(UserWithProfile, related_name='profile',
-                                on_delete=models.CASCADE)
-
-    class Meta:
-        app_label = 'tests'
+    user = models.OneToOneField(
+        settings.AUTH_USER_MODEL,
+        related_name="profile",
+        on_delete=models.CASCADE,
+    )

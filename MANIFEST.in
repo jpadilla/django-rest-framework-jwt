@@ -1,0 +1,12 @@
+include LICENSE MANIFEST.in *.md *.rst *.toml *.yml *.ini *.cfg
+
+recursive-include docs *
+recursive-include src/rest_framework_jwt *
+recursive-include tests *
+
+recursive-exclude * __pycache__
+recursive-exclude * *.py[co]
+recursive-exclude html *
+
+prune demo
+prune changelog.d
