@@ -9,7 +9,8 @@ from django.utils.encoding import force_text
 from django.utils.translation import ugettext_lazy as _
 
 from rest_framework.reverse import reverse
-from rest_framework.status import HTTP_200_OK, HTTP_401_UNAUTHORIZED
+from rest_framework.status import \
+    HTTP_200_OK, HTTP_401_UNAUTHORIZED, HTTP_403_FORBIDDEN, HTTP_400_BAD_REQUEST
 from rest_framework.test import APITestCase
 
 from rest_framework_jwt import settings
@@ -480,3 +481,76 @@ class TestAuthIntegration(APITestCase):
         response = response.client.get(url)
 
         self.assertEqual(response.status_code, HTTP_200_OK)
+
+
+class TestImpersonationView(APITestCase):
+
+    def setUp(self):
+        self.superuser = User.objects.create_superuser(
+            username='superuser', email='superuser@example.com', password='pass')
+        self.staff = User.objects.create_user(
+            username='staff', email='staff@example.com', password='staff', is_staff=True)
+        self.user = User.objects.create_user(
+            username='foobar', email='foobar@example.com', password='foo')
+
+    def test_superuser_can_impersonate(self):
+
+        payload = JSONWebTokenAuthentication.jwt_create_payload(self.superuser)
+        token = JSONWebTokenAuthentication.jwt_encode_payload(payload)
+
+        self.client.credentials(HTTP_AUTHORIZATION='Bearer ' + token)
+
+        data = {'user': self.user.id}
+        url = reverse('impersonate')
+        response = self.client.post(url, data, format='json')
+
+        self.assertEqual(response.status_code, HTTP_200_OK)
+        self.assertIn('token', response.json())
+
+    def test_admin_can_impersonate(self):
+
+        payload = JSONWebTokenAuthentication.jwt_create_payload(self.staff)
+        token = JSONWebTokenAuthentication.jwt_encode_payload(payload)
+
+        self.client.credentials(HTTP_AUTHORIZATION='Bearer ' + token)
+
+        data = {'user': self.user.id}
+        url = reverse('impersonate')
+        response = self.client.post(url, data, format='json')
+
+        self.assertEqual(response.status_code, HTTP_200_OK)
+        self.assertIn('token', response.json())
+
+    def test_normal_user_cannot_impersonate(self):
+
+        payload = JSONWebTokenAuthentication.jwt_create_payload(self.user)
+        token = JSONWebTokenAuthentication.jwt_encode_payload(payload)
+
+        self.client.credentials(HTTP_AUTHORIZATION='Bearer ' + token)
+
+        data = {'user': self.user.id}
+        url = reverse('impersonate')
+        response = self.client.post(url, data, format='json')
+
+        self.assertEqual(response.status_code, HTTP_403_FORBIDDEN)
+
+    def test_anonymous_user_cannot_impersonate(self):
+
+        data = {'user': self.user.id}
+        url = reverse('impersonate')
+        response = self.client.post(url, data, format='json')
+
+        self.assertEqual(response.status_code, HTTP_401_UNAUTHORIZED)
+
+    def test_serializer_not_valid_superuser(self):
+
+        payload = JSONWebTokenAuthentication.jwt_create_payload(self.superuser)
+        token = JSONWebTokenAuthentication.jwt_encode_payload(payload)
+
+        self.client.credentials(HTTP_AUTHORIZATION='Bearer ' + token)
+
+        data = {'user': 0}
+        url = reverse('impersonate')
+        response = self.client.post(url, data, format='json')
+
+        self.assertEqual(response.status_code, HTTP_400_BAD_REQUEST)

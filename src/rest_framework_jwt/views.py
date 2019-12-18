@@ -85,8 +85,8 @@ class RefreshJSONWebTokenView(BaseJSONWebTokenAPIView):
 
 
 class ImpersonationView(GenericAPIView):
-    """Impersonation View allows superusers to impersonate other non-superusers
-    accounts.
+    """Impersonation View allows superusers and admins to impersonate other
+    non-superusers accounts.
     """
 
     permission_classes = (IsAdminUser,)
@@ -110,12 +110,12 @@ class ImpersonationView(GenericAPIView):
 
         response = Response({"token": response_data.token, "user": user.pk})
 
-        if api_settings.JWT_AUTH_COOKIE:
+        if api_settings.JWT_IMPERSONATION_COOKIE:
             expiration = (
                     datetime.utcnow() + api_settings.JWT_EXPIRATION_DELTA
             )
             response.set_cookie(
-                api_settings.JWT_AUTH_COOKIE, token, expires=expiration,
+                api_settings.JWT_IMPERSONATION_COOKIE, token, expires=expiration,
                 httponly=True
             )
         return response
