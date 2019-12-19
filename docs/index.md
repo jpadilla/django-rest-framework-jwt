@@ -14,8 +14,8 @@ If you want to know more about JWT, check out the following resources:
 
 ## Requirements
 
-- Python 2.7, 3.4, 3.5, 3.6
-- Django 1.11, 2.0, 2.1, 2.2
+- Python 2.7, 3.4+
+- Django 1.11+
 - Django REST Framework 3.7+
 
 ## Security
@@ -256,7 +256,7 @@ Default is `datetime.timedelta(seconds=300)` (5 minutes).
 
 ### JWT_ALLOW_REFRESH
 
-Enable token refresh functionality. Token issued from `rest_framework_jwt.views.obtain_jwt_token` will have an `orig_iat` field. 
+Enable token refresh functionality. Token issued from `rest_framework_jwt.views.obtain_jwt_token` will have an `orig_iat` field.
 
 Default is `True`.
 
@@ -268,7 +268,7 @@ Default is `datetime.timedelta(days=7)` (7 days).
 
 ### JWT_AUTH_HEADER_PREFIX
 
-You can modify the Authorization header value prefix that is required to be sent together with the token. 
+You can modify the Authorization header value prefix that is required to be sent together with the token.
 
 Default value is `Bearer`.
 
@@ -291,7 +291,7 @@ def jwt_create_response_payload(token, user=None, request=None, issued_at=None):
     Note that we are using `pk` field here - this is for forward compatibility
     with drf add-ons that might require `pk` field in order (eg. jsonapi).
     """
-    
+
     response_payload = namedtuple('ResponsePayload', 'pk token user')
     response_payload.pk = issued_at
     response_payload.token = token

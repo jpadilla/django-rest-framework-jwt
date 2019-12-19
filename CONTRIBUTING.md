@@ -24,6 +24,16 @@ If it is not installed, type:
 $ pip install tox
 ```
 
+### Using the demo project
+
+You can use the `demo` project as you would any other Django project by running `$ tox -e serve`.
+This creates a separate `tox` environment and executes the `runserver` command using the development settings.
+If you want to pass additional arguments, e.g. your custom settings, use the following syntax:
+
+```bash
+$ tox -e serve -- --settings=demo.settings.dev-custom
+```
+
 ## Testing
 
 To run the test suite against current virtual environment run the `pytest` while adding the `src` directory to `PYTHONPATH`:
@@ -85,10 +95,10 @@ The documentation should be available in `/html/index.html`.
 
 The CI environment should build packages and upload them to the PyPI server
 when a tag is pushed to `origin`. Therefore, if you want to make a new release,
-all you have to do is execute the `make-release` environment in `tox`:
+all you have to do is execute the `release` environment in `tox`:
 
 ```bash
-$ tox -e make-release
+$ tox -e release
 ```
 
 This environment will merge the changelogs from the `changelog.d` directory
@@ -99,7 +109,7 @@ changes, create a tag and push the changes and the tags to `origin`.
 If you want to make a **patch** release, type:
 
 ```bash
-$ tox -e make-release -- patch
+$ tox -e release -- patch
 ```
 
 If Travis CI builds were successful release should be automatically uploaded to PyPI.org.
