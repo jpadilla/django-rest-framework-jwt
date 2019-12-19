@@ -9,9 +9,6 @@ from django.db import models
 
 class UserWithProfile(AbstractUser):
 
-    class Meta:
-        app_label = 'tests'
-
     def save(self, *args, **kwargs):
         if not self.pk:
             self.profile = UserProfile(user=self)
