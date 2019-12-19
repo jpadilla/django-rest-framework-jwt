@@ -2,9 +2,6 @@
 !.gitignore
 !.travis.yml
 
-# The migrations are built each time
-tests/migrations/
-
 # Temporary, DB binary files
 *~
 *.db
@@ -76,6 +73,7 @@ coverage.xml
 
 # Django stuff:
 *.log
+demo/settings/dev-*.py
 
 # Sphinx documentation
 docs/_build/
@@ -107,3 +105,6 @@ python_boilerplate/
 # Sqlite3
 *.sqlite3
 
+# virtual environment stuff
+venv/
+.python-version

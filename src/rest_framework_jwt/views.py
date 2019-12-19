@@ -37,10 +37,7 @@ class BaseJSONWebTokenAPIView(GenericAPIView):
         response_data = JSONWebTokenAuthentication. \
             jwt_create_response_payload(token, user, request, issued_at)
 
-        response_serializer = self.get_serializer(
-            response_data, context={'request': request}
-        )
-        response = Response(response_serializer.data)
+        response = Response(response_data)
 
         if api_settings.JWT_AUTH_COOKIE:
             expiration = (

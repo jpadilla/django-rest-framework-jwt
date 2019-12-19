@@ -13,6 +13,20 @@ time.
 
 .. towncrier release notes start
 
+1.13.4 (2019-12-13)
+====================
+
+Bugfixes
+--------
+
+- Remove serialization on response data in `BaseJSONWebTokenAPIView` because it 
+  breaks custom response payload handlers which add extra data to the response 
+  payload. This change aligns this fork more closely with the original and makes 
+  it easier to use this fork as a drop-in replacement for the original. Also 
+  change the ReponsePayload from a `namedtuple` to a dictionary because 
+  `namedtuple` is not JSON serializable ([#22](https://github.com/Styria-Digital/django-rest-framework-jwt/pull/22))
+
+
 1.13.3 (2019-10-17)
 ====================
 
