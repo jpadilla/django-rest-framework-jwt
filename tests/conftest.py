@@ -37,7 +37,7 @@ def create_authenticated_client(api_client):
 def api_client():
     api_client = APIClient()
 
-    yield api_client
+    return api_client
 
 
 @pytest.fixture
@@ -49,6 +49,30 @@ def user(create_user):
         is_active=True,
         is_staff=False,
         is_superuser=False,
+    )
+
+
+@pytest.fixture
+def staff_user(create_user):
+    return create_user(
+        username="staffusername",
+        email="staffusername@example.com",
+        password="staff",
+        is_active=True,
+        is_staff=True,
+        is_superuser=False,
+    )
+
+
+@pytest.fixture
+def super_user(create_user):
+    return create_user(
+        username="superusername",
+        email="superusername@example.com",
+        password="super",
+        is_active=True,
+        is_staff=False,
+        is_superuser=True,
     )
 
 
