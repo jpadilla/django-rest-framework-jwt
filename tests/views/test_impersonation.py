@@ -13,7 +13,7 @@ def test_superuser_can_impersonate(user, super_user, create_authenticated_client
     data = {"user": user.id}
     url = reverse("impersonate")
     response = API_client.post(url, data, format="json")
-    print("HEREEEE      ", vars(response))
+
     assert response.status_code == status.HTTP_200_OK
     assert "token" in response.json()
 
@@ -25,7 +25,6 @@ def test_staff_user_can_impersonate(user, staff_user, create_authenticated_clien
     data = {"user": user.id}
     url = reverse("impersonate")
     response = API_client.post(url, data, format="json")
-    print("HEREEEE      ", vars(response))
 
     assert response.status_code == status.HTTP_200_OK
     assert "token" in response.json()
@@ -42,13 +41,10 @@ def test_normal_user_cannot_impersonate(user, create_authenticated_client):
     assert response.status_code == status.HTTP_403_FORBIDDEN
 
 
-def test_anonymous_user_cannot_impersonate(user, create_authenticated_client):
+def test_anonymous_user_cannot_impersonate(api_client):
 
-    API_client = create_authenticated_client(user)
-
-    data = {"user": user.id}
     url = reverse("impersonate")
-    response = API_client.post(url, data, format='json')
+    response = api_client.post(url, format='json')
 
     assert response.status_code == status.HTTP_401_UNAUTHORIZED
 
