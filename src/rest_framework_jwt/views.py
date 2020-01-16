@@ -11,7 +11,7 @@ from rest_framework.permissions import IsAdminUser
 from .authentication import JSONWebTokenAuthentication
 from .serializers import \
     JSONWebTokenSerializer, RefreshAuthTokenSerializer, \
-    VerifyAuthTokenSerializer, ImpersonationSerializer
+    VerifyAuthTokenSerializer, ImpersonateAuthTokenSerializer
 from .settings import api_settings
 
 
@@ -81,14 +81,14 @@ class RefreshJSONWebTokenView(BaseJSONWebTokenAPIView):
     serializer_class = RefreshAuthTokenSerializer
 
 
-class ImpersonationJSONWebTokenView(GenericAPIView):
+class ImpersonateJSONWebTokenView(GenericAPIView):
     """Impersonation View allows superusers and admins to impersonate other
     non-superusers accounts.
     """
 
     permission_classes = (IsAdminUser,)
     authentication_classes = (JSONWebTokenAuthentication,)
-    serializer_class = ImpersonationSerializer
+    serializer_class = ImpersonateAuthTokenSerializer
 
     def post(self, request, *args, **kwargs):
         serializer = self.get_serializer(data=request.data)
@@ -121,4 +121,4 @@ class ImpersonationJSONWebTokenView(GenericAPIView):
 obtain_jwt_token = ObtainJSONWebTokenView.as_view()
 verify_jwt_token = VerifyJSONWebTokenView.as_view()
 refresh_jwt_token = RefreshJSONWebTokenView.as_view()
-impersonation_jwt_token = ImpersonationJSONWebTokenView.as_view()
+impersonate_jwt_token = ImpersonateJSONWebTokenView.as_view()

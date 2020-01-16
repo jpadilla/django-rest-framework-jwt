@@ -164,7 +164,7 @@ class RefreshAuthTokenSerializer(serializers.Serializer):
         }
 
 
-class ImpersonationSerializer(serializers.Serializer):
+class ImpersonateAuthTokenSerializer(serializers.Serializer):
     """
     Serializer used for impersonation.
     """

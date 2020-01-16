@@ -13,5 +13,5 @@ urlpatterns = [
     url(r"^auth/verify/$", views.verify_jwt_token, name="auth-verify"),
     url(r"^auth/refresh/$", views.refresh_jwt_token, name="auth-refresh"),
     url(r"^test-view/$", test_view, name="test-view"),
-    url(r"^impersonate/$", views.impersonation_jwt_token, name="impersonate"),
+    url(r"^impersonate/$", views.impersonate_jwt_token, name="impersonate"),
 ]
