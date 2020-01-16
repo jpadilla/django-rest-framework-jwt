@@ -81,7 +81,7 @@ class RefreshJSONWebTokenView(BaseJSONWebTokenAPIView):
     serializer_class = RefreshAuthTokenSerializer
 
 
-class ImpersonationView(GenericAPIView):
+class ImpersonationJSONWebTokenView(GenericAPIView):
     """Impersonation View allows superusers and admins to impersonate other
     non-superusers accounts.
     """
@@ -121,4 +121,4 @@ class ImpersonationView(GenericAPIView):
 obtain_jwt_token = ObtainJSONWebTokenView.as_view()
 verify_jwt_token = VerifyJSONWebTokenView.as_view()
 refresh_jwt_token = RefreshJSONWebTokenView.as_view()
-impersonation_view = ImpersonationView.as_view()
+impersonation_jwt_token = ImpersonationJSONWebTokenView.as_view()
