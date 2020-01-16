@@ -2,8 +2,6 @@
 
 from __future__ import unicode_literals
 
-import datetime
-
 import jwt
 
 from django.contrib.auth import authenticate, get_user_model
@@ -173,7 +171,7 @@ class ImpersonateAuthTokenSerializer(serializers.Serializer):
     token = serializers.CharField(read_only=True)
 
     class Meta:
-        fields = ("user",)
+        fields = ("user", )
 
     def validate(self, data):
         user = data["user"]

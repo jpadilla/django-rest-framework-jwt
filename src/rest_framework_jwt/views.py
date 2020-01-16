@@ -7,7 +7,7 @@ from datetime import datetime
 from rest_framework import status
 from rest_framework.generics import GenericAPIView
 from rest_framework.response import Response
-from rest_framework.permissions import IsAdminUser
+from .permissions import IsSuperUser
 from .authentication import JSONWebTokenAuthentication
 from .serializers import \
     JSONWebTokenSerializer, RefreshAuthTokenSerializer, \
@@ -86,8 +86,8 @@ class ImpersonateJSONWebTokenView(GenericAPIView):
     non-superusers accounts.
     """
 
-    permission_classes = (IsAdminUser,)
-    authentication_classes = (JSONWebTokenAuthentication,)
+    permission_classes = (IsSuperUser, )
+    authentication_classes = (JSONWebTokenAuthentication, )
     serializer_class = ImpersonateAuthTokenSerializer
 
     def post(self, request, *args, **kwargs):
@@ -112,8 +112,8 @@ class ImpersonateJSONWebTokenView(GenericAPIView):
                     datetime.utcnow() + api_settings.JWT_EXPIRATION_DELTA
             )
             response.set_cookie(
-                api_settings.JWT_IMPERSONATION_COOKIE, token, expires=expiration,
-                httponly=True
+                api_settings.JWT_IMPERSONATION_COOKIE, token,
+                expires=expiration, httponly=True
             )
         return response
 
