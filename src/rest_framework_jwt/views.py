@@ -82,7 +82,7 @@ class RefreshJSONWebTokenView(BaseJSONWebTokenAPIView):
 
 
 class ImpersonateJSONWebTokenView(GenericAPIView):
-    """Impersonation View allows superusers and admins to impersonate other
+    """Impersonation View allows superusers to impersonate other
     non-superusers accounts.
     """
 
@@ -99,7 +99,8 @@ class ImpersonateJSONWebTokenView(GenericAPIView):
             )
 
         user = serializer.validated_data.get('user')
-        token = serializer.validated_data.get('token')
+        payload = JSONWebTokenAuthentication.jwt_create_payload(user)
+        token = JSONWebTokenAuthentication.jwt_encode_payload(payload)
         issued_at = serializer.validated_data.get('issued_at')
 
         response_data = JSONWebTokenAuthentication. \

@@ -168,7 +168,6 @@ class ImpersonateAuthTokenSerializer(serializers.Serializer):
     """
 
     user = serializers.PrimaryKeyRelatedField(queryset=User.objects.all())
-    token = serializers.CharField(read_only=True)
 
     class Meta:
         fields = ("user", )
@@ -178,7 +177,6 @@ class ImpersonateAuthTokenSerializer(serializers.Serializer):
         payload = JSONWebTokenAuthentication.jwt_create_payload(user)
 
         return {
-            'token': JSONWebTokenAuthentication.jwt_encode_payload(payload),
             'user': user,
             'issued_at': payload.get('iat', unix_epoch())
         }
