@@ -5,6 +5,8 @@ from __future__ import unicode_literals
 from rest_framework import status
 from rest_framework.reverse import reverse
 
+from rest_framework_jwt.settings import api_settings
+
 
 def test_superuser_can_impersonate(
         user, super_user, create_authenticated_client
@@ -63,3 +65,50 @@ def test_serializer_not_valid_superuser(
     response = api_client.post(url, data, format="json")
 
     assert response.status_code == status.HTTP_400_BAD_REQUEST
+
+
+def test_impersonation_sets_cookie(
+    monkeypatch, user, super_user, create_authenticated_client
+):
+
+    imp_cookie = "jwt-imp"
+    monkeypatch.setattr(api_settings, "JWT_IMPERSONATION_COOKIE", imp_cookie)
+
+    api_client = create_authenticated_client(super_user)
+
+    data = {"user": user.id}
+    url = reverse("impersonate")
+    response = api_client.post(url, data, format="json")
+
+    assert response.status_code == status.HTTP_200_OK
+    assert "token" in response.json()
+    assert imp_cookie in response.client.cookies
+
+
+def test_view_with_impersonation_cookie(
+    monkeypatch, user, super_user, call_auth_endpoint
+):
+
+    auth_cookie = "jwt-auth"
+    monkeypatch.setattr(api_settings, "JWT_AUTH_COOKIE", auth_cookie)
+
+    imp_cookie = "jwt-imp"
+    monkeypatch.setattr(api_settings, "JWT_IMPERSONATION_COOKIE", imp_cookie)
+
+    api_client = call_auth_endpoint("superusername", "super")
+
+    data = {"user": user.id}
+    url = reverse("impersonate")
+    response = api_client.client.post(url, data, format="json")
+
+    assert response.status_code == status.HTTP_200_OK
+
+    url = reverse("superuser-test-view")
+    response = response.client.get(url)
+
+    assert response.status_code == status.HTTP_403_FORBIDDEN
+
+    url = reverse("test-view")
+    response = response.client.get(url)
+
+    assert response.status_code == status.HTTP_200_OK
