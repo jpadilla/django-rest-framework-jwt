@@ -37,6 +37,7 @@ def create_authenticated_client(api_client):
 def api_client():
     return APIClient()
 
+
 @pytest.fixture
 def user(create_user):
     return create_user(
