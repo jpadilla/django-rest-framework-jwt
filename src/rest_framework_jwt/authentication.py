@@ -9,7 +9,8 @@ from django.utils.encoding import smart_text
 from django.utils.translation import ugettext as _
 
 from rest_framework import exceptions
-from rest_framework.authentication import BaseAuthentication, get_authorization_header
+from rest_framework.authentication import BaseAuthentication, \
+                                            get_authorization_header
 
 from rest_framework_jwt.settings import api_settings
 
@@ -113,11 +114,14 @@ class JSONWebTokenAuthentication(BaseAuthentication):
 
         if not auth:
             if api_settings.JWT_IMPERSONATION_COOKIE:
-                return request.COOKIES.get(api_settings.JWT_IMPERSONATION_COOKIE)
-            elif api_settings.JWT_AUTH_COOKIE:
+                impersonation_cookie = request.COOKIES.get(api_settings.JWT_IMPERSONATION_COOKIE)
+                if impersonation_cookie:
+                    return impersonation_cookie
+
+            if api_settings.JWT_AUTH_COOKIE:
                 return request.COOKIES.get(api_settings.JWT_AUTH_COOKIE)
-            else:
-                return None
+
+            return None
 
         if smart_text(auth[0].lower()) != auth_header_prefix:
             return None
