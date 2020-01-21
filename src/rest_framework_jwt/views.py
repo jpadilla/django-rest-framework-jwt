@@ -87,7 +87,6 @@ class ImpersonateJSONWebTokenView(GenericAPIView):
     """
 
     permission_classes = (IsSuperUser, )
-    authentication_classes = (JSONWebTokenAuthentication, )
     serializer_class = ImpersonateAuthTokenSerializer
 
     def post(self, request, *args, **kwargs):
@@ -110,7 +109,7 @@ class ImpersonateJSONWebTokenView(GenericAPIView):
 
         if api_settings.JWT_IMPERSONATION_COOKIE:
             expiration = (
-                    datetime.utcnow() + api_settings.JWT_EXPIRATION_DELTA
+                datetime.utcnow() + api_settings.JWT_EXPIRATION_DELTA
             )
             response.set_cookie(
                 api_settings.JWT_IMPERSONATION_COOKIE, token,
