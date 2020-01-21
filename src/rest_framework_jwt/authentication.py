@@ -9,8 +9,11 @@ from django.utils.encoding import smart_text
 from django.utils.translation import ugettext as _
 
 from rest_framework import exceptions
-from rest_framework.authentication import BaseAuthentication, get_authorization_header
+from rest_framework.authentication import (
+    BaseAuthentication, get_authorization_header,
+)
 
+from rest_framework_jwt.blacklist.models import BlacklistedToken
 from rest_framework_jwt.settings import api_settings
 
 
@@ -57,6 +60,9 @@ class JSONWebTokenAuthentication(BaseAuthentication):
         if jwt_value is None:
             return None
 
+        if BlacklistedToken.objects.filter(token=jwt_value).exists():
+            msg = _('Token is blacklisted.')
+            raise exceptions.PermissionDenied(msg)
         try:
             payload = self.jwt_decode_token(jwt_value)
         except jwt.ExpiredSignature:
