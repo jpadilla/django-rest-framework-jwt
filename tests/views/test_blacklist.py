@@ -16,7 +16,7 @@ def test_only_user_can_blacklist_own_token(
     api_client_staff_user = create_authenticated_client(staff_user)
     payload = JSONWebTokenAuthentication.jwt_create_payload(user)
 
-    url = reverse('blacklist:blacklist-list')
+    url = reverse('blacklist-list')
     data = {'token': JSONWebTokenAuthentication.jwt_encode_payload(payload)}
 
     # Response should return status 403 Forbidden if anyone besides the
