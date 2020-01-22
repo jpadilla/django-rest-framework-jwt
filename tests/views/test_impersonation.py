@@ -5,6 +5,7 @@ from __future__ import unicode_literals
 from rest_framework import status
 from rest_framework.reverse import reverse
 
+from rest_framework_jwt.authentication import JSONWebTokenAuthentication
 from rest_framework_jwt.settings import api_settings
 
 
@@ -18,8 +19,12 @@ def test_superuser_can_impersonate(
     url = reverse("impersonate")
     response = api_client.post(url, data, format="json")
 
+    token = response.json()["token"]
+    payload = JSONWebTokenAuthentication.jwt_decode_token(token)
+
     assert response.status_code == status.HTTP_200_OK
     assert "token" in response.json()
+    assert payload["user_id"] == user.id
 
 
 def test_staff_user_cannot_impersonate(
