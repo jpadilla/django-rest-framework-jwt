@@ -114,9 +114,9 @@ class JSONWebTokenAuthentication(BaseAuthentication):
 
         if not auth:
             if api_settings.JWT_IMPERSONATION_COOKIE:
-                impersonation_cookie = request.COOKIES.get(api_settings.JWT_IMPERSONATION_COOKIE)
-                if impersonation_cookie:
-                    return impersonation_cookie
+                imp_user_token = request.COOKIES.get(api_settings.JWT_IMPERSONATION_COOKIE)
+                if imp_user_token:
+                    return imp_user_token
 
             if api_settings.JWT_AUTH_COOKIE:
                 return request.COOKIES.get(api_settings.JWT_AUTH_COOKIE)

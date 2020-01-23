@@ -92,15 +92,12 @@ class ImpersonateJSONWebTokenView(GenericAPIView):
     def post(self, request, *args, **kwargs):
         serializer = self.get_serializer(data=request.data)
 
-        if not serializer.is_valid():
-            return Response(
-                serializer.errors, status=status.HTTP_400_BAD_REQUEST
-            )
+        serializer.is_valid(raise_exception=True)
 
-        user = serializer.validated_data.get('user')
+        user = serializer.validated_data.get("user")
         payload = JSONWebTokenAuthentication.jwt_create_payload(user)
         token = JSONWebTokenAuthentication.jwt_encode_payload(payload)
-        issued_at = serializer.validated_data.get('issued_at')
+        issued_at = serializer.validated_data.get("issued_at")
 
         response_data = JSONWebTokenAuthentication. \
             jwt_create_response_payload(token, user, request, issued_at)

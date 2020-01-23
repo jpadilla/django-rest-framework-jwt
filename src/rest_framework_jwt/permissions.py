@@ -1,7 +1,7 @@
-from rest_framework.permissions import IsAdminUser
+from rest_framework.permissions import BasePermission
 
 
-class IsSuperUser(IsAdminUser):
+class IsSuperUser(BasePermission):
     """
     Permission check for superusers.
     """
