@@ -2,11 +2,10 @@
 
 from __future__ import unicode_literals
 
-from datetime import datetime
-
 from rest_framework import status
 from rest_framework.generics import GenericAPIView
 from rest_framework.response import Response
+from .compat import set_cookie_with_token
 from .permissions import IsSuperUser
 from .authentication import JSONWebTokenAuthentication
 from .serializers import \
@@ -37,13 +36,8 @@ class BaseJSONWebTokenAPIView(GenericAPIView):
         response = Response(response_data)
 
         if api_settings.JWT_AUTH_COOKIE:
-            expiration = (
-                datetime.utcnow() + api_settings.JWT_EXPIRATION_DELTA
-            )
-            response.set_cookie(
-                api_settings.JWT_AUTH_COOKIE, token, expires=expiration,
-                httponly=True
-            )
+            set_cookie_with_token(response, api_settings.JWT_AUTH_COOKIE, token)
+
         return response
 
 
@@ -103,13 +97,11 @@ class ImpersonateJSONWebTokenView(GenericAPIView):
         response = Response({"token": token})
 
         if api_settings.JWT_IMPERSONATION_COOKIE:
-            expiration = (
-                datetime.utcnow() + api_settings.JWT_EXPIRATION_DELTA
-            )
-            response.set_cookie(
-                api_settings.JWT_IMPERSONATION_COOKIE, token,
-                expires=expiration, httponly=True
-            )
+            set_cookie_with_token(
+                response,
+                api_settings.JWT_IMPERSONATION_COOKIE,
+                token)
+
         return response
 
 

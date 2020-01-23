@@ -166,6 +166,10 @@ JWT_AUTH = {
     'JWT_RESPONSE_PAYLOAD_HANDLER':
         'rest_framework_jwt.utils.jwt_create_response_payload',
     'JWT_AUTH_COOKIE': None,
+    'JWT_AUTH_COOKIE_DOMAIN': None,
+    'JWT_AUTH_COOKIE_PATH': '/',
+    'JWT_AUTH_COOKIE_SECURE': True,
+    'JWT_AUTH_COOKIE_SAMESITE': 'Lax',
     'JWT_IMPERSONATION_COOKIE': None,
 }
 ```
@@ -315,11 +319,54 @@ procedure will also look into this cookie, if set. The 'Authorization' header ta
 
 Default is `None` and no cookie is set when creating tokens nor accepted when validating them.
 
+### JWT_AUTH_COOKIE_DOMAIN
+
+Default: `None`
+
+The domain to use for the JWT cookie analogous to
+`SESSION_COOKIE_DOMAIN` for django sessions.
+
+Has no effect unless JWT_AUTH_COOKIE is set.
+
+### JWT_AUTH_COOKIE_PATH
+
+Default: `/`
+
+The path to set on the JWT cookie analogous to `SESSION_COOKIE_PATH`
+for django sessions.
+
+Has no effect unless JWT_AUTH_COOKIE is set.
+
+### JWT_AUTH_COOKIE_SECURE
+
+Default: `True`
+
+Whether to use a secure cookie for the JWT cookie analogous to
+`SESSION_COOKIE_SECURE` for django sessions.
+
+Users wishing to use JWT cookies over http (as in no TLS/SSL) need to
+set `JWT_AUTH_COOKIE_SECURE` to `False.`
+
+Has no effect unless JWT_AUTH_COOKIE is set.
+
+### JWT_AUTH_COOKIE_SAMESITE
+
+Default: `Lax`
+
+The value of the `SameSite` flag on the the JWT cookie analogous to
+`SESSION_COOKIE_SAMESITE` for django sessions.
+
+Has no effect unless JWT_AUTH_COOKIE is set.
+
+Has no effect with Django versions before 2.1.
+
 ### JWT_IMPERSONATION_COOKIE
 
 Analogous to the `JWT_AUTH_COOKIE` setting, but contains the impersonation token, i.e. the token of the user who is being impersonated.
 
 This cookie takes precedence over the `JWT_AUTH_COOKIE`. If you have both cookies and you want to end the impersonation, you have to remove the cookie. 
+
+Impersonation cookies use the `JWT_AUTH_COOKIE_*` settings.
 
 ## Extending/Overriding `JSONWebTokenAuthentication`
 
