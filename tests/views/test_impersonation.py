@@ -114,8 +114,6 @@ def test_view_with_impersonation_cookie(
     url = reverse("impersonate")
     response = api_client.client.post(url, data, format="json")
 
-    assert response.status_code == status.HTTP_200_OK
-
     url = reverse("superuser-test-view")
     response = response.client.get(url)
 
