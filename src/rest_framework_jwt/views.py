@@ -82,8 +82,16 @@ class RefreshJSONWebTokenView(BaseJSONWebTokenAPIView):
 
 
 class ImpersonateJSONWebTokenView(GenericAPIView):
-    """Impersonation View allows superusers to impersonate other
-    non-superusers accounts.
+    """
+    Impersonate the user by retrieving its JWT.
+
+    By default, the view permits this action only to superusers in order to
+    be backwards-compatible as much as possible. If you need to customize
+    the permission handling process, override the `permission_classes` attribute
+    using `djangorestframework`'s permission system.
+
+    Returns:
+        dict: {"token": user's JWT}
     """
 
     permission_classes = (IsSuperUser, )
