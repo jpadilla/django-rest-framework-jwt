@@ -4,8 +4,9 @@ from rest_framework.response import Response
 from rest_framework.viewsets import ModelViewSet
 
 from rest_framework_jwt.blacklist.models import BlacklistedToken
-from .serializers import BlacklistTokenSerializer
+
 from ..authentication import JSONWebTokenAuthentication
+from .serializers import BlacklistTokenSerializer
 
 
 class BlacklistView(ModelViewSet):
@@ -16,10 +17,7 @@ class BlacklistView(ModelViewSet):
 
     def create(self, request, *args, **kwargs):
         serializer = self.get_serializer(data=request.data)
-        if not serializer.is_valid():
-            return Response(
-                serializer.errors, status=status.HTTP_400_BAD_REQUEST
-            )
+        serializer.is_valid(raise_exception=True)
 
         token = serializer.data.get('token')
         token_payload = JSONWebTokenAuthentication.jwt_decode_token(token)

@@ -13,6 +13,7 @@ from django.utils.encoding import force_text
 from rest_framework import serializers
 
 from rest_framework_jwt.authentication import JSONWebTokenAuthentication
+from rest_framework_jwt.compat import gettext_lazy as _
 from rest_framework_jwt.settings import api_settings
 
 

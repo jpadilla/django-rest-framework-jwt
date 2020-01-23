@@ -1,13 +1,13 @@
 # -*- coding: utf-8 -*-
-
 from __future__ import unicode_literals
 
-from django.utils.translation import ugettext_lazy as _
+import pytest
 
 from rest_framework import status
 from rest_framework.reverse import reverse
 
 from rest_framework_jwt.authentication import JSONWebTokenAuthentication
+from rest_framework_jwt.compat import gettext_lazy as _
 from rest_framework_jwt.settings import api_settings
 
 
@@ -34,6 +34,7 @@ def test_view_returns_200_to_authenticated_user(
     assert response.status_code == status.HTTP_200_OK
 
 
+@pytest.mark.django_db
 def test_view_returns_401_for_invalid_token(api_client):
     token = "invalid"
     api_client.credentials(HTTP_AUTHORIZATION="Bearer " + token)
