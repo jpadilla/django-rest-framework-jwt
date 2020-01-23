@@ -24,9 +24,10 @@ class BlacklistView(ModelViewSet):
         token_username = JSONWebTokenAuthentication.jwt_get_username_from_payload(token_payload)
 
         if token_username != request.user.username:
-            return Response(status=status.HTTP_403_FORBIDDEN)
+            if not request.user.is_superuser:
+                return Response(status=status.HTTP_403_FORBIDDEN)
 
-        blacklisted_token = BlacklistedToken.objects.get_or_create(token=token)[0]
+        blacklisted_token, _ = BlacklistedToken.objects.get_or_create(token=token)
         response = Response(
             JSONWebTokenAuthentication.jwt_create_response_payload(
                 blacklisted_token.token, request.user, request
