@@ -33,7 +33,7 @@ def test_super_user_can_blacklist_anyones_token(
     response = api_client_super_user.post(url, data)
 
     assert response.status_code == status.HTTP_200_OK
-    assert BlacklistedToken.objects.exists()
+    assert BlacklistedToken.objects.count() == 1
 
     payload = JSONWebTokenAuthentication.jwt_create_payload(staff_user)
     data = {'token': JSONWebTokenAuthentication.jwt_encode_payload(payload)}

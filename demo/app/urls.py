@@ -12,7 +12,7 @@ from .views import test_view
 
 
 router = routers.DefaultRouter()
-router.register(r"blacklist", blacklist_views.BlacklistView, basename="blacklist")
+router.register(r"blacklist", blacklist_views.BlacklistView, "blacklist")
 
 urlpatterns = [
     url(r"^auth/$", views.obtain_jwt_token, name="auth"),
