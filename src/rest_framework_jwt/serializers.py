@@ -176,6 +176,8 @@ class ImpersonateAuthTokenSerializer(serializers.Serializer):
         user = data["user"]
         payload = JSONWebTokenAuthentication.jwt_create_payload(user)
 
+        user = _check_user(payload)
+
         return {
             'user': user,
             'issued_at': payload.get('iat', unix_epoch())
