@@ -13,6 +13,31 @@ time.
 
 .. towncrier release notes start
 
+v1.13.4 (2020-01-27)
+====================
+
+Features
+--------
+
+- Impersonation is a common technique that services use to restrict client access to a service domain's resources. Typically, clients call a service to have the service perform some action on the client’s behalf. Impersonation allows the service to act as the client while performing the action. Impersonation is most commonly used as a way of checking whether a client is authorized to perform a particular action.
+
+  [Literature](https://docs.microsoft.com/en-us/dotnet/framework/wcf/feature-details/delegation-and-impersonation-with-wcf) ([#26](https://github.com/Styria-Digital/django-rest-framework-jwt/pull/26))
+
+
+Improved Documentation
+----------------------
+
+- Document compatibility with Python 3.7. ([#23](https://github.com/Styria-Digital/django-rest-framework-jwt/pull/23))
+- Add support for Django 3.0, Python 3.8 and `djangorestframework` 3.11 ([#24](https://github.com/Styria-Digital/django-rest-framework-jwt/pull/24))
+
+
+Misc
+----
+
+- * Run the test suite against the `demo` project. The same project can be used for local development as well.
+  * Add the `serve` environment to `tox` that starts the `demo` project's development server. To use it, run: `$ tox -e serve` ([#24](https://github.com/Styria-Digital/django-rest-framework-jwt/pull/24))
+
+
 1.13.4 (2019-12-13)
 ====================
 
