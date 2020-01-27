@@ -110,7 +110,7 @@ class ImpersonateJSONWebTokenView(GenericAPIView):
         response_data = JSONWebTokenAuthentication. \
             jwt_create_response_payload(token, user, request, issued_at)
 
-        response = Response({"token": response_data["token"], "user": user.pk})
+        response = Response({"token": response_data["token"]})
 
         if api_settings.JWT_IMPERSONATION_COOKIE:
             expiration = (
