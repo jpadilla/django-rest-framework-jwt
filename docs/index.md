@@ -129,13 +129,6 @@ Passing a token to the verification endpoint will return a 200 response and the 
 $ curl -X POST -H "Content-Type: application/json" -d '{"token":"<EXISTING_TOKEN>"}' http://localhost:8000/api-token-verify/
 ```
 
-## Impersonation Token
-
-Impersonation allows the service to perform actions on the client’s behalf. A typical use case would be troubleshooting. We can act like the user who submitted an issue without requiring its login credentials.
-
-By default, only superusers (`user.is_superuser == True`) can impersonate other accounts. If you need to customize the permission handling process, override the `ImpersonateJSONWebTokenView`'s [`permission_classes` attribute](https://www.django-rest-framework.org/api-guide/permissions/#setting-the-permission-policy). 
-
-
 ## Additional Settings
 There are some additional settings that you can override similar to how you'd do it with Django REST framework itself. Here are all the available defaults.
 
@@ -166,9 +159,7 @@ JWT_AUTH = {
     'JWT_AUTH_HEADER_PREFIX': 'Bearer',
     'JWT_RESPONSE_PAYLOAD_HANDLER':
         'rest_framework_jwt.utils.jwt_create_response_payload',
-    'JWT_AUTH_COOKIE': None,
-    'JWT_IMPERSONATION_COOKIE': None,
-
+    'JWT_AUTH_COOKIE': None
 }
 ```
 This package uses the JSON Web Token Python implementation, [PyJWT](https://github.com/jpadilla/pyjwt) and allows to modify some of its available options.
@@ -316,12 +307,6 @@ The string you set here will be used as the cookie name that will be set in the 
 procedure will also look into this cookie, if set. The 'Authorization' header takes precedence if both the header and the cookie are present in the request.
 
 Default is `None` and no cookie is set when creating tokens nor accepted when validating them.
-
-### JWT_IMPERSONATION_COOKIE
-
-Analogous to the `JWT_AUTH_COOKIE` setting, but contains the impersonation token, i.e. the token of the user who is being impersonated.
-
-This cookie takes precedence over the `JWT_AUTH_COOKIE`. If you have both cookies and you want to end the impersonation, you have to remove the cookie. 
 
 ## Extending/Overriding `JSONWebTokenAuthentication`
 
