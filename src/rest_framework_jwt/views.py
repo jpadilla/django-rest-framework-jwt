@@ -26,10 +26,7 @@ class BaseJSONWebTokenAPIView(GenericAPIView):
     def post(self, request, *args, **kwargs):
         serializer = self.get_serializer(data=request.data)
 
-        if not serializer.is_valid():
-            return Response(
-                serializer.errors, status=status.HTTP_400_BAD_REQUEST
-            )
+        serializer.is_valid(raise_exception=True)
 
         user = serializer.validated_data.get('user') or request.user
         token = serializer.validated_data.get('token')
@@ -102,7 +99,7 @@ class ImpersonateJSONWebTokenView(GenericAPIView):
 
         serializer.is_valid(raise_exception=True)
 
-        token = serializer.validated_data["token"]
+        token = serializer.validated_data.get("token")
         response = Response({"token": token})
 
         if api_settings.JWT_IMPERSONATION_COOKIE:
