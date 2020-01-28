@@ -1,3 +1,5 @@
+from datetime import datetime
+
 from rest_framework import status
 from rest_framework.permissions import IsAuthenticated
 from rest_framework.response import Response
@@ -6,6 +8,8 @@ from rest_framework.viewsets import ModelViewSet
 from rest_framework_jwt.blacklist.models import BlacklistedToken
 
 from ..authentication import JSONWebTokenAuthentication
+from ..settings import api_settings
+from ..utils import check_user, unix_epoch
 from .serializers import BlacklistTokenSerializer
 
 
@@ -27,7 +31,15 @@ class BlacklistView(ModelViewSet):
             if not request.user.is_superuser:
                 return Response(status=status.HTTP_403_FORBIDDEN)
 
-        blacklisted_token, _ = BlacklistedToken.objects.get_or_create(token=token)
+        iat = token_payload.get('iat', unix_epoch())
+        expires_at_unix_time = iat + api_settings.JWT_EXPIRATION_DELTA.total_seconds()
+
+        blacklisted_token, _ = BlacklistedToken.objects.get_or_create(
+            token=token,
+            user=check_user(payload=token_payload),
+            expires_at=datetime.utcfromtimestamp(expires_at_unix_time),
+            blacklisted_by=request.user,
+        )
         response = Response(
             JSONWebTokenAuthentication.jwt_create_response_payload(
                 blacklisted_token.token, request.user, request
