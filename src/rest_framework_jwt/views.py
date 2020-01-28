@@ -102,15 +102,8 @@ class ImpersonateJSONWebTokenView(GenericAPIView):
 
         serializer.is_valid(raise_exception=True)
 
-        user = serializer.validated_data.get("user")
-        payload = JSONWebTokenAuthentication.jwt_create_payload(user)
-        token = JSONWebTokenAuthentication.jwt_encode_payload(payload)
-        issued_at = serializer.validated_data.get("issued_at")
-
-        response_data = JSONWebTokenAuthentication. \
-            jwt_create_response_payload(token, user, request, issued_at)
-
-        response = Response({"token": response_data["token"]})
+        token = serializer.validated_data["token"]
+        response = Response({"token": token})
 
         if api_settings.JWT_IMPERSONATION_COOKIE:
             expiration = (
