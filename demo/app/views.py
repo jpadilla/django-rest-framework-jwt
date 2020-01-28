@@ -6,13 +6,11 @@ from rest_framework import permissions
 from rest_framework.response import Response
 from rest_framework.views import APIView
 
-from rest_framework_jwt.authentication import JSONWebTokenAuthentication
 from rest_framework_jwt.permissions import IsSuperUser
 
 
 class TestView(APIView):
     permission_classes = (permissions.IsAuthenticated, )
-    authentication_classes = (JSONWebTokenAuthentication, )
 
     def get(self, request):
         return Response({'foo': 'bar'})
@@ -20,7 +18,6 @@ class TestView(APIView):
 
 class SuperuserTestView(APIView):
     permission_classes = (IsSuperUser, )
-    authentication_classes = (JSONWebTokenAuthentication, )
 
     def get(self, request):
         return Response({'foo': 'bar'})

@@ -135,7 +135,6 @@ Impersonation allows the service to perform actions on the client’s behalf. A 
 
 By default, only superusers (`user.is_superuser == True`) can impersonate other accounts. If you need to customize the permission handling process, override the `ImpersonateJSONWebTokenView`'s [`permission_classes` attribute](https://www.django-rest-framework.org/api-guide/permissions/#setting-the-permission-policy). 
 
-
 ## Additional Settings
 There are some additional settings that you can override similar to how you'd do it with Django REST framework itself. Here are all the available defaults.
 
@@ -168,7 +167,6 @@ JWT_AUTH = {
         'rest_framework_jwt.utils.jwt_create_response_payload',
     'JWT_AUTH_COOKIE': None,
     'JWT_IMPERSONATION_COOKIE': None,
-
 }
 ```
 This package uses the JSON Web Token Python implementation, [PyJWT](https://github.com/jpadilla/pyjwt) and allows to modify some of its available options.
