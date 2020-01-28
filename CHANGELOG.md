@@ -13,7 +13,6 @@ time.
 
 .. towncrier release notes start
 
-
 1.13.4 (2019-12-13)
 ====================
 
