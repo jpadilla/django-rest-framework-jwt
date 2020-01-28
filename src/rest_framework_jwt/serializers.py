@@ -2,8 +2,6 @@
 
 from __future__ import unicode_literals
 
-import datetime
-
 import jwt
 
 from django.contrib.auth import authenticate, get_user_model
@@ -14,6 +12,9 @@ from rest_framework import serializers
 from rest_framework_jwt.authentication import JSONWebTokenAuthentication
 from rest_framework_jwt.settings import api_settings
 from rest_framework_jwt.utils import unix_epoch, get_username_field
+
+
+User = get_user_model()
 
 
 def _check_payload(token):
@@ -158,4 +159,29 @@ class RefreshAuthTokenSerializer(serializers.Serializer):
                 user,
             'issued_at':
                 new_payload.get('iat', unix_epoch())
+        }
+
+
+class ImpersonateAuthTokenSerializer(serializers.Serializer):
+    """
+    Serializer used for impersonation.
+    """
+
+    user = serializers.PrimaryKeyRelatedField(queryset=User.objects.all())
+
+    class Meta:
+        fields = ("user", )
+
+    def validate(self, data):
+        user = data["user"]
+
+        payload = JSONWebTokenAuthentication.jwt_create_payload(user)
+        _check_user(payload)
+
+        token = JSONWebTokenAuthentication.jwt_encode_payload(payload)
+
+        return {
+            "user": user,
+            "token": token,
+            "issued_at": payload.get('iat', unix_epoch())
         }

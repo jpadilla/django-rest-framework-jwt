@@ -7,11 +7,11 @@ from datetime import datetime
 from rest_framework import status
 from rest_framework.generics import GenericAPIView
 from rest_framework.response import Response
-
+from .permissions import IsSuperUser
 from .authentication import JSONWebTokenAuthentication
 from .serializers import \
     JSONWebTokenSerializer, RefreshAuthTokenSerializer, \
-    VerifyAuthTokenSerializer
+    VerifyAuthTokenSerializer, ImpersonateAuthTokenSerializer
 from .settings import api_settings
 
 
@@ -26,10 +26,7 @@ class BaseJSONWebTokenAPIView(GenericAPIView):
     def post(self, request, *args, **kwargs):
         serializer = self.get_serializer(data=request.data)
 
-        if not serializer.is_valid():
-            return Response(
-                serializer.errors, status=status.HTTP_400_BAD_REQUEST
-            )
+        serializer.is_valid(raise_exception=True)
 
         user = serializer.validated_data.get('user') or request.user
         token = serializer.validated_data.get('token')
@@ -81,6 +78,42 @@ class RefreshJSONWebTokenView(BaseJSONWebTokenAPIView):
     serializer_class = RefreshAuthTokenSerializer
 
 
+class ImpersonateJSONWebTokenView(GenericAPIView):
+    """
+    Impersonate the user by retrieving its JWT.
+
+    By default, the view permits this action only to superusers in order to
+    be backwards-compatible as much as possible. If you need to customize
+    the permission handling process, override the `permission_classes` attribute
+    using `djangorestframework`'s permission system.
+
+    Returns:
+        dict: {"token": user's JWT}
+    """
+
+    permission_classes = (IsSuperUser, )
+    serializer_class = ImpersonateAuthTokenSerializer
+
+    def post(self, request, *args, **kwargs):
+        serializer = self.get_serializer(data=request.data)
+
+        serializer.is_valid(raise_exception=True)
+
+        token = serializer.validated_data.get("token")
+        response = Response({"token": token})
+
+        if api_settings.JWT_IMPERSONATION_COOKIE:
+            expiration = (
+                datetime.utcnow() + api_settings.JWT_EXPIRATION_DELTA
+            )
+            response.set_cookie(
+                api_settings.JWT_IMPERSONATION_COOKIE, token,
+                expires=expiration, httponly=True
+            )
+        return response
+
+
 obtain_jwt_token = ObtainJSONWebTokenView.as_view()
 verify_jwt_token = VerifyJSONWebTokenView.as_view()
 refresh_jwt_token = RefreshJSONWebTokenView.as_view()
+impersonate_jwt_token = ImpersonateJSONWebTokenView.as_view()
