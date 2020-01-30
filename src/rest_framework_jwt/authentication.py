@@ -6,11 +6,11 @@ import jwt
 
 from django.contrib.auth import get_user_model
 from django.utils.encoding import smart_text
+from django.utils.translation import ugettext as _
 
 from rest_framework import exceptions
 from rest_framework.authentication import (
-    BaseAuthentication,
-    get_authorization_header,
+    BaseAuthentication, get_authorization_header,
 )
 
 from rest_framework_jwt.blacklist.models import BlacklistedToken
@@ -120,8 +120,14 @@ class JSONWebTokenAuthentication(BaseAuthentication):
         auth_header_prefix = api_settings.JWT_AUTH_HEADER_PREFIX.lower()
 
         if not auth:
+            if api_settings.JWT_IMPERSONATION_COOKIE:
+                imp_user_token = request.COOKIES.get(api_settings.JWT_IMPERSONATION_COOKIE)
+                if imp_user_token:
+                    return imp_user_token
+
             if api_settings.JWT_AUTH_COOKIE:
                 return request.COOKIES.get(api_settings.JWT_AUTH_COOKIE)
+
             return None
 
         if smart_text(auth[0].lower()) != auth_header_prefix:

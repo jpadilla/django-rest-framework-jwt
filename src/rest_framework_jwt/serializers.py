@@ -124,3 +124,29 @@ class RefreshAuthTokenSerializer(serializers.Serializer):
             'issued_at':
                 new_payload.get('iat', unix_epoch())
         }
+
+
+class ImpersonateAuthTokenSerializer(serializers.Serializer):
+    """
+    Serializer used for impersonation.
+    """
+
+    User = get_user_model()
+    user = serializers.PrimaryKeyRelatedField(queryset=User.objects.all())
+
+    class Meta:
+        fields = ("user", )
+
+    def validate(self, data):
+        user = data["user"]
+
+        payload = JSONWebTokenAuthentication.jwt_create_payload(user)
+        check_user(payload)
+
+        token = JSONWebTokenAuthentication.jwt_encode_payload(payload)
+
+        return {
+            "user": user,
+            "token": token,
+            "issued_at": payload.get('iat', unix_epoch())
+        }
