@@ -18,6 +18,9 @@ class BlacklistView(ModelViewSet):
 
     def create(self, request, *args, **kwargs):
         try:
+            if 'user' not in request.data:
+                # This case should occur only when this view is used at logout.
+                request.data.update({'user': request.user.id})
             return super(BlacklistView, self).create(request, *args, **kwargs)
         except IntegrityError:
             raise ValidationError('User\'s token has already been blacklisted.')

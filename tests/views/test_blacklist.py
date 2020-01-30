@@ -10,6 +10,18 @@ from rest_framework.reverse import reverse
 from rest_framework_jwt.blacklist.models import BlacklistedToken
 
 
+def test_user_can_blacklist_own_token_when_no_data_is_sent_in_request(
+    user, create_authenticated_client
+):
+    url = reverse('blacklist-list')
+
+    api_client = create_authenticated_client(user)
+    response = api_client.post(url)
+
+    assert response.status_code == status.HTTP_201_CREATED
+    assert BlacklistedToken.objects.exists()
+
+
 def test_user_can_blacklist_own_token(user, create_authenticated_client):
     url = reverse('blacklist-list')
     data = {'user': user.id}

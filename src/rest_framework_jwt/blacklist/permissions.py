@@ -12,6 +12,9 @@ class CanBlacklist(IsAuthenticated):
     def has_permission(self, request, view):
         user_id = request.data.get('user')
 
+        if not user_id:
+            user_id = request.user.id
+
         user = get_user_model().objects.get(id=user_id)
         payload = JSONWebTokenAuthentication.jwt_create_payload(user)
         user = check_user(payload)
