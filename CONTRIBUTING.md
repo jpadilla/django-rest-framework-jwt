@@ -36,10 +36,10 @@ $ tox -e serve -- --settings=demo.settings.dev-custom
 
 ## Testing
 
-To run the test suite against current virtual environment run the `pytest` while adding the `src` directory to `PYTHONPATH`:
+To run the test suite against current virtual environment run the `pytest` while adding the `demo` and `src` directories to `PYTHONPATH`:
 
 ```bash
-$ PYTHONPATH=${PYTHONPATH}:./src/ pytest
+$ PYTHONPATH=${PYTHONPATH}:./demo:./src/ pytest
 ```
 
 The whole test suite can be run using [`tox`](https://tox.readthedocs.io/en/latest/):
