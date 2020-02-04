@@ -9,7 +9,7 @@ except ImportError:
     from django.conf.urls import include, url  # noqa: F401
 
 try:
-    from django.utils.encoding import smart_text
+    from django.utils.encoding import smart_str
 except ImportError:
-    from django.utils.encoding import smart_str as smart_text
+    from django.utils.encoding import smart_text as smart_str
     
