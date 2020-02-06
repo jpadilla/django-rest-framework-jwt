@@ -135,6 +135,10 @@ Impersonation allows the service to perform actions on the client’s behalf. A 
 
 By default, only superusers (`user.is_superuser == True`) can impersonate other accounts. If you need to customize the permission handling process, override the `ImpersonateJSONWebTokenView`'s [`permission_classes` attribute](https://www.django-rest-framework.org/api-guide/permissions/#setting-the-permission-policy). 
 
+## Blacklisting Tokens
+
+Blacklisting allows users to blacklist their own token from the HTTP header or cookies by redirecting to the `BlacklistView` in which case the view is serves as a logout.
+
 ## Additional Settings
 There are some additional settings that you can override similar to how you'd do it with Django REST framework itself. Here are all the available defaults.
 
