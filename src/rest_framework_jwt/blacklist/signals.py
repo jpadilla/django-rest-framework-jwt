@@ -5,5 +5,5 @@ from .models import BlacklistedToken
 
 
 @receiver(post_save, sender=BlacklistedToken)
-def delete_stale_tokens(sender, instance, **kwargs):
+def delete_stale_tokens(sender, **kwargs):
     BlacklistedToken.objects.delete_stale_tokens()
