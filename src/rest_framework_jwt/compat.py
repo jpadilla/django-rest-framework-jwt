@@ -16,6 +16,11 @@ except ImportError:
     from django.utils.translation import ugettext as gettext_lazy
 
 
+try:
+    from django.utils.encoding import smart_str
+except ImportError:
+    from django.utils.encoding import smart_text as smart_str
+    
 def has_set_cookie_samesite():
     return (VERSION >= (2,1,0))
 
