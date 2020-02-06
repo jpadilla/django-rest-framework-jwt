@@ -128,6 +128,7 @@ AUTH_USER_MODEL = "app.UserWithProfile"
 REST_FRAMEWORK = {
     'DEFAULT_PERMISSION_CLASSES': (
         'rest_framework.permissions.IsAuthenticated',
+        'rest_framework_jwt.blacklist.permissions.IsAuthenticatedAndNotBlacklisted',
     ),
     'DEFAULT_AUTHENTICATION_CLASSES': (
         'rest_framework_jwt.authentication.JSONWebTokenAuthentication',

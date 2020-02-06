@@ -1,26 +1,20 @@
-from django.contrib.auth import get_user_model
 
-from rest_framework.permissions import IsAuthenticated
+from rest_framework.permissions import BasePermission
 
-from rest_framework_jwt.authentication import JSONWebTokenAuthentication
-from rest_framework_jwt.utils import check_user
+from rest_framework_jwt.blacklist.models import BlacklistedToken
+from rest_framework_jwt.settings import api_settings
 
 
-class CanBlacklist(IsAuthenticated):
-    message = 'You are not allowed to blacklist this user\'s token.'
+class IsAuthenticatedAndNotBlacklisted(BasePermission):
+    message = 'You are not authenticated or have been blacklisted.'
 
     def has_permission(self, request, view):
-        user_id = request.data.get('user')
+        if request.user and not request.user.is_authenticated:
+            return False
 
-        if not user_id:
-            user_id = request.user.id
+        if api_settings.JWT_AUTH_COOKIE:
+            token = request.COOKIES.get(api_settings.JWT_AUTH_COOKIE)
+        else:
+            token = request.auth.decode('utf-8')
 
-        user = get_user_model().objects.get(id=user_id)
-        payload = JSONWebTokenAuthentication.jwt_create_payload(user)
-        user = check_user(payload)
-
-        if user.username != request.user.username:
-            if not request.user.is_staff or user.is_superuser:
-                return False
-
-        return True
+        return not BlacklistedToken.objects.filter(token=token).exists()
