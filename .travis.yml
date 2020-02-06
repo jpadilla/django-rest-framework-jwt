@@ -3,7 +3,6 @@ language: python
 cache: pip
 python:
   - 2.7.13
-  - 3.4
   - 3.5
   - 3.6
   - 3.7
