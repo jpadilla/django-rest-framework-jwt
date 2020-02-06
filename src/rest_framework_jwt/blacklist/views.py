@@ -41,7 +41,7 @@ class BlacklistView(ModelViewSet):
                 return request.COOKIES.get(api_settings.JWT_AUTH_COOKIE)
 
         # Using decode because the token from the header is 'bytes' type and raises
-        # error on serializer's `is_valid` method
+        # error on serializer's `is_valid()` method
         return auth[1].decode('utf-8')
 
     def create(self, request, *args, **kwargs):
