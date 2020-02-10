@@ -7,6 +7,7 @@ from datetime import datetime
 from django.utils.timezone import make_aware
 
 from rest_framework import serializers
+from rest_framework.exceptions import APIException
 
 from rest_framework_jwt.authentication import JSONWebTokenAuthentication
 from rest_framework_jwt.blacklist.models import BlacklistedToken
@@ -22,20 +23,19 @@ class BlacklistTokenSerializer(serializers.ModelSerializer):
     class Meta:
         model = BlacklistedToken
         fields = ('token', )
+        extra_kwargs = {'token': {'required': False}}
 
-    def validate(self, data):
-        token = data.get('token')
+    def save(self, **kwargs):
+        token = self.validated_data.get('token')
 
         payload = JSONWebTokenAuthentication.jwt_decode_token(token)
 
         iat = payload.get('iat', unix_epoch())
         expires_at_unix_time = iat + api_settings.JWT_EXPIRATION_DELTA.total_seconds()
 
-        return {
-            'token':
-                token,
-            'user':
-                check_user(payload),
+        self.validated_data.update({
+            'user': check_user(payload),
             'expires_at':
                 make_aware(datetime.utcfromtimestamp(expires_at_unix_time)),
-        }
+        })
+        return super(BlacklistTokenSerializer, self).save(**kwargs)
