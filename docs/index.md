@@ -180,7 +180,7 @@ JWT_AUTH = {
     'JWT_AUTH_COOKIE_SECURE': True,
     'JWT_AUTH_COOKIE_SAMESITE': 'Lax',
     'JWT_IMPERSONATION_COOKIE': None,
-    'JWT_DELETE_STALE_TOKENS': False,
+    'JWT_DELETE_STALE_BLACKLISTED_TOKENS': False,
 }
 ```
 This package uses the JSON Web Token Python implementation, [PyJWT](https://github.com/jpadilla/pyjwt) and allows to modify some of its available options.
