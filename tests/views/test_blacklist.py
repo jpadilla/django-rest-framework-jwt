@@ -122,18 +122,7 @@ def test_delete_stale_tokens_for_date_specified_in_settings(
         expires_at=timezone.now(),
     )
 
-    BlacklistedToken.objects.create(
-        token='stale_token',
-        user=user,
-        expires_at=timezone.now() - timedelta(days=2),
-    )
-
     monkeypatch.setattr(api_settings, 'JWT_DELETE_STALE_BLACKLISTED_TOKENS', True)
-    monkeypatch.setattr(
-        api_settings,
-        'JWT_STALE_BLACKLISTED_TOKEN_EXPIRATION_TIME',
-        timedelta(days=1)
-    )
 
     url = reverse('blacklist-list')
     api_client = create_authenticated_client(user)
@@ -141,7 +130,7 @@ def test_delete_stale_tokens_for_date_specified_in_settings(
     response = api_client.post(url)
 
     assert response.status_code == status.HTTP_201_CREATED
-    assert BlacklistedToken.objects.count() == 2
+    assert BlacklistedToken.objects.count() == 1
 
 
 def test_delete_stale_tokens_by_calling_the_management_command(

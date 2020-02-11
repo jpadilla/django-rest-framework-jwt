@@ -44,7 +44,6 @@ DEFAULTS = {
     'JWT_AUTH_COOKIE_SAMESITE': 'Lax',
     'JWT_IMPERSONATION_COOKIE': None,
     'JWT_DELETE_STALE_BLACKLISTED_TOKENS': False,
-    'JWT_STALE_BLACKLISTED_TOKEN_EXPIRATION_TIME': datetime.timedelta(days=0),
 }
 
 # List of settings that may be in string import notation.

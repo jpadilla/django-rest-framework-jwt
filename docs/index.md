@@ -142,8 +142,7 @@ Blacklisting allows users to blacklist their own token from the HTTP header or c
 
 ### `delete_stale_tokens` management command
 
-When called, deletes all tokens whose `expired_at` date & time is before then the value set in
- `JWT_STALE_BLACKLISTED_TOKEN_EXPIRATION_TIME` variable.
+When called, deletes all blacklisted tokens that have expired.
 
 ## Additional Settings
 There are some additional settings that you can override similar to how you'd do it with Django REST framework itself. Here are all the available defaults.
@@ -182,7 +181,6 @@ JWT_AUTH = {
     'JWT_AUTH_COOKIE_SAMESITE': 'Lax',
     'JWT_IMPERSONATION_COOKIE': None,
     'JWT_DELETE_STALE_TOKENS': False,
-    'JWT_STALE_TOKEN_EXPIRATION_TIME': timezone.now(),
 }
 ```
 This package uses the JSON Web Token Python implementation, [PyJWT](https://github.com/jpadilla/pyjwt) and allows to modify some of its available options.
@@ -382,18 +380,10 @@ Impersonation cookies use the `JWT_AUTH_COOKIE_*` settings.
 
 ### JWT_DELETE_STALE_BLACKLISTED_TOKENS
 
-Enables deleting of stale blacklisted tokens on `post_save` when set to `True`. Tokens whose
- expiration time is before `timezone.now()` will be deleted. The expiration time can
-  be changed by overriding the `JWT_STALE_BLACKLISTED_TOKEN_EXPIRATION_TIME` setting.
+Enables deleting of stale blacklisted tokens on `post_save` when set to `True`. All blacklisted
+ tokens that have expired will be deleted.
 
 Default is `False`.
-
-### JWT_STALE_BLACKLISTED_TOKEN_EXPIRATION_TIME
-
-This is an instance of Python's `datetime.timedelta`. This value will be subtracted from `timezone
-.now()` to set the time before which the expired tokens should be deleted.
-
-Default is `datetime.timedelta(days=0)` (0 days).
 
 ## Extending/Overriding `JSONWebTokenAuthentication`
 
