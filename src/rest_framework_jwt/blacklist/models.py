@@ -2,14 +2,16 @@
 
 from django.conf import settings
 from django.db import models
+from django.utils import timezone
 
 from rest_framework_jwt.settings import api_settings
 
 
 class BlacklistedTokenManager(models.Manager):
     def delete_stale_tokens(self):
+        expire_at = timezone.now() - api_settings.JWT_STALE_BLACKLISTED_TOKEN_EXPIRATION_TIME
         return self.filter(
-            expires_at__lt=api_settings.JWT_STALE_BLACKLISTED_TOKEN_EXPIRATION_TIME
+            expires_at__lt=expire_at
         ).delete()
 
 

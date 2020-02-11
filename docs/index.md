@@ -382,18 +382,18 @@ Impersonation cookies use the `JWT_AUTH_COOKIE_*` settings.
 
 ### JWT_DELETE_STALE_BLACKLISTED_TOKENS
 
-Enables deleting of stale blacklisted tokens on `post_save` when set to `True`. The date & time
- before which the tokens should be deleted is defined in
-  `JWT_STALE_BLACKLISTED_TOKEN_EXPIRATION_TIME`.
+Enables deleting of stale blacklisted tokens on `post_save` when set to `True`. Tokens whose
+ expiration time is before `timezone.now()` will be deleted. The expiration time can
+  be changed by overriding the `JWT_STALE_BLACKLISTED_TOKEN_EXPIRATION_TIME` setting.
 
 Default is `False`.
 
 ### JWT_STALE_BLACKLISTED_TOKEN_EXPIRATION_TIME
 
-This is an instance of Python's `datetime.datetime`. Represents the date & time before which expired
- blacklisted tokens should be deleted.
+This is an instance of Python's `datetime.timedelta`. This value will be subtracted from `timezone
+.now()` to set the time before which the expired tokens should be deleted.
 
-Default is `timezone.now()`(timezone aware current moment).
+Default is `datetime.timedelta(days=0)` (0 days).
 
 ## Extending/Overriding `JSONWebTokenAuthentication`
 

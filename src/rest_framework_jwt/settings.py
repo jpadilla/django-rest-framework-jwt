@@ -6,7 +6,6 @@ import datetime
 
 from django.conf import settings
 from django.core.exceptions import ImproperlyConfigured
-from django.utils import timezone
 from rest_framework.settings import APISettings
 
 
@@ -45,7 +44,7 @@ DEFAULTS = {
     'JWT_AUTH_COOKIE_SAMESITE': 'Lax',
     'JWT_IMPERSONATION_COOKIE': None,
     'JWT_DELETE_STALE_BLACKLISTED_TOKENS': False,
-    'JWT_STALE_BLACKLISTED_TOKEN_EXPIRATION_TIME': timezone.now(),
+    'JWT_STALE_BLACKLISTED_TOKEN_EXPIRATION_TIME': datetime.timedelta(days=0),
 }
 
 # List of settings that may be in string import notation.
@@ -73,10 +72,3 @@ if not isinstance(
     raise ImproperlyConfigured(
         '`JWT_REFRESH_EXPIRATION_DELTA` setting must be instance of '
         '`datetime.timedelta`')
-
-if not isinstance(
-        api_settings.JWT_STALE_BLACKLISTED_TOKEN_EXPIRATION_TIME, datetime.datetime):
-
-    raise ImproperlyConfigured(
-        '`JWT_STALE_BLACKLISTED_TOKEN_EXPIRATION_TIME` setting must be instance of '
-        '`datetime.datetime`')

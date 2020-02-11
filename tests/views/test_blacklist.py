@@ -132,7 +132,7 @@ def test_delete_stale_tokens_for_date_specified_in_settings(
     monkeypatch.setattr(
         api_settings,
         'JWT_STALE_BLACKLISTED_TOKEN_EXPIRATION_TIME',
-        timezone.now() - timedelta(days=1)
+        timedelta(days=1)
     )
 
     url = reverse('blacklist-list')
