@@ -5,7 +5,7 @@ from __future__ import unicode_literals
 from rest_framework.response import Response
 from rest_framework.views import APIView
 
-from rest_framework_jwt.blacklist.permissions import IsAuthenticatedAndNotBlacklisted
+from rest_framework_jwt.blacklist.permissions import IsNotBlacklisted
 from rest_framework_jwt.permissions import IsSuperUser
 
 
@@ -22,7 +22,7 @@ class SuperuserTestView(APIView):
 
 
 class BlacklistPermissionTestView(APIView):
-    permission_classes = (IsAuthenticatedAndNotBlacklisted, )
+    permission_classes = (IsNotBlacklisted, )
 
     def get(self, request):
         return Response({'foo': 'bar'})
