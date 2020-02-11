@@ -5,6 +5,7 @@ from __future__ import unicode_literals
 import jwt
 
 from django.contrib.auth import get_user_model
+from django.utils.encoding import force_str
 
 from rest_framework import exceptions
 from rest_framework.authentication import (
@@ -56,12 +57,11 @@ class JSONWebTokenAuthentication(BaseAuthentication):
         Returns a two-tuple of `User` and token if a valid signature has been
         supplied using JWT-based authentication.  Otherwise returns `None`.
         """
-
         jwt_value = self.get_jwt_value(request)
         if jwt_value is None:
             return None
 
-        if BlacklistedToken.objects.filter(token=jwt_value).exists():
+        if BlacklistedToken.objects.filter(token=force_str(jwt_value)).exists():
             msg = _('Token is blacklisted.')
             raise exceptions.PermissionDenied(msg)
 
