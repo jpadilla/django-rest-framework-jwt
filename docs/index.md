@@ -137,7 +137,13 @@ By default, only superusers (`user.is_superuser == True`) can impersonate other 
 
 ## Blacklisting Tokens
 
-Blacklisting allows users to blacklist their own token from the HTTP header or cookies by redirecting to the `BlacklistView` in which case the view is serves as a logout.
+Blacklisting allows users to blacklist their own token from the HTTP header or cookies. General
+ use case is as a logout service.
+
+### `delete_stale_tokens` management command
+
+When called, deletes all tokens whose `expired_at` date & time is before then the value set in
+ `JWT_STALE_BLACKLISTED_TOKEN_EXPIRATION_TIME` variable.
 
 ## Additional Settings
 There are some additional settings that you can override similar to how you'd do it with Django REST framework itself. Here are all the available defaults.
@@ -175,6 +181,8 @@ JWT_AUTH = {
     'JWT_AUTH_COOKIE_SECURE': True,
     'JWT_AUTH_COOKIE_SAMESITE': 'Lax',
     'JWT_IMPERSONATION_COOKIE': None,
+    'JWT_DELETE_STALE_TOKENS': False,
+    'JWT_STALE_TOKEN_EXPIRATION_TIME': timezone.now(),
 }
 ```
 This package uses the JSON Web Token Python implementation, [PyJWT](https://github.com/jpadilla/pyjwt) and allows to modify some of its available options.
@@ -371,6 +379,21 @@ Analogous to the `JWT_AUTH_COOKIE` setting, but contains the impersonation token
 This cookie takes precedence over the `JWT_AUTH_COOKIE`. If you have both cookies and you want to end the impersonation, you have to remove the cookie. 
 
 Impersonation cookies use the `JWT_AUTH_COOKIE_*` settings.
+
+### JWT_DELETE_STALE_BLACKLISTED_TOKENS
+
+Enables deleting of stale blacklisted tokens on `post_save` when set to `True`. The date & time
+ before which the tokens should be deleted is defined in
+  `JWT_STALE_BLACKLISTED_TOKEN_EXPIRATION_TIME`.
+
+Default is `False`.
+
+### JWT_STALE_BLACKLISTED_TOKEN_EXPIRATION_TIME
+
+This is an instance of Python's `datetime.datetime`. Represents the date & time before which expired
+ blacklisted tokens should be deleted.
+
+Default is `timezone.now()`(timezone aware current moment).
 
 ## Extending/Overriding `JSONWebTokenAuthentication`
 
