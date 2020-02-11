@@ -5,6 +5,7 @@ from __future__ import unicode_literals
 from datetime import timedelta
 
 import pytest
+from django.core.management import call_command
 
 from django.utils import timezone
 
@@ -15,7 +16,6 @@ from rest_framework_jwt.blacklist.models import BlacklistedToken
 from rest_framework_jwt.settings import api_settings
 
 
-@pytest.mark.django_db
 def test_anonymous_user_cannot_blacklist_tokens(api_client):
     url = reverse('blacklist-list')
     response = api_client.post(url)
@@ -60,28 +60,6 @@ def test_user_cannot_blacklist_same_token_multiple_times(
     assert BlacklistedToken.objects.count() == 1
 
 
-def test_superuser_cannot_blacklist_impersonated_user(
-    monkeypatch, user, super_user, create_authenticated_client
-):
-    imp_cookie = "jwt-imp"
-    monkeypatch.setattr(api_settings, "JWT_IMPERSONATION_COOKIE", imp_cookie)
-
-    api_client = create_authenticated_client(super_user)
-
-    data = {'user': user.id}
-    url = reverse('impersonate')
-    response = api_client.post(url, data, format='json')
-
-    assert response.status_code == status.HTTP_200_OK
-
-    url = reverse('blacklist-list')
-
-    response = api_client.post(url)
-
-    assert response.status_code == status.HTTP_201_CREATED
-    assert BlacklistedToken.objects.first().user_id == super_user.id
-
-
 def test_user_can_blacklist_own_token_from_cookie(
     monkeypatch, user, call_auth_endpoint
 ):
@@ -102,12 +80,13 @@ def test_user_can_blacklist_own_token_from_cookie(
     assert response.status_code == status.HTTP_403_FORBIDDEN
 
 
-def test_stale_tokens_are_deleted_on_token_save(user, create_authenticated_client):
+def test_stale_tokens_are_deleted_on_token_save_when_feature_is_activated(
+    monkeypatch, user, staff_user, create_authenticated_client
+):
     blacklisted_token = BlacklistedToken.objects.create(
         token='stale_token',
         user=user,
-        # Added a 300 seconds so the token doesn't seem expired and deleted on post_save
-        expires_at=timezone.now() + timedelta(seconds=300),
+        expires_at=timezone.now(),
     )
     assert BlacklistedToken.objects.exists()
     assert blacklisted_token.token == 'stale_token'
@@ -121,4 +100,67 @@ def test_stale_tokens_are_deleted_on_token_save(user, create_authenticated_clien
     response = api_client.post(url)
 
     assert response.status_code == status.HTTP_201_CREATED
+    # No token is deleted because the feature is not turned on
+    assert BlacklistedToken.objects.count() == 2
+
+    monkeypatch.setattr(api_settings, 'JWT_DELETE_STALE_BLACKLISTED_TOKENS', True)
+
+    api_client = create_authenticated_client(staff_user)
+
+    response = api_client.post(url)
+
+    assert response.status_code == status.HTTP_201_CREATED
+    assert BlacklistedToken.objects.count() == 2
+
+
+def test_delete_stale_tokens_for_date_specified_in_settings(
+    monkeypatch, user, staff_user, create_authenticated_client
+):
+    BlacklistedToken.objects.create(
+        token='token',
+        user=user,
+        expires_at=timezone.now(),
+    )
+
+    BlacklistedToken.objects.create(
+        token='stale_token',
+        user=user,
+        expires_at=timezone.now() - timedelta(days=2),
+    )
+
+    monkeypatch.setattr(api_settings, 'JWT_DELETE_STALE_BLACKLISTED_TOKENS', True)
+    monkeypatch.setattr(
+        api_settings,
+        'JWT_STALE_BLACKLISTED_TOKEN_EXPIRATION_TIME',
+        timezone.now() - timedelta(days=1)
+    )
+
+    url = reverse('blacklist-list')
+    api_client = create_authenticated_client(user)
+
+    response = api_client.post(url)
+
+    assert response.status_code == status.HTTP_201_CREATED
+    assert BlacklistedToken.objects.count() == 2
+
+
+def test_delete_stale_tokens_by_calling_the_management_command(
+    user, create_authenticated_client
+):
+    for num in range(1, 6):
+        BlacklistedToken.objects.create(
+            token='stale_token_{}'.format(num),
+            user=user,
+            expires_at=timezone.now() - timedelta(days=num),
+        )
+    assert BlacklistedToken.objects.count() == 5
+
+    BlacklistedToken.objects.create(
+        token='valid_token',
+        user=user,
+        expires_at=timezone.now() + timedelta(days=1),
+    )
+    assert BlacklistedToken.objects.count() == 6
+
+    call_command('delete_stale_tokens')
     assert BlacklistedToken.objects.count() == 1
