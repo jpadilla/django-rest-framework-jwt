@@ -113,26 +113,6 @@ def test_stale_tokens_are_deleted_on_token_save_when_feature_is_activated(
     assert BlacklistedToken.objects.count() == 2
 
 
-def test_delete_stale_tokens_for_date_specified_in_settings(
-    monkeypatch, user, staff_user, create_authenticated_client
-):
-    BlacklistedToken.objects.create(
-        token='token',
-        user=user,
-        expires_at=timezone.now(),
-    )
-
-    monkeypatch.setattr(api_settings, 'JWT_DELETE_STALE_BLACKLISTED_TOKENS', True)
-
-    url = reverse('blacklist-list')
-    api_client = create_authenticated_client(user)
-
-    response = api_client.post(url)
-
-    assert response.status_code == status.HTTP_201_CREATED
-    assert BlacklistedToken.objects.count() == 1
-
-
 def test_delete_stale_tokens_by_calling_the_management_command(
     user, create_authenticated_client
 ):
