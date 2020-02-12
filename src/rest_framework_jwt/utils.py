@@ -8,11 +8,11 @@ from datetime import datetime
 import jwt
 
 from django.contrib.auth import get_user_model
-from django.utils.encoding import force_text
+from django.utils.encoding import force_str, force_text
 
 from rest_framework import serializers
+from rest_framework.authentication import get_authorization_header
 
-from rest_framework_jwt.authentication import JSONWebTokenAuthentication
 from rest_framework_jwt.compat import gettext_lazy as _
 from rest_framework_jwt.settings import api_settings
 
@@ -137,6 +137,8 @@ def jwt_create_response_payload(
 
 
 def check_payload(token):
+    from rest_framework_jwt.authentication import JSONWebTokenAuthentication
+
     try:
         payload = JSONWebTokenAuthentication.jwt_decode_token(token)
     except jwt.ExpiredSignature:
@@ -150,6 +152,8 @@ def check_payload(token):
 
 
 def check_user(payload):
+    from rest_framework_jwt.authentication import JSONWebTokenAuthentication
+
     username = JSONWebTokenAuthentication. \
         jwt_get_username_from_payload(payload)
 
@@ -170,3 +174,35 @@ def check_user(payload):
         raise serializers.ValidationError(msg)
 
     return user
+
+
+def get_jwt_value(request):
+    """
+    Extract JWT token from request Authorization header.
+
+    Splits Authorization header string into a list where first member
+    represents authorization prefix and second member represents JWT token.
+
+    If Authorization header was empty checks if JWT token should be
+    retrieved from cookie.
+
+    Returns JWT token.
+    """
+
+    auth = get_authorization_header(request).split()
+
+    if not auth:
+        if api_settings.JWT_IMPERSONATION_COOKIE:
+            imp_user_token = request.COOKIES.get(api_settings.JWT_IMPERSONATION_COOKIE)
+            if imp_user_token:
+                return imp_user_token
+
+        if api_settings.JWT_AUTH_COOKIE:
+            return request.COOKIES.get(api_settings.JWT_AUTH_COOKIE)
+
+    elif not len(auth) == 1:
+        # Using `force_str()` because the token from the header is 'bytes' type and raises
+        # error on serializer's `is_valid()` method
+        return force_str(auth[1])
+
+    return None

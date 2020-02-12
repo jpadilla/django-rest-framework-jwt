@@ -4,7 +4,6 @@ from __future__ import unicode_literals
 
 from datetime import timedelta
 
-import pytest
 from django.core.management import call_command
 
 from django.utils import timezone
