@@ -202,7 +202,7 @@ Default is `None`.
 
 ### JWT_ALGORITHM
 
-Possible values are any of the [supported algorithms](https://github.com/jpadilla/pyjwt#algorithms) for cryptographic signing in `PyJWT`.
+Possible values are any of the [supported algorithms](https://github.com/jpadilla/pyjwt/blob/master/docs/algorithms.rst) for cryptographic signing in `PyJWT`.
 
 Default is `"HS256"`.
 
