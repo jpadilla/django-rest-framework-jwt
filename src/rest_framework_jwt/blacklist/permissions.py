@@ -1,3 +1,4 @@
+from rest_framework.authentication import get_authorization_header
 from rest_framework.permissions import BasePermission
 
 from rest_framework_jwt.blacklist.models import BlacklistedToken
@@ -8,6 +9,8 @@ class IsNotBlacklisted(BasePermission):
     message = 'You have been blacklisted.'
 
     def has_permission(self, request, view):
+        auth = get_authorization_header(request).split()
+
         return not BlacklistedToken.objects.filter(
-            token=get_jwt_value(request)
+            token=get_jwt_value(auth, request.COOKIES)
         ).exists()

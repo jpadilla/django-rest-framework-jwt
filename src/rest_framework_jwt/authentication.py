@@ -13,6 +13,7 @@ from rest_framework.authentication import (
     get_authorization_header,
 )
 
+from rest_framework_jwt.blacklist.exceptions import TokenMissing
 from rest_framework_jwt.blacklist.models import BlacklistedToken
 from rest_framework_jwt.compat import gettext_lazy as _
 from rest_framework_jwt.settings import api_settings
@@ -58,7 +59,7 @@ class JSONWebTokenAuthentication(BaseAuthentication):
         Returns a two-tuple of `User` and token if a valid signature has been
         supplied using JWT-based authentication.  Otherwise returns `None`.
         """
-        jwt_value = self.get_jwt_value_and_check_header(request)
+        jwt_value = self.get_jwt_value(request)
         if jwt_value is None:
             return None
 
@@ -103,30 +104,16 @@ class JSONWebTokenAuthentication(BaseAuthentication):
 
         return user
 
-    def get_jwt_value_and_check_header(self, request):
+    def validate_header(self, auth):
         """
-        Extract JWT token from request Authorization header.
-
-        Splits Authorization header string into a list where first member
-        represents authorization prefix and second member represents JWT token.
-
-        If Authorization header was empty checks if JWT token should be
-        retrieved from cookie.
-
-        After successful authorization header processing returns JWT token
-        alone.
+        Check if Authorization header is valid.
         """
 
-        auth = get_authorization_header(request).split()
         auth_header_prefix = api_settings.JWT_AUTH_HEADER_PREFIX.lower()
 
-        token = get_jwt_value(request)
-
-        if not auth:
-            return token
-
         if smart_str(auth[0].lower()) != auth_header_prefix:
-            return None
+            msg = _('Authentication credentials were not provided.')
+            raise exceptions.AuthenticationFailed(msg)
 
         if len(auth) == 1:
             msg = _('Invalid Authorization header. No credentials provided.')
@@ -138,7 +125,24 @@ class JSONWebTokenAuthentication(BaseAuthentication):
             )
             raise exceptions.AuthenticationFailed(msg)
 
-        return token
+    def get_jwt_value(self, request):
+        """
+        Return JWT token from request Authorization header or cookie.
+
+        Splits Authorization header string into a list where first member
+        represents authorization prefix and second member represents JWT token.
+
+        """
+
+        auth = get_authorization_header(request).split()
+
+        if auth:
+            self.validate_header(auth)
+
+        try:
+            return get_jwt_value(auth, request.COOKIES)
+        except TokenMissing:
+            return None
 
     def authenticate_header(self, request):
         """

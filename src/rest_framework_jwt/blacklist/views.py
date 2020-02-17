@@ -1,3 +1,4 @@
+from rest_framework.authentication import get_authorization_header
 from rest_framework.permissions import IsAuthenticated
 from rest_framework.viewsets import ModelViewSet
 
@@ -14,6 +15,8 @@ class BlacklistView(ModelViewSet):
 
     def create(self, request, *args, **kwargs):
         if 'token' not in request.data:
-            request.data.update({'token': get_jwt_value(request)})
+            auth = get_authorization_header(request).split()
+
+            request.data.update({'token': get_jwt_value(auth, request.COOKIES)})
 
         return super(BlacklistView, self).create(request, *args, **kwargs)
