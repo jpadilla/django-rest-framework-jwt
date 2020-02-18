@@ -8,11 +8,10 @@ from datetime import datetime
 import jwt
 
 from django.contrib.auth import get_user_model
-from django.utils.encoding import force_str, force_text
+from django.utils.encoding import force_text
 
 from rest_framework import serializers
 
-from rest_framework_jwt.blacklist.exceptions import TokenMissing
 from rest_framework_jwt.compat import gettext_lazy as _
 from rest_framework_jwt.settings import api_settings
 
@@ -174,29 +173,3 @@ def check_user(payload):
         raise serializers.ValidationError(msg)
 
     return user
-
-
-def get_jwt_value(auth_header, cookies):
-    """
-    Extract JWT token from request Authorization header or cookies.
-
-    If Authorization header was empty checks if JWT token should be
-    retrieved from cookie.
-
-    Returns JWT token or raises exception.
-    """
-
-    if not auth_header:
-        if api_settings.JWT_IMPERSONATION_COOKIE:
-            imp_user_token = cookies.get(api_settings.JWT_IMPERSONATION_COOKIE)
-            if imp_user_token:
-                return imp_user_token
-
-        if api_settings.JWT_AUTH_COOKIE:
-            return cookies.get(api_settings.JWT_AUTH_COOKIE)
-
-        raise TokenMissing()
-
-    # Using `force_str()` because the token from the header is 'bytes' type and raises
-    # error on serializer's `is_valid()` method
-    return force_str(auth_header[1])

@@ -116,11 +116,12 @@ def test_view_returns_401_when_token_does_not_contain_username(
     assert response.json() == expected_output
 
 
+@pytest.mark.django_db
 def test_view_returns_401_to_authorization_header_without_token(api_client):
     api_client.credentials(HTTP_AUTHORIZATION="Bearer ")
 
     expected_output = {
-        "detail": _("Invalid Authorization header. No credentials provided.")
+        "detail": _("Authentication credentials were not provided.")
     }
 
     url = reverse("test-view")
@@ -141,8 +142,7 @@ def test_view_returns_401_to_authorization_header_token_with_spaces(
 
     expected_output = {
         "detail": _(
-            "Invalid Authorization header. Credentials string should "
-            "not contain spaces."
+            "Authentication credentials were not provided."
         )
     }
 
