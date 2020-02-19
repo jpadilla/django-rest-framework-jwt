@@ -13,6 +13,27 @@ time.
 
 .. towncrier release notes start
 
+v1.14.0 (2020-02-19)
+====================
+
+Features
+--------
+
+- Blacklisting allows the user to blacklist his own token. ([#27](https://github.com/Styria-Digital/django-rest-framework-jwt/pull/27))
+
+
+Deprecations and Removals
+-------------------------
+
+- Drop support for Python 3.3 and 3.4 ([#27](https://github.com/Styria-Digital/django-rest-framework-jwt/pull/27))
+
+
+Misc
+----
+
+- changed occurrences of `smart_text` to `smart_str` since it was deprecated in Django 3.X ([#28](https://github.com/Styria-Digital/django-rest-framework-jwt/pull/28))
+
+
 1.14.0 (2020-01-29)
 ====================
 
