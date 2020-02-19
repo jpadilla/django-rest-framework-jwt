@@ -2,9 +2,8 @@
 
 from __future__ import unicode_literals
 
-from django.utils.translation import ugettext_lazy as _
-
 from rest_framework_jwt.authentication import JSONWebTokenAuthentication
+from rest_framework_jwt.compat import gettext_lazy as _
 
 
 def test_invalid_token_returns_validation_error(call_auth_verify_endpoint):

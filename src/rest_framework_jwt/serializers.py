@@ -2,55 +2,19 @@
 
 from __future__ import unicode_literals
 
-import jwt
-
 from django.contrib.auth import authenticate, get_user_model
-from django.utils.translation import ugettext as _
 
 from rest_framework import serializers
 
 from rest_framework_jwt.authentication import JSONWebTokenAuthentication
+from rest_framework_jwt.compat import gettext_lazy as _
 from rest_framework_jwt.settings import api_settings
-from rest_framework_jwt.utils import unix_epoch, get_username_field
-
-
-User = get_user_model()
-
-
-def _check_payload(token):
-    try:
-        payload = JSONWebTokenAuthentication.jwt_decode_token(token)
-    except jwt.ExpiredSignature:
-        msg = _('Token has expired.')
-        raise serializers.ValidationError(msg)
-    except jwt.DecodeError:
-        msg = _('Error decoding token.')
-        raise serializers.ValidationError(msg)
-
-    return payload
-
-
-def _check_user(payload):
-    username = JSONWebTokenAuthentication. \
-        jwt_get_username_from_payload(payload)
-
-    if not username:
-        msg = _('Invalid token.')
-        raise serializers.ValidationError(msg)
-
-    # Make sure user exists
-    try:
-        User = get_user_model()
-        user = User.objects.get_by_natural_key(username)
-    except User.DoesNotExist:
-        msg = _("User doesn't exist.")
-        raise serializers.ValidationError(msg)
-
-    if not user.is_active:
-        msg = _('User account is disabled.')
-        raise serializers.ValidationError(msg)
-
-    return user
+from rest_framework_jwt.utils import (
+    check_payload,
+    check_user,
+    get_username_field,
+    unix_epoch,
+)
 
 
 class JSONWebTokenSerializer(serializers.Serializer):
@@ -108,8 +72,8 @@ class VerifyAuthTokenSerializer(serializers.Serializer):
     def validate(self, data):
         token = data['token']
 
-        payload = _check_payload(token=token)
-        user = _check_user(payload=payload)
+        payload = check_payload(token=token)
+        user = check_user(payload=payload)
 
         return {
             'token': token,
@@ -128,8 +92,8 @@ class RefreshAuthTokenSerializer(serializers.Serializer):
     def validate(self, data):
         token = data['token']
 
-        payload = _check_payload(token=token)
-        user = _check_user(payload=payload)
+        payload = check_payload(token=token)
+        user = check_user(payload=payload)
 
         # Get and check 'orig_iat'
         orig_iat = payload.get('orig_iat')
@@ -167,6 +131,7 @@ class ImpersonateAuthTokenSerializer(serializers.Serializer):
     Serializer used for impersonation.
     """
 
+    User = get_user_model()
     user = serializers.PrimaryKeyRelatedField(queryset=User.objects.all())
 
     class Meta:
@@ -176,7 +141,7 @@ class ImpersonateAuthTokenSerializer(serializers.Serializer):
         user = data["user"]
 
         payload = JSONWebTokenAuthentication.jwt_create_payload(user)
-        _check_user(payload)
+        check_user(payload)
 
         token = JSONWebTokenAuthentication.jwt_encode_payload(payload)
 

@@ -135,6 +135,15 @@ Impersonation allows the service to perform actions on the client’s behalf. A 
 
 By default, only superusers (`user.is_superuser == True`) can impersonate other accounts. If you need to customize the permission handling process, override the `ImpersonateJSONWebTokenView`'s [`permission_classes` attribute](https://www.django-rest-framework.org/api-guide/permissions/#setting-the-permission-policy). 
 
+## Blacklisting Tokens
+
+Blacklisting allows users to blacklist their own token from the HTTP header or cookies. General
+ use case is as a logout service.
+
+### `delete_stale_tokens` management command
+
+When called, deletes all blacklisted tokens that have expired.
+
 ## Additional Settings
 There are some additional settings that you can override similar to how you'd do it with Django REST framework itself. Here are all the available defaults.
 
@@ -171,6 +180,7 @@ JWT_AUTH = {
     'JWT_AUTH_COOKIE_SECURE': True,
     'JWT_AUTH_COOKIE_SAMESITE': 'Lax',
     'JWT_IMPERSONATION_COOKIE': None,
+    'JWT_DELETE_STALE_BLACKLISTED_TOKENS': False,
 }
 ```
 This package uses the JSON Web Token Python implementation, [PyJWT](https://github.com/jpadilla/pyjwt) and allows to modify some of its available options.
@@ -367,6 +377,13 @@ Analogous to the `JWT_AUTH_COOKIE` setting, but contains the impersonation token
 This cookie takes precedence over the `JWT_AUTH_COOKIE`. If you have both cookies and you want to end the impersonation, you have to remove the cookie. 
 
 Impersonation cookies use the `JWT_AUTH_COOKIE_*` settings.
+
+### JWT_DELETE_STALE_BLACKLISTED_TOKENS
+
+Enables deleting of stale blacklisted tokens on `post_save` when set to `True`. All blacklisted
+ tokens that have expired will be deleted.
+
+Default is `False`.
 
 ## Extending/Overriding `JSONWebTokenAuthentication`
 

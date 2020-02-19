@@ -3,7 +3,6 @@
 from __future__ import unicode_literals
 
 from calendar import timegm
-from collections import namedtuple
 from datetime import datetime
 
 import jwt
@@ -11,6 +10,9 @@ import jwt
 from django.contrib.auth import get_user_model
 from django.utils.encoding import force_text
 
+from rest_framework import serializers
+
+from rest_framework_jwt.compat import gettext_lazy as _
 from rest_framework_jwt.settings import api_settings
 
 
@@ -131,3 +133,43 @@ def jwt_create_response_payload(
     with drf add-ons that might require `pk` field in order (eg. jsonapi).
     """
     return {'pk': issued_at, 'token': token}
+
+
+def check_payload(token):
+    from rest_framework_jwt.authentication import JSONWebTokenAuthentication
+
+    try:
+        payload = JSONWebTokenAuthentication.jwt_decode_token(token)
+    except jwt.ExpiredSignature:
+        msg = _('Token has expired.')
+        raise serializers.ValidationError(msg)
+    except jwt.DecodeError:
+        msg = _('Error decoding token.')
+        raise serializers.ValidationError(msg)
+
+    return payload
+
+
+def check_user(payload):
+    from rest_framework_jwt.authentication import JSONWebTokenAuthentication
+
+    username = JSONWebTokenAuthentication. \
+        jwt_get_username_from_payload(payload)
+
+    if not username:
+        msg = _('Invalid token.')
+        raise serializers.ValidationError(msg)
+
+    # Make sure user exists
+    try:
+        User = get_user_model()
+        user = User.objects.get_by_natural_key(username)
+    except User.DoesNotExist:
+        msg = _("User doesn't exist.")
+        raise serializers.ValidationError(msg)
+
+    if not user.is_active:
+        msg = _('User account is disabled.')
+        raise serializers.ValidationError(msg)
+
+    return user

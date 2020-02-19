@@ -8,8 +8,10 @@ from django.utils.translation import ugettext_lazy as _
 from rest_framework import status
 
 from rest_framework_jwt.authentication import JSONWebTokenAuthentication
+from rest_framework_jwt.compat import gettext_lazy as _
 from rest_framework_jwt.compat import has_set_cookie_samesite
 from rest_framework_jwt.settings import api_settings
+
 
 def test_empty_credentials_returns_validation_error(call_auth_endpoint):
     expected_output = {
@@ -135,6 +137,7 @@ def test_valid_credentials_with_auth_cookie_enabled_returns_jwt_and_cookie(
     assert response.status_code == status.HTTP_200_OK
     assert "token" in force_text(response.content)
     assert auth_cookie in response.client.cookies
+
 
 def test_auth_cookie_settings(
     monkeypatch, user, call_auth_endpoint

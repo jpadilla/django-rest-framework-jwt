@@ -5,14 +5,23 @@ from __future__ import unicode_literals
 import jwt
 
 from django.contrib.auth import get_user_model
-from django.utils.translation import ugettext as _
+from django.utils.encoding import force_str
 
 from rest_framework import exceptions
-from rest_framework.authentication import BaseAuthentication, \
-                                            get_authorization_header
+from rest_framework.authentication import (
+    BaseAuthentication,
+    get_authorization_header,
+)
 
-from rest_framework_jwt.settings import api_settings
+from rest_framework_jwt.blacklist.exceptions import (
+    InvalidAuthorizationCredentials,
+    InvalidAuthorizationHeaderPrefix,
+    MissingToken,
+)
+from rest_framework_jwt.blacklist.models import BlacklistedToken
+from rest_framework_jwt.compat import gettext_lazy as _
 from rest_framework_jwt.compat import smart_str
+from rest_framework_jwt.settings import api_settings
 
 
 class JSONWebTokenAuthentication(BaseAuthentication):
@@ -53,13 +62,17 @@ class JSONWebTokenAuthentication(BaseAuthentication):
         Returns a two-tuple of `User` and token if a valid signature has been
         supplied using JWT-based authentication.  Otherwise returns `None`.
         """
-
-        jwt_value = self.get_jwt_value(request)
-        if jwt_value is None:
+        try:
+            token = self.get_token_from_request(request)
+        except MissingToken:
             return None
 
+        if BlacklistedToken.objects.filter(token=force_str(token)).exists():
+            msg = _('Token is blacklisted.')
+            raise exceptions.PermissionDenied(msg)
+
         try:
-            payload = self.jwt_decode_token(jwt_value)
+            payload = self.jwt_decode_token(token)
         except jwt.ExpiredSignature:
             msg = _('Token has expired.')
             raise exceptions.AuthenticationFailed(msg)
@@ -69,7 +82,52 @@ class JSONWebTokenAuthentication(BaseAuthentication):
 
         user = self.authenticate_credentials(payload)
 
-        return user, jwt_value
+        return user, token
+
+    @classmethod
+    def get_token_from_request(cls, request):
+        authorization_header = force_str(get_authorization_header(request))
+
+        try:
+            return cls.get_token_from_authorization_header(authorization_header)
+        except InvalidAuthorizationHeaderPrefix as error:
+            raise exceptions.AuthenticationFailed(error.msg)
+        except InvalidAuthorizationCredentials:
+            return cls.get_token_from_cookies(request.COOKIES)
+
+    @classmethod
+    def get_token_from_authorization_header(cls, authorization_header):
+        try:
+            prefix, token = authorization_header.split(' ')
+        except ValueError:
+            raise InvalidAuthorizationCredentials
+        else:
+            if not cls.prefixes_match(prefix):
+                raise InvalidAuthorizationHeaderPrefix
+            if not token:
+                raise InvalidAuthorizationCredentials
+            return token
+
+    @classmethod
+    def prefixes_match(cls, prefix):
+        authorization_header_prefix = api_settings.JWT_AUTH_HEADER_PREFIX.lower()
+
+        return smart_str(prefix.lower()) == authorization_header_prefix
+
+    @classmethod
+    def get_token_from_cookies(cls, cookies):
+        if api_settings.JWT_IMPERSONATION_COOKIE:
+            imp_user_token = cookies.get(api_settings.JWT_IMPERSONATION_COOKIE)
+            if imp_user_token:
+                return imp_user_token
+
+        if api_settings.JWT_AUTH_COOKIE:
+            try:
+                return cookies[api_settings.JWT_AUTH_COOKIE]
+            except KeyError:
+                raise MissingToken
+
+        raise MissingToken
 
     def authenticate_credentials(self, payload):
         """
@@ -94,49 +152,6 @@ class JSONWebTokenAuthentication(BaseAuthentication):
             raise exceptions.AuthenticationFailed(msg)
 
         return user
-
-    def get_jwt_value(self, request):
-        """
-        Extract JWT token from request Authorization header.
-
-        Splits Authorization header string into a list where first member
-        represents authorization prefix and second member represents JWT token.
-
-        If Authorization header was empty checks if JWT token should be
-        retrieved from cookie.
-
-        After successful authorization header processing returns JWT token
-        alone.
-        """
-
-        auth = get_authorization_header(request).split()
-        auth_header_prefix = api_settings.JWT_AUTH_HEADER_PREFIX.lower()
-
-        if not auth:
-            if api_settings.JWT_IMPERSONATION_COOKIE:
-                imp_user_token = request.COOKIES.get(api_settings.JWT_IMPERSONATION_COOKIE)
-                if imp_user_token:
-                    return imp_user_token
-
-            if api_settings.JWT_AUTH_COOKIE:
-                return request.COOKIES.get(api_settings.JWT_AUTH_COOKIE)
-
-            return None
-
-        if smart_str(auth[0].lower()) != auth_header_prefix:
-            return None
-
-        if len(auth) == 1:
-            msg = _('Invalid Authorization header. No credentials provided.')
-            raise exceptions.AuthenticationFailed(msg)
-        elif len(auth) > 2:
-            msg = _(
-                'Invalid Authorization header. Credentials string '
-                'should not contain spaces.'
-            )
-            raise exceptions.AuthenticationFailed(msg)
-
-        return auth[1]
 
     def authenticate_header(self, request):
         """

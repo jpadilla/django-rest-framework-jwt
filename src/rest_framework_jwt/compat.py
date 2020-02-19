@@ -10,8 +10,11 @@ from .settings import api_settings
 
 try:
     from django.urls import include, url
+    from django.utils.translation import gettext as gettext_lazy
 except ImportError:
     from django.conf.urls import include, url  # noqa: F401
+    from django.utils.translation import ugettext as gettext_lazy
+
 
 try:
     from django.utils.encoding import smart_str
@@ -20,6 +23,7 @@ except ImportError:
     
 def has_set_cookie_samesite():
     return (VERSION >= (2,1,0))
+
 
 def set_cookie_with_token(response, name, token):
     params = {
