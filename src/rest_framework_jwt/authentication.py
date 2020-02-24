@@ -4,6 +4,7 @@ from __future__ import unicode_literals
 
 import jwt
 
+from django.apps import apps
 from django.contrib.auth import get_user_model
 from django.utils.encoding import force_str
 
@@ -67,9 +68,10 @@ class JSONWebTokenAuthentication(BaseAuthentication):
         except MissingToken:
             return None
 
-        if BlacklistedToken.objects.filter(token=force_str(token)).exists():
-            msg = _('Token is blacklisted.')
-            raise exceptions.PermissionDenied(msg)
+        if apps.is_installed('rest_framework_jwt.blacklist'):
+            if BlacklistedToken.objects.filter(token=force_str(token)).exists():
+                msg = _('Token is blacklisted.')
+                raise exceptions.PermissionDenied(msg)
 
         try:
             payload = self.jwt_decode_token(token)
