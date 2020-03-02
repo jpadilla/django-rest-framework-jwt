@@ -2,7 +2,12 @@
 
 from __future__ import unicode_literals
 
+from datetime import timedelta
+
+from django.utils import timezone
+
 from rest_framework_jwt.authentication import JSONWebTokenAuthentication
+from rest_framework_jwt.blacklist.models import BlacklistedToken
 from rest_framework_jwt.compat import gettext_lazy as _
 from rest_framework_jwt.settings import api_settings
 
@@ -80,6 +85,23 @@ def test_expired_token__returns_validation_error(
     auth_token = JSONWebTokenAuthentication.jwt_encode_payload(payload)
 
     expected_output = {"non_field_errors": [_("Token has expired.")]}
+
+    refresh_response = call_auth_refresh_endpoint(auth_token)
+    assert refresh_response.json() == expected_output
+
+
+def test_blacklisted_token__returns_validation_error(
+    call_auth_refresh_endpoint, user
+):
+    payload = JSONWebTokenAuthentication.jwt_create_payload(user)
+    auth_token = JSONWebTokenAuthentication.jwt_encode_payload(payload)
+    BlacklistedToken.objects.create(
+        token=auth_token,
+        user=user,
+        expires_at=timezone.now() - timedelta(days=7),
+    )
+
+    expected_output = {"non_field_errors": [_("Token is blacklisted.")]}
 
     refresh_response = call_auth_refresh_endpoint(auth_token)
     assert refresh_response.json() == expected_output

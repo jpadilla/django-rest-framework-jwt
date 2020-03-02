@@ -7,11 +7,14 @@ from datetime import datetime
 
 import jwt
 
+from django.apps import apps
 from django.contrib.auth import get_user_model
+from django.utils.encoding import force_str
 from django.utils.encoding import force_text
 
 from rest_framework import serializers
 
+from rest_framework_jwt.blacklist.models import BlacklistedToken
 from rest_framework_jwt.compat import gettext_lazy as _
 from rest_framework_jwt.settings import api_settings
 
@@ -137,6 +140,11 @@ def jwt_create_response_payload(
 
 def check_payload(token):
     from rest_framework_jwt.authentication import JSONWebTokenAuthentication
+
+    if apps.is_installed('rest_framework_jwt.blacklist'):
+        if BlacklistedToken.objects.filter(token=force_str(token)).exists():
+            msg = _('Token is blacklisted.')
+            raise serializers.ValidationError(msg)
 
     try:
         payload = JSONWebTokenAuthentication.jwt_decode_token(token)
