@@ -13,6 +13,16 @@ time.
 
 .. towncrier release notes start
 
+v1.15.0 (2020-03-12)
+====================
+
+Bugfixes
+--------
+
+- Added check in authentication if blacklist app is installed before checking if any Blacklisted tokens exist ([#35](https://github.com/Styria-Digital/django-rest-framework-jwt/pull/35))
+- Security: Disallow refresh token for blacklisted tokens. ([#37](https://github.com/Styria-Digital/django-rest-framework-jwt/pull/37))
+
+
 1.15.0 (2020-02-19)
 ====================
 
