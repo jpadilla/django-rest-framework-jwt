@@ -26,7 +26,7 @@ jobs:
         provider: pypi
         user: styria
         password:
-          secure: vgeBovjCjamXAZjIa9IObvJn0qkMSRqO+iW7SIUn8aQJCUoAkKohdCFuCPgvsX0txzGOn2WQrTOvHf34oLcb9psAclh3JmqXqr9JmP9yjG9+vuf2uA4S9mGM+Sf4bQQ7NEEWqy0i7T9YAJbT09ncPR4VzEzOD73uxSXW7Y02sN0dO47r1kog7Mmc+fJIl0bs09z6JR0mhhIJV14JhAdIBO0ZlqlK/G3+OOK7WtaQSI6JAqz49DGq7MxqUvlYElgfWt0j3I2W7I7c5WQtka9ASsvWQVA7E/Af6HhLbhnrRImvVYNhzZQ2TApIVdmY5+MdEP6RGudn7jjgvD8fVldfazXxtzvO2TIuXvO8QAPGjOwXOd9mKimlGGeiWB1TZBi6rUMi0O6IaJ3Mf8jnnkV06IxIc0B9CnUHvqBCExBWH1zVqD0AkyoX+uDg7pSEjP/Tp7iuwabheSOldrVNCsmfTQ/Uifd5p/X56UU7KGyJknNhjyGqBQzah80dfXISAIYtWetgGgvU3thg8qFHGGWzZqukEzkbOzzGYqBshomP4JsFt2wOeOpgSC9hqydOXKRBba5RLZcDxCFrx/ZjJp78gmp70OW9cXBpeJI/kQTb078d/2RZUTnM0G6kMXKEQCkrk/bCI4BqUC8vWPzuMDYnXMh87VUFRUZ+v9kg2eSJIpk=
+          secure: HgXDXPdteDvyfZ89RAWH1b/dHNxjldtCZOLLJoALw+4GAY5vU7jlZQyV75qWMHOy4CEIkml+/v4gDox4kBKoCh5zUTwEdR6poOnoL9ikLCcNYh44xlUqdLnxZATFr8cNMiAHSExlJ7Hoq10zkvyiKVqNrqb7xEEFBwzg631Wn9HZKon7AKDOVBzC53d2jM94+iPWQ+aPQjjOghD6H9o1cAQQYf43NLc7vzj3dQYKj+BD4+2gs/Q1GMy9KMw+QPp7JutkDXtLyoEeJ1rARXlw9QU6qm83NcVQBpSyx+9gNZ1xBeFUgFJKF/77Rpv4xDP+R+6uFXIearzdoQ3P2p8OkEZJLW+YNuECbi/s/ZUmsWx8zHcX4sNauKwzrx8p+VAZ43DO8fvwKcSb3Dbi6TDhQvIMQ1znd5HbDrJJQRhJsMKwAzG3ragtjRx1yE0Eo6p7ao6RUnZrPey4oLKj1wwX/HjH0378lFEl8OCiL+ZV+WH4aEkw2HvJGUv5WG0ERcecEcCC2XZvXO9ZcfH2NjOamwJnSrWEzY0VCuf/Y9QXbuRuhimmTI704un8NGaC86HncmYwfxNzqp/NMMLlnefhmDSh2nLLSwEJlh7H/9Jv12pM/e+SNxVtzMxcRFcaeFP5Juk17cnAA/92X7PHsrfna13ARNkR7D/9+Uws84D3Xo8=
         skip_cleanup: true
         skip_existing: true
         distributions: "sdist bdist_wheel"
