@@ -4,6 +4,7 @@ from __future__ import unicode_literals
 
 from rest_framework_jwt.authentication import JSONWebTokenAuthentication
 from rest_framework_jwt.compat import gettext_lazy as _
+from rest_framework_jwt.settings import api_settings
 
 
 def test_invalid_token_returns_validation_error(call_auth_verify_endpoint):
@@ -77,6 +78,25 @@ def test_expired_token_returns_validation_error(
     auth_token = JSONWebTokenAuthentication.jwt_encode_payload(payload)
 
     expected_output = {"non_field_errors": [_("Token has expired.")]}
+
+    verify_response = call_auth_verify_endpoint(auth_token)
+    assert verify_response.json() == expected_output
+
+def test_invalid_username_with_JWT_GET_USER_SECRET_KEY_returns_validation_error(
+    monkeypatch, user, call_auth_verify_endpoint
+):
+    def jwt_get_user_secret_key(user):
+        return "{0}-{1}-{2}".format(user.pk, user.get_username(), "key")
+
+    payload = JSONWebTokenAuthentication.jwt_create_payload(user)
+    payload["username"] = "i_do_not_exist"
+    auth_token = JSONWebTokenAuthentication.jwt_encode_payload(payload)
+
+    monkeypatch.setattr(
+        api_settings, "JWT_GET_USER_SECRET_KEY", jwt_get_user_secret_key
+    )
+
+    expected_output = {"non_field_errors": [_("User doesn't exist.")]}
 
     verify_response = call_auth_verify_endpoint(auth_token)
     assert verify_response.json() == expected_output

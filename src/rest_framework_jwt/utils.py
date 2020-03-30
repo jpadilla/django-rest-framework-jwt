@@ -40,10 +40,18 @@ def jwt_get_secret_key(payload=None):
         - password is changed
         - etc.
     """
+
     if api_settings.JWT_GET_USER_SECRET_KEY:
-        username = jwt_get_username_from_payload_handler(payload)
+        username = api_settings.JWT_PAYLOAD_GET_USERNAME_HANDLER(payload)
         User = get_user_model()
-        user = User.objects.get_by_natural_key(username)
+        
+        # Make sure user exists
+        try:
+            user = User.objects.get_by_natural_key(username)
+        except User.DoesNotExist:
+            msg = _("User doesn't exist.")
+            raise serializers.ValidationError(msg)
+        
         key = api_settings.JWT_GET_USER_SECRET_KEY(user)
         return key
     return api_settings.JWT_SECRET_KEY
