@@ -13,6 +13,18 @@ time.
 
 .. towncrier release notes start
 
+v1.15.1 (2020-03-30)
+====================
+
+Bugfixes
+--------
+
+- Added new encrypted PyPI API token for travis deployment. ([#39](https://github.com/Styria-Digital/django-rest-framework-jwt/pull/39))
+- Fixed issues when the `JWT_GET_USER_SECRET_KEY` method is overridden,
+  * If the payload contains a non-existent user, a validation error will be raised (same as when the method is not overridden).
+  * The `jwt_get_secret_key` will now use the `JWT_PAYLOAD_GET_USERNAME_HANDLER` configuration. ([#41](https://github.com/Styria-Digital/django-rest-framework-jwt/pull/41))
+
+
 1.15.1 (2020-03-12)
 ====================
 
