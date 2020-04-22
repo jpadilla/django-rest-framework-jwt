@@ -10,7 +10,6 @@ import jwt
 from django.apps import apps
 from django.contrib.auth import get_user_model
 from django.utils.encoding import force_str
-from django.utils.encoding import force_text
 
 from rest_framework import serializers
 
@@ -109,7 +108,7 @@ def jwt_encode_payload(payload):
     """Encode JWT token claims."""
 
     key = api_settings.JWT_PRIVATE_KEY or jwt_get_secret_key(payload)
-    return force_text(jwt.encode(payload, key, api_settings.JWT_ALGORITHM))
+    return force_str(jwt.encode(payload, key, api_settings.JWT_ALGORITHM))
 
 
 def jwt_decode_token(token):
