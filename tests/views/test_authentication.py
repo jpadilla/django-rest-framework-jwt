@@ -2,7 +2,7 @@
 
 from __future__ import unicode_literals
 
-from django.utils.encoding import force_text
+from django.utils.encoding import force_str
 from django.utils.translation import ugettext_lazy as _
 
 from rest_framework import status
@@ -135,7 +135,7 @@ def test_valid_credentials_with_auth_cookie_enabled_returns_jwt_and_cookie(
         assert setcookie['samesite'] == 'Lax'
 
     assert response.status_code == status.HTTP_200_OK
-    assert "token" in force_text(response.content)
+    assert "token" in force_str(response.content)
     assert auth_cookie in response.client.cookies
 
 
