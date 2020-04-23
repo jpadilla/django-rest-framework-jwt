@@ -13,6 +13,73 @@ time.
 
 .. towncrier release notes start
 
+v1.15.2 (2020-04-23)
+====================
+
+Features
+--------
+
+- * Support multiple algorithms and keys
+
+    Existing code made key rollovers or algorithm changes hard and
+    basically required a breaking change: Once any of `JWT_ALGORITHM`,
+    `JWT_SECRET_KEY`, or `JWT_PRIVATE_KEY`/`JWT_PUBLIC_KEY` were
+    changed, existing tokens were rendered invalid.
+
+    We now support `JWT_ALGORITHM`, `JWT_SECRET_KEY`, and
+    `JWT_PUBLIC_KEY` optionally being a list, where all members are
+    accepted as valid.
+
+    When `JWT_SECRET_KEY` is a list, the first member is used for
+    signing and all others are accepted for verification.
+
+  * Support multiple keys with key ids
+
+    We also support identifing keys by key id (`kid` header): When a JWT
+    carries a key id, we can identify immediately if it is known and
+    only need to make at most one verification attempt.
+
+    To configure keys with ids, `JWT_SECRET_KEY`, `JWT_PRIVATE_KEY` and
+    `JWT_PUBLIC_KEY` can now also be a dict in the form
+
+    ```
+    { "kid1": key1, "kid2": key2, ... }
+    ```
+
+    When a JWT does not carry a key id (`kid` header), the default is to
+    fall back to trying all keys if keys are named (defined as a dict).
+    Setting `JWT_INSIST_ON_KID: True` avoids this fallback and requires
+    any JWT to be validated to carry a key id _if_ key IDs are used
+
+    *NOTE: For python < 3.7, use a `collections.OrderedDict` object
+    instead of a dict*
+
+  * Require cryptographic dependencies of PyJWT
+
+    We changed the PyJWT requirement to include support for RSA by
+    default. This was done to improve the user experience, but will lead
+    to cryptography support be installed where not already present.
+
+    See: https://pyjwt.readthedocs.io/en/latest/installation.html#cryptographic-dependencies-optional ([#33](https://github.com/Styria-Digital/django-rest-framework-jwt/pull/33))
+
+
+Bugfixes
+--------
+
+- Fix deprecation warnings in Django 3 caused by imports of `ugettext` and `force_text`. ([#45](https://github.com/Styria-Digital/django-rest-framework-jwt/pull/45))
+- Remove the tests that reload the settings module.
+  For some reason, `pytest`'s `monkeypatch` was failing to mock settings
+  when executed after these tests. Since these tests tested runtime
+  behavior that would have been caught by users on startup anyway,
+  it's easier to remove them than fix them. ([#48](https://github.com/Styria-Digital/django-rest-framework-jwt/pull/48))
+
+
+Misc
+----
+
+- Add the manual deploy stage until te Travis build is fixed ([#48](https://github.com/Styria-Digital/django-rest-framework-jwt/pull/48))
+
+
 1.15.2 (2020-03-30)
 ====================
 
