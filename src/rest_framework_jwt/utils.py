@@ -107,8 +107,23 @@ def jwt_get_username_from_payload_handler(payload):
 def jwt_encode_payload(payload):
     """Encode JWT token claims."""
 
-    key = api_settings.JWT_PRIVATE_KEY or jwt_get_secret_key(payload)
-    return force_str(jwt.encode(payload, key, api_settings.JWT_ALGORITHM))
+    headers=None
+
+    signing_algorithm = api_settings.JWT_ALGORITHM
+    if isinstance(signing_algorithm,list):
+        signing_algorithm = signing_algorithm[0]
+    if signing_algorithm.startswith("HS"):
+        key = jwt_get_secret_key(payload)
+    else:
+        key = api_settings.JWT_PRIVATE_KEY
+
+    if isinstance(key, dict):
+        kid, key = next(iter(key.items()))
+        headers = {"kid": kid}
+    elif isinstance(key,list):
+        key = key[0]
+
+    return jwt.encode(payload, key, signing_algorithm, headers=headers).decode()
 
 
 def jwt_decode_token(token):
@@ -117,17 +132,54 @@ def jwt_decode_token(token):
     options = {
         'verify_exp': api_settings.JWT_VERIFY_EXPIRATION,
     }
-    # get user from token, BEFORE verification, to get user secret key
-    unverified_payload = jwt.decode(token, None, False)
-    secret_key = jwt_get_secret_key(unverified_payload)
-    return jwt.decode(
-        token, api_settings.JWT_PUBLIC_KEY or secret_key,
-        api_settings.JWT_VERIFY, options=options,
-        leeway=api_settings.JWT_LEEWAY, audience=api_settings.JWT_AUDIENCE,
-        issuer=api_settings.JWT_ISSUER, algorithms=[
-            api_settings.JWT_ALGORITHM
-        ]
-    )
+
+    algorithms = api_settings.JWT_ALGORITHM
+    if not isinstance(algorithms, list):
+        algorithms = [algorithms]
+
+    hdr = jwt.get_unverified_header(token)
+    alg_hdr = hdr["alg"]
+    if alg_hdr not in algorithms:
+        raise jwt.exceptions.InvalidAlgorithmError
+
+    kid = hdr["kid"] if "kid" in hdr else None
+
+    keys = None
+    if alg_hdr.startswith("HS"):
+        unverified_payload = jwt.decode(token, None, False)
+        keys = jwt_get_secret_key(unverified_payload)
+    else:
+        keys = api_settings.JWT_PUBLIC_KEY
+
+    # if keys are named and the jwt has a kid, only consider exactly that key
+    # otherwise if the JWT has no kid, JWT_INSIST_ON_KID selects if we fail
+    # or try all defined keys
+    if isinstance(keys, dict):
+        if kid:
+            try:
+                keys = keys[kid]
+            except KeyError:
+                raise jwt.exceptions.InvalidKeyError
+        elif api_settings.JWT_INSIST_ON_KID:
+            raise jwt.exceptions.InvalidKeyError
+        else:
+            keys = list(keys.values())
+
+    if not isinstance(keys, list):
+        keys = [keys]
+
+    ex = None
+    for key in keys:
+        try:
+            return jwt.decode(
+                token, key, api_settings.JWT_VERIFY, options=options,
+                leeway=api_settings.JWT_LEEWAY,
+                audience=api_settings.JWT_AUDIENCE,
+                issuer=api_settings.JWT_ISSUER, algorithms=[alg_hdr]
+            )
+        except (jwt.exceptions.InvalidSignatureError) as e:
+                ex = e
+    raise ex
 
 
 def jwt_create_response_payload(

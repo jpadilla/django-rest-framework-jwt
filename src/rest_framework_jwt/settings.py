@@ -16,6 +16,7 @@ DEFAULTS = {
     'JWT_PRIVATE_KEY': None,
     'JWT_PUBLIC_KEY': None,
     'JWT_ALGORITHM': 'HS256',
+    'JWT_INSIST_ON_KID': False,
     'JWT_AUDIENCE': None,
     'JWT_ISSUER': None,
     'JWT_ENCODE_HANDLER':

@@ -189,6 +189,39 @@ This package uses the JSON Web Token Python implementation, [PyJWT](https://gith
 
 This is the secret key used to sign the JWT. Make sure this is safe and not shared or public.
 
+Can be a dict, a list or a scalar.
+
+* When a dict, the dict keys are taken as the JWT key ids and the values as
+  keys, e.g.:
+
+  ```python
+  { "kid1": key1, "kid2": key2, ... }
+  ```
+
+  The first element is used for signing.
+
+  If a JWT to be verified contains a key id (`kid` header), only the
+  key with that id is tried (if any).
+
+  *NOTE: For python < 3.7, use a `collections.OrderedDict` object*, e.g.:
+
+    ```python
+    from collections import OrderedDict
+
+    JWT_AUTH["JWT_SECRET_KEY"] = OrderedDict(kid1=key1, kid2=key2, ...)
+    ```
+
+* When a list, all elements are accepted for verification and the
+  first element is used for signing.
+
+* When a scalar, this secret is used for signing and verification.
+
+(The first) `JWT_SECRET_KEY` is only used for signing if (the first)
+`JWT_ALGORITHM` is `HS*`, otherwise `JWT_PRIVATE_KEY` is used.
+
+`JWT_SECRET_KEY`(s) is/are only used for verification of JWTs with
+`alg` matching `HS*`
+
 Default is your project's `settings.SECRET_KEY`.
 
 ### JWT_GET_USER_SECRET_KEY
@@ -200,21 +233,66 @@ Default is `None`.
 
 ### JWT_PRIVATE_KEY
 
-This is an object of type `cryptography.hazmat.primitives.asymmetric.rsa.RSAPrivateKey`. It will be used to sign the signature component of the JWT. It will override `JWT_SECRET_KEY` when set. Read the [documentation](https://cryptography.io/en/latest/hazmat/primitives/asymmetric/rsa/#cryptography.hazmat.primitives.asymmetric.rsa.RSAPrivateKey) for more details. Please note that `JWT_ALGORITHM` must be set to one of `RS256`, `RS384`, or `RS512`.
+Can be a scalar or a dict.
+
+When a dict, the dict key is taken as the JWT key id and the values as
+the key, e.g.:
+
+```python
+{ "kid": key }
+```
+
+The scalar or the dict value must be in any [private key format supported by PyJWT](https://pyjwt.readthedocs.io/en/latest/algorithms.html), for example of the types
+
+* `cryptography.hazmat.primitives.asymmetric.rsa.RSAPrivateKey`
+* `cryptography.hazmat.primitives.asymmetric.ec.EllipticCurvePrivateKey`
+
+And will be used to sign the signature component of the JWT if `JWT_ALGORITHM` is set to any of the [supported algorithms](https://pyjwt.readthedocs.io/en/latest/algorithms.html)  other than the hash types `HS*`.
 
 Default is `None`.
 
 ### JWT_PUBLIC_KEY
 
-This is an object of type `cryptography.hazmat.primitives.asymmetric.rsa.RSAPublicKey`. It will be used to verify the signature of the incoming JWT. It will override `JWT_SECRET_KEY` when set. Read the [documentation](https://cryptography.io/en/latest/hazmat/primitives/asymmetric/rsa/#cryptography.hazmat.primitives.asymmetric.rsa.RSAPublicKey) for more details. Please note that `JWT_ALGORITHM` must be set to one of `RS256`, `RS384`, or `RS512`.
+Can be a scalar, a list or a dict.
+
+* When a dict, the dict keys are taken as the JWT key ids and the values as
+  keys, e.g.:
+
+  ```python
+  { "kid1": key1, "kid2": key2, ... }
+  ```
+
+  If a JWT that contains a key id (kid header) is to be verified, only
+  the associated key is tried. Otherwise, or
+
+* when a list, all of the elements will be accepted for verification of JWTs with `alg` being (any of) `JWT_ALGORITHM` not matching `HS*`.
+
+The scalar or elements/values of the list/dict must be in any [public key format supported by PyJWT](https://pyjwt.readthedocs.io/en/latest/algorithms.html), for example of the types
+
+* `cryptography.hazmat.primitives.asymmetric.rsa.RSAPublicKey`
+* `cryptography.hazmat.primitives.asymmetric.ec.EllipticCurvePublicKey`
 
 Default is `None`.
 
 ### JWT_ALGORITHM
 
-Possible values are any of the [supported algorithms](https://github.com/jpadilla/pyjwt/blob/master/docs/algorithms.rst) for cryptographic signing in `PyJWT`.
+Possible values are any of the [supported algorithms](https://pyjwt.readthedocs.io/en/latest/algorithms.html) for cryptographic signing in `PyJWT`.
+
+Can be a scalar or a list.
+
+* For a scalar, this algorithm is used for signing and verification.
+
+* For a list, the first element is used for signing and all elements are accepted for verification.
 
 Default is `"HS256"`.
+
+### JWT_INSIST_ON_KID
+
+When key IDs are used (`JWT_SECRET_KEY` and/or `JWT_PUBLIC_KEY` given
+as a dict assigning key IDs to keys), insist that JWTs to be validated
+have a `kid` header with a defined key.
+
+Default is `False`.
 
 ### JWT_AUDIENCE
 
