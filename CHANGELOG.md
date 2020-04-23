@@ -13,7 +13,7 @@ time.
 
 .. towncrier release notes start
 
-v1.15.2 (2020-04-23)
+1.16.0 (2020-04-23)
 ====================
 
 Features
