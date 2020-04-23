@@ -8,7 +8,6 @@ from django.conf import settings
 from django.core.exceptions import ImproperlyConfigured
 from rest_framework.settings import APISettings
 
-
 USER_SETTINGS = getattr(settings, 'JWT_AUTH', None)
 
 DEFAULTS = {
@@ -59,14 +58,14 @@ IMPORT_STRINGS = (
 api_settings = APISettings(USER_SETTINGS, DEFAULTS, IMPORT_STRINGS)
 
 # check if settings have valid values
-if not isinstance(api_settings.JWT_EXPIRATION_DELTA, datetime.timedelta):
+if not isinstance(api_settings.JWT_EXPIRATION_DELTA, datetime.timedelta):  # pragma: no cover
 
     raise ImproperlyConfigured(
         '`JWT_EXPIRATION_DELTA` setting must be instance of '
         '`datetime.timedelta`')
 
 if not isinstance(
-        api_settings.JWT_REFRESH_EXPIRATION_DELTA, datetime.timedelta):
+        api_settings.JWT_REFRESH_EXPIRATION_DELTA, datetime.timedelta):  # pragma: no cover
 
     raise ImproperlyConfigured(
         '`JWT_REFRESH_EXPIRATION_DELTA` setting must be instance of '
