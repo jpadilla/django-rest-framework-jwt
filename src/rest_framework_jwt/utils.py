@@ -12,6 +12,7 @@ from django.contrib.auth import get_user_model
 from django.utils.encoding import force_str
 
 from rest_framework import serializers
+from rest_framework.utils.encoders import JSONEncoder
 
 from rest_framework_jwt.blacklist.models import BlacklistedToken
 from rest_framework_jwt.compat import gettext_lazy as _
@@ -123,7 +124,7 @@ def jwt_encode_payload(payload):
     elif isinstance(key,list):
         key = key[0]
 
-    return jwt.encode(payload, key, signing_algorithm, headers=headers).decode()
+    return jwt.encode(payload, key, signing_algorithm, headers=headers, json_encoder=JSONEncoder).decode()
 
 
 def jwt_decode_token(token):
