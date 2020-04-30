@@ -13,6 +13,21 @@ time.
 
 .. towncrier release notes start
 
+v1.16.0 (2020-04-30)
+====================
+
+Features
+--------
+
+- Use DRF's JSON encoder for JWT tokens, to allow for encoding e.g. users that have UUID primary keys. ([#50](https://github.com/Styria-Digital/django-rest-framework-jwt/pull/50))
+
+
+Bugfixes
+--------
+
+- Run `mkdocs` with Python 3.6 until it [adds support for newer versions of Python](https://github.com/mkdocs/mkdocs/issues/1531). ([#49](https://github.com/Styria-Digital/django-rest-framework-jwt/pull/49))
+
+
 1.16.0 (2020-04-23)
 ====================
 
