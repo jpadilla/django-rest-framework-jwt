@@ -36,6 +36,15 @@ Install using `pip`...
 $ pip install drf-jwt
 ```
 
+Add the app to your project:
+```bash
+INSTALLED_APPS = [
+    ...
+    'rest_framework_jwt',
+    ...
+]
+```
+
 ## Usage
 
 In your `settings.py`, add `JSONWebTokenAuthentication` to Django REST framework's `DEFAULT_AUTHENTICATION_CLASSES`.
