@@ -102,10 +102,14 @@ def jwt_decode_handler(token):
     }
     # get user from token, BEFORE verification, to get user secret key
     unverified_payload = jwt.decode(token, None, False)
+    unverified_header = jwt.get_unverified_header(token)
     secret_key = jwt_get_secret_key(unverified_payload)
+    public_key = None
+    if api_settings.JWT_PUBLIC_KEY_USING_HEADER_HANDLER:
+        public_key = api_settings.JWT_PUBLIC_KEY_USING_HEADER_HANDLER(unverified_header)
     return jwt.decode(
         token,
-        api_settings.JWT_PUBLIC_KEY or secret_key,
+        public_key or api_settings.JWT_PUBLIC_KEY or secret_key,
         api_settings.JWT_VERIFY,
         options=options,
         leeway=api_settings.JWT_LEEWAY,

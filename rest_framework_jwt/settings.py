@@ -1,6 +1,8 @@
 import datetime
 
 from django.conf import settings
+from django.core.signals import setting_changed
+
 from rest_framework.settings import APISettings
 
 
@@ -23,6 +25,9 @@ DEFAULTS = {
     None,
 
     'JWT_PUBLIC_KEY':
+    None,
+
+    'JWT_PUBLIC_KEY_USING_HEADER_HANDLER':
     None,
 
     'JWT_PAYLOAD_GET_USERNAME_HANDLER':
@@ -53,10 +58,31 @@ IMPORT_STRINGS = (
     'JWT_ENCODE_HANDLER',
     'JWT_DECODE_HANDLER',
     'JWT_PAYLOAD_HANDLER',
+    'JWT_PUBLIC_KEY_USING_HEADER_HANDLER',
     'JWT_PAYLOAD_GET_USER_ID_HANDLER',
     'JWT_PAYLOAD_GET_USERNAME_HANDLER',
     'JWT_RESPONSE_PAYLOAD_HANDLER',
     'JWT_GET_USER_SECRET_KEY',
 )
 
-api_settings = APISettings(USER_SETTINGS, DEFAULTS, IMPORT_STRINGS)
+class JWTAPISettings(APISettings):
+    # we need to override the `user_settings` as calling reload would otherwise load the
+    # `settings.REST_FRAMEWORK` into the JWT settings!
+
+    @property
+    def user_settings(self):
+        if not hasattr(self, '_user_settings'):
+            self._user_settings = getattr(settings, 'JWT_AUTH', {})
+        return self._user_settings
+
+
+api_settings = JWTAPISettings(USER_SETTINGS, DEFAULTS, IMPORT_STRINGS)
+
+
+def reload_api_settings(*args, **kwargs):
+    setting = kwargs['setting']
+    if setting == 'JWT_AUTH':
+        api_settings.reload()
+
+
+setting_changed.connect(reload_api_settings)
