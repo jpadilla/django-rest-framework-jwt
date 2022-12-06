@@ -1,6 +1,15 @@
 REST framework JWT Auth
 =======================
 
+------------
+
+Notice
+------
+
+This project is currently unmaintained. `Check #484 for more details and suggested alternatives`_.
+
+------------
+
 |build-status-image| |pypi-version|
 
 **JSON Web Token Authentication support for Django REST Framework**
@@ -42,7 +51,8 @@ Full documentation for the project is available at `docs`_.
 
 You may also want to follow the `author`_ on Twitter.
 
-.. _docs: http://getblimp.github.io/django-rest-framework-jwt
+.. _Check #484 for more details and suggested alternatives: https://github.com/jpadilla/django-rest-framework-jwt/issues/484
+.. _docs: https://jpadilla.github.io/django-rest-framework-jwt/
 .. _JSON Web Token Authentication: http://tools.ietf.org/html/draft-ietf-oauth-json-web-token
 .. _Django REST framework: http://django-rest-framework.org/
 .. _Video: https://www.youtube.com/watch?v=825hodQ61bg
@@ -51,7 +61,7 @@ You may also want to follow the `author`_ on Twitter.
 .. _JWT.io: http://jwt.io/
 .. _author: https://twitter.com/blimp
 
-.. |build-status-image| image:: https://secure.travis-ci.org/GetBlimp/django-rest-framework-jwt.svg?branch=master
-   :target: http://travis-ci.org/GetBlimp/django-rest-framework-jwt?branch=master
+.. |build-status-image| image:: https://secure.travis-ci.org/jpadilla/django-rest-framework-jwt.svg?branch=master
+   :target: http://travis-ci.org/jpadilla/django-rest-framework-jwt?branch=master
 .. |pypi-version| image:: https://img.shields.io/pypi/v/djangorestframework-jwt.svg
    :target: https://pypi.python.org/pypi/djangorestframework-jwt
